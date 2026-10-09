@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyse de risque toiture — ATTILA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* Parcours en 4 écrans, une colonne, bandeau rouge ATTILA, cartes numérotées. */
+:root{
+  --rouge:#C0392B; --rouge-fonce:#96281B; --rouge-pale:#FBEDEA;
+  --vert:#38761D; --orange:#E69138; --stop:#CC0000; --gris:#8A7F7B;
+  --vert-pale:#E9F3E4; --orange-pale:#FCF0E0; --stop-pale:#FBE3E3; --gris-pale:#EFEBE9;
+  --fond:#F6F3F2; --carte:#FFFFFF; --encre:#2A2422; --encre-2:#6B605C; --trait:#E1D9D6;
+  --titre:"Merriweather",Georgia,"Times New Roman",serif;
+  --texte:"Source Sans 3","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fond);color:var(--encre);font:16px/1.45 var(--texte)}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #1d6fd1;outline-offset:2px}
+
+.band{background:var(--rouge);color:#fff}
+.band .in{max-width:1080px;margin:0 auto;padding:14px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.band h1{margin:0;font:900 20px/1.2 var(--titre);letter-spacing:.2px}
+.band h1 small{display:block;font:400 13px/1.3 var(--texte);opacity:.9;margin-top:2px}
+.band button{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px}
+
+.steps{position:sticky;top:0;z-index:900;background:var(--carte);border-bottom:1px solid var(--trait)}
+.steps .in{max-width:1080px;margin:0 auto;padding:8px 16px;display:flex;gap:6px;align-items:center;overflow-x:auto}
+.steps button{flex:none;display:flex;align-items:center;gap:8px;background:none;border:0;border-radius:999px;padding:6px 12px 6px 6px;color:var(--encre-2);font-weight:600;font-size:15px}
+.steps button i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gris-pale);color:var(--encre-2);font-size:14px}
+.steps button.on{background:var(--rouge-pale);color:var(--rouge-fonce)}
+.steps button.on i{background:var(--rouge);color:#fff}
+.feu{margin-left:auto;flex:none;position:sticky;right:0;box-shadow:-10px 0 8px 2px var(--carte);display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:5px 12px;border-radius:999px;background:var(--gris-pale);color:var(--encre-2)}
+.feu::before{content:"";width:12px;height:12px;border-radius:50%;background:currentColor}
+
+main{max-width:1080px;margin:0 auto;padding:20px 16px 80px;display:flex;flex-direction:column;gap:18px}
+section.ecran{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--carte);border:1px solid var(--trait);border-left:4px solid var(--rouge);border-radius:8px;padding:18px 18px 20px}
+.card>h2{margin:0 0 4px;display:flex;align-items:center;gap:12px;font:700 19px/1.25 var(--titre);color:var(--rouge-fonce);text-wrap:balance}
+.card>h2 .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--rouge);color:#fff;display:grid;place-items:center;font:700 15px var(--texte)}
+.card>p.intro{margin:0 0 14px 42px;color:var(--encre-2);font-size:15px;max-width:68ch}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 16px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>label,.flabel{font-weight:700;font-size:14px}
+.help{margin:0;color:var(--encre-2);font-size:14px}
+input[type=text],input[type=number],select,textarea{width:100%;border:1.5px solid var(--trait);border-radius:6px;background:#fff;padding:9px 10px;min-height:42px}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;box-shadow:0 0 0 3px var(--rouge-pale)}
+
+.btn{border:1.5px solid var(--trait);background:#fff;border-radius:6px;padding:9px 14px;font-weight:600;min-height:42px}
+.btn:hover{border-color:var(--encre-2)}
+.btn.pri{background:var(--rouge);border-color:var(--rouge);color:#fff}
+.btn.pri:hover{background:var(--rouge-fonce)}
+.btn.on{background:var(--encre);border-color:var(--encre);color:#fff}
+.btn.sm{padding:5px 10px;min-height:34px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:space-between;margin-top:4px}
+.msg{font-size:14px;color:var(--encre-2);margin:0}
+.msg.err{color:var(--stop);font-weight:600}
+
+/* Autocomplétion adresse */
+.ac{position:relative}
+.ac ul{position:absolute;z-index:1200;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:1px solid var(--trait);border-radius:6px;box-shadow:0 8px 24px rgba(42,36,34,.16);max-height:280px;overflow:auto}
+.ac li button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:4px;padding:9px 10px}
+.ac li button:hover,.ac li button:focus{background:var(--rouge-pale)}
+
+/* Carte */
+#map{height:min(62vh,560px);min-height:340px;border-radius:6px;border:1px solid var(--trait);background:#d9d4d1;z-index:1}
+#map.draw{cursor:crosshair}
+.leaflet-container{font:inherit}
+
+/* Toits */
+.roofs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.roof{border:1px solid var(--trait);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;background:#fff;min-width:0}
+.roof .top{display:flex;gap:8px;align-items:center}
+.roof .top input{font-weight:700}
+.roof .top .del{flex:none;width:42px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;border:1.5px solid var(--trait);background:#fff;border-radius:6px;padding:8px 10px;font-weight:600;font-size:14px;min-height:40px}
+.seg button.on{background:var(--encre);border-color:var(--encre);color:#fff}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:15px}
+.check input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--rouge)}
+.alert{border-radius:6px;padding:9px 11px;font-size:14px;border:1px solid;display:flex;flex-direction:column;gap:8px}
+.alert b{font-weight:700}
+.alert.o{background:var(--orange-pale);border-color:var(--orange)}
+.alert.r{background:var(--stop-pale);border-color:var(--stop)}
+.alert.v{background:var(--vert-pale);border-color:var(--vert)}
+.unit{display:flex;align-items:center;gap:6px}
+.unit input{width:110px}
+.pre{font-size:13px;color:var(--encre-2)}
+
+/* Plan */
+.palette{display:flex;flex-wrap:wrap;gap:6px 18px}
+.pgroup{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.pgroup>span{flex:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2);margin-right:2px}
+.tool{display:flex;align-items:center;gap:6px;border:1.5px solid var(--trait);background:#fff;border-radius:6px;padding:4px 9px;font-weight:600;font-size:13.5px;min-height:34px}
+.tool i{width:14px;height:14px;border-radius:50%;flex:none}
+.tool i.l{height:4px;border-radius:2px;width:18px}
+.tool i.b{border-radius:2px;width:18px;height:10px}
+.tool i.c{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.tool.on{background:var(--encre);border-color:var(--encre);color:#fff}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:48px;padding:4px 10px;border-radius:6px;background:var(--gris-pale);font-size:15px}
+.bar b{flex:none}
+.bar input{flex:1 1 220px;min-width:0}
+.stage{border:1px solid var(--trait);border-radius:6px;overflow:hidden;background:var(--gris-pale);line-height:0;display:flex;justify-content:center}
+.stage svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage svg .obj{cursor:grab}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;margin:0;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:7px}
+.legend i{width:12px;height:12px;border-radius:50%;flex:none}
+
+/* Parcours A → E */
+.path{border:1px solid var(--trait);border-radius:8px;background:var(--fond);padding:14px 8px 10px}
+.path p{margin:0 0 12px;text-align:center;font-weight:700;font-size:14px}
+.path ol{list-style:none;margin:0 auto;padding:0;display:flex;justify-content:space-between;max-width:560px;position:relative}
+.path ol::before{content:"";position:absolute;left:8%;right:8%;top:21px;height:2px;background:var(--trait)}
+.path li{position:relative;flex:1;display:flex;justify-content:center}
+.path button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:14px;color:var(--encre-2);padding:0 2px}
+.path button b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff;border:3px solid var(--trait);font-size:17px;color:var(--encre)}
+.path button.on{color:var(--rouge-fonce);font-weight:700}
+.path button.on b{background:var(--rouge);color:#fff;box-shadow:0 0 0 4px var(--rouge-pale)}
+.path button.n0 b{border-color:var(--vert)} .path button.n1 b{border-color:var(--orange)} .path button.n3 b{border-color:var(--stop)}
+.panel{display:flex;flex-direction:column;gap:16px;margin-top:16px}
+.panel h3{margin:0;font:700 18px/1.3 var(--titre)}
+.panel h3 small{display:block;font:600 13px var(--texte);color:var(--encre-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.rang{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--rouge-fonce)}
+details.multi{border:1.5px solid var(--trait);border-radius:6px;background:#fff}
+details.multi[open]{border-color:var(--rouge)}
+details.multi>summary{list-style:none;cursor:pointer;padding:10px 38px 10px 12px;position:relative;min-height:44px}
+details.multi>summary::-webkit-details-marker{display:none}
+details.multi>summary::after{content:"";position:absolute;right:14px;top:16px;width:9px;height:9px;border-right:2.5px solid var(--encre);border-bottom:2.5px solid var(--encre);transform:rotate(45deg)}
+details.multi[open]>summary::after{transform:rotate(-135deg);top:20px}
+details.multi .val.vide{color:var(--encre-2)}
+.opts{border-top:1px solid var(--trait);display:flex;flex-direction:column}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-bottom:1px solid var(--gris-pale);cursor:pointer}
+.opt:hover{background:var(--fond)}
+.opt input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--rouge)}
+.opt small{display:block;color:var(--encre-2);font-size:13px}
+.opts .autre{margin:8px 12px 12px;width:auto}
+.verdict{border-radius:6px;padding:11px 13px;border-left:6px solid;font-size:15px}
+.verdict b{display:block}
+.verdict ul{margin:4px 0 0;padding-left:18px}
+.n0{--c:var(--vert);--p:var(--vert-pale)} .n1{--c:var(--orange);--p:var(--orange-pale)} .n2{--c:var(--gris);--p:var(--gris-pale)} .n3{--c:var(--stop);--p:var(--stop-pale)}
+.verdict{background:var(--p);border-color:var(--c)}
+.feu.n0,.feu.n1,.feu.n3{color:var(--c);background:var(--p)}
+.feu.n1{color:#9a5a10}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700;background:var(--p);color:var(--encre);border:1px solid var(--c);white-space:nowrap}
+.pill::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c)}
+
+/* Synthèse */
+.global{border-radius:8px;padding:18px;background:var(--p);border:2px solid var(--c);display:flex;gap:16px;align-items:center}
+.global .rond{flex:none;width:54px;height:54px;border-radius:50%;background:var(--c);box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
+.global h2{margin:0;font:900 22px/1.2 var(--titre)}
+.global p{margin:4px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:4px 24px;font-size:15px;margin:0}
+.meta div{min-width:0} .meta dt{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--encre-2);font-weight:700} .meta dd{margin:0;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--encre-2);padding:6px 8px;border-bottom:2px solid var(--trait)}
+td{padding:9px 8px;border-bottom:1px solid var(--trait);vertical-align:top}
+td small{color:var(--encre-2);display:block}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.scroll{overflow-x:auto}
+.devis{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.devis li{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--trait)}
+.devis li span:last-child{flex:none;color:var(--encre-2);text-align:right;font-variant-numeric:tabular-nums;max-width:45%}
+.empty{padding:28px 16px;text-align:center;color:var(--encre-2);border:2px dashed var(--trait);border-radius:8px}
+.confirm{background:var(--stop-pale);border:1px solid var(--stop);border-radius:6px;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+@media (max-width:560px){
+  .card{padding:14px 12px 16px} .card>p.intro{margin-left:0}
+  .pgroup>span{width:100%} .global{flex-direction:column;align-items:flex-start}
+  .steps button span{display:none} .steps button.on span{display:inline}
+}
+.global .meta{margin-top:10px}
+.just{margin-top:10px}
+.postes{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:15px;align-items:center}
+.postes span{display:inline-flex;align-items:center;gap:6px}
+.postes i{font-style:normal;font-weight:700;font-size:13px;width:22px;height:22px;border-radius:50%;background:var(--rouge);color:#fff;display:grid;place-items:center}
+.signs{display:grid;grid-template-columns:1fr 1.7fr;gap:14px;margin-top:10px}
+.sbox{border:1.5px solid var(--encre);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.sbox .zone{flex:1;min-height:90px}
+.sbox td{height:36px}
+.po{display:none}
+@media (max-width:700px){.signs{grid-template-columns:1fr}}
+@page{size:A4;margin:9mm 10mm}
+@media print{
+  .band button,.steps,.noprint,#s1,#s2,#s3,.card>p.intro,.card>h2 .num,.band h1 small{display:none!important}
+  .po{display:inline}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;font-size:8.5pt;line-height:1.25}
+  .band{background:none;color:var(--encre)} .band .in{padding:0 0 1.5mm;max-width:none} .band h1{font-size:12pt;color:var(--rouge-fonce)}
+  main{padding:0;max-width:none;gap:2mm} section.ecran{gap:2mm}
+  .global{padding:2mm 3mm;gap:3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid;flex-direction:row;align-items:center}
+  .global .rond{width:8mm;height:8mm;box-shadow:none} .global h2{font-size:11.5pt} .global p{margin:0;font-size:8.5pt}
+  .global .meta{margin-top:1.2mm;gap:.5mm 7mm;font-size:8.5pt} .meta dt{font-size:6.5pt}
+  .card{border:0;border-radius:0;padding:0;background:none}
+  .card>h2{font-size:10pt;margin:0 0 .8mm;padding-bottom:.6mm;border-bottom:1.5px solid var(--rouge)}
+  .stage{border:0;background:none;margin-top:0!important} .stage svg{width:100%;max-height:98mm}
+  .legend{font-size:7.5pt;gap:.6mm 4mm;margin-top:1mm!important} .legend i{width:2.4mm;height:2.4mm}
+  .postes{font-size:8pt;margin-top:1mm;gap:.6mm 5mm} .postes i{width:4mm;height:4mm;font-size:7pt}
+  .scroll{overflow:visible} table{font-size:8pt} th{font-size:6.5pt;padding:.6mm 1.5mm;border-bottom-width:1px} td{padding:.8mm 1.5mm} tr{break-inside:avoid}
+  .pill{font-size:7pt;padding:0 2mm;gap:1mm} .pill::before{width:2mm;height:2mm}
+  .just{font-size:8pt;margin-top:1mm}
+  .devis{display:block;columns:2;column-gap:8mm;font-size:8pt} .devis li{padding:.8mm 0;gap:3mm;break-inside:avoid}
+  .signcard,.deviscard{break-inside:avoid} .signs{grid-template-columns:1fr 1.7fr;gap:4mm;margin-top:1.5mm}
+  .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:24mm} .sbox td{height:8.5mm;border-bottom:1px solid #999}
+}
+@media (prefers-reduced-motion:no-preference){.btn,.tool,.seg button{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<header class="band"><div class="in">
+  <h1><span class="po">ATTILA · </span>Analyse de risque toiture<small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
+  <button type="button" id="btnNew">Nouvelle analyse</button>
+</div></header>
+
+<nav class="steps" aria-label="Étapes"><div class="in">
+  <button type="button" data-go="1"><i>1</i><span>Chantier et toits</span></button>
+  <button type="button" data-go="2"><i>2</i><span>Plan d’installation</span></button>
+  <button type="button" data-go="3"><i>3</i><span>Analyse de risque</span></button>
+  <button type="button" data-go="4"><i>4</i><span>Synthèse devis</span></button>
+  <span class="feu" id="feu">À compléter</span>
+</div></nav>
+
+<main>
+<div class="confirm" id="newConfirm" hidden>
+  <span><b>Effacer cette analyse ?</b> Le plan et les réponses seront perdus.</span>
+  <button type="button" class="btn sm" id="newYes">Oui, tout effacer</button>
+  <button type="button" class="btn sm" id="newNo">Annuler</button>
+</div>
+
+<!-- ============ ÉCRAN 1 ============ -->
+<section class="ecran" id="s1">
+  <div class="card">
+    <h2><span class="num">1</span>Chantier</h2>
+    <p class="intro">Tapez l’adresse : la vue aérienne se place dessus.</p>
+    <div class="grid2">
+      <div class="field"><label for="client">Client</label><input type="text" id="client" autocomplete="off" placeholder="Nom du client ou du site"></div>
+      <div class="field"><label for="redacteur">Chargé de clientèle</label><input type="text" id="redacteur" autocomplete="off" placeholder="Votre nom"></div>
+      <div class="field ac" style="grid-column:1/-1"><label for="adresse">Adresse du chantier</label>
+        <input type="text" id="adresse" autocomplete="off" placeholder="N°, rue, ville" role="combobox" aria-expanded="false" aria-controls="acList">
+        <ul id="acList" hidden></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>Toits concernés</h2>
+    <p class="intro">Touchez un bâtiment pour le sélectionner, ou tracez le toit vous-même. La surface se calcule seule. Cadrez ensuite la vue : c’est elle qui sera figée pour le plan.</p>
+    <div class="row noprint" id="mapTools">
+      <button type="button" class="btn sm on" data-mode="select">Sélectionner un bâtiment</button>
+      <button type="button" class="btn sm" data-mode="poly">Tracer le contour</button>
+      <button type="button" class="btn sm pri" id="polyEnd" hidden>Terminer le contour</button>
+      <button type="button" class="btn sm" id="srcBtn" style="margin-left:auto">Fond : IGN</button>
+    </div>
+    <p class="msg" id="mapMsg" style="margin:8px 0">Saisissez une adresse pour commencer.</p>
+    <div id="map"></div>
+    <details style="margin-top:10px">
+      <summary class="msg" style="cursor:pointer">Pas de carte ou vue aérienne trop ancienne ? Importer une photo ou une capture</summary>
+      <div class="grid2" style="margin-top:10px">
+        <div class="field"><label for="impFile">Image du site (photo drone, capture Géoportail…)</label><input type="file" id="impFile" accept="image/*"></div>
+        <div class="field"><label for="impW">Largeur réelle visible sur l’image, en mètres (facultatif)</label><input type="number" id="impW" min="1" step="1" placeholder="ex : 120"><p class="help">Sert à mesurer les garde-corps et lignes de vie tracés.</p></div>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>Ce que je sais du toit</h2>
+    <p class="intro">Deux informations par toit : le matériau et la date du permis de construire.</p>
+    <div class="roofs" id="roofs"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn sm" id="addRoof">Ajouter un toit sans tracé</button></div>
+  </div>
+
+  <div class="confirm" id="frzConfirm" hidden>
+    <span><b>Refiger l’image efface le plan déjà dessiné.</b></span>
+    <button type="button" class="btn sm" id="frzYes">Refiger quand même</button>
+    <button type="button" class="btn sm" id="frzNo">Garder mon plan</button>
+  </div>
+  <div class="row end noprint">
+    <p class="msg" id="frzMsg"></p>
+    <button type="button" class="btn pri" id="btnFreeze">Figer l’image et dessiner le plan</button>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 2 ============ -->
+<section class="ecran" id="s2" hidden>
+  <div class="card">
+    <h2><span class="num">4</span>Plan d’installation</h2>
+    <p class="intro">Choisissez un élément, puis touchez l’image pour le poser. Glissez pour déplacer. Chaque élément peut porter un texte.</p>
+    <div id="planEmpty" class="empty" hidden>L’image n’est pas encore figée. Revenez à l’étape 1, cadrez la vue puis touchez « Figer l’image ».</div>
+    <div id="planWrap" style="display:flex;flex-direction:column;gap:12px">
+      <div class="palette noprint" id="palette"></div>
+      <div class="bar noprint" id="bar"></div>
+      <div class="stage"><svg id="plan" xmlns="http://www.w3.org/2000/svg"><image id="planImg"/><g id="planRoofs"></g><g id="planObjs"></g></svg></div>
+      <ul class="legend" id="legend"></ul>
+    </div>
+  </div>
+  <div class="row end noprint">
+    <button type="button" class="btn" data-go="1">Retour aux toits</button>
+    <button type="button" class="btn pri" data-go="3">Passer à l’analyse de risque</button>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 3 ============ -->
+<section class="ecran" id="s3" hidden>
+  <div class="card">
+    <h2><span class="num">5</span>Analyse de risque</h2>
+    <p class="intro">Cinq étapes dans l’ordre du chantier. La protection collective passe toujours avant la protection individuelle.</p>
+    <div class="path"><p>Le parcours de sécurisation — touchez une étape pour l’ouvrir</p><ol id="path"></ol></div>
+    <div class="panel" id="panel"></div>
+  </div>
+  <div class="row end noprint">
+    <button type="button" class="btn" id="subPrev">Étape précédente</button>
+    <button type="button" class="btn pri" id="subNext">Étape suivante</button>
+  </div>
+</section>
+
+<!-- ============ ÉCRAN 4 ============ -->
+<section class="ecran" id="s4" hidden></section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* =====================================================================================
+   1. RÉFÉRENTIELS ET RÈGLES — tout ce que le service QHSE peut ajuster est ici.
+   niv : V = vert (standard) · O = orange (moyen de prévention à chiffrer) · R = rouge (bloquant)
+   devis : ligne reprise dans la synthèse · qty : type d'objet du plan dont on reprend le métré
+   ===================================================================================== */
+const V=0, O=1, INC=2, R=3;           // INC = à compléter (jamais de vert tant qu'il manque une réponse)
+const NIV_TXT={0:'Vert',1:'Orange',2:'À compléter',3:'Rouge'};
+
+const MATS=[
+  {g:'Toitures courantes',o:[
+    ['bac_acier','Bac acier (toiture industrielle)'],
+    ['terrasse','Toiture terrasse — étanchéité (bitume / EPDM / PVC)'],
+    ['tuiles','Tuiles (terre cuite ou béton)'],
+    ['ardoises','Ardoises naturelles'],
+    ['fibro_ardoises','⚠ Ardoises fibro-ciment (risque amiante)'],
+    ['zinc','Zinc / couverture métallique'],
+    ['shingle','Bardeaux bitumés (shingle)'],
+    ['sandwich','Panneaux sandwich / couverture sèche'],
+    ['vegetalisee','Toiture végétalisée']]},
+  {g:'Toits fragiles (Sécuriplac obligatoire)',o:[
+    ['fibro_plaques','⚠ Fibrociment (plaques ondulées)'],
+    ['translu_pc','⚠ Plaques translucides — polycarbonate'],
+    ['translu_verre','⚠ Plaques translucides — verre'],
+    ['translu_grp','⚠ Plaques translucides — GRP / polyester']]},
+  {g:'',o:[['autre','Autre / je ne sais pas']]}
+];
+const FRAGILE=new Set(['fibro_plaques','translu_pc','translu_verre','translu_grp']);   // les ardoises fibro-ciment reposent sur une charpente bois : risque amiante, mais pas toit fragile
+const FIBRO=new Set(['fibro_plaques','fibro_ardoises']);
+const RAT=[['non','Pas encore reçu'],['absent','Reçu : pas d’amiante dans la zone de travaux'],['present','Reçu : amiante présent (intervention SS4)'],['autre','Autre (champ libre)']];
+const SECU_LEN=3;   // longueur d'une Sécuriplac, en mètres : sert à compter les plaques à prévoir
+const L_NACELLE='Nacelle : journée(s) + conducteur autorisé (matériel Attila disponible jusqu’à 20 m, location au-delà)';
+const L_ECHAF='Échafaudage de pied (sous-traité) : montage, réception, démontage';
+
+const OPT={
+  acces:[
+    {id:'escalier',l:'Escalier extérieur / accès permanent',niv:V},
+    {id:'interieur',l:'Accès intérieur (trappe, lanterneau, skydome)',niv:V,hint:'Protéger la trémie dès qu’elle est ouverte.'},
+    {id:'crinoline',l:'Échelle à crinoline (fixe)',niv:V},
+    {id:'echelle',l:'Échelle mobile (accès uniquement)',niv:V,hint:'Fixée et dépassant d’au moins 1 m. Jamais un poste de travail.'},
+    {id:'echaf_pied',l:'Échafaudage de pied / tour d’accès',niv:O,devis:L_ECHAF,qty:'echaf'},
+    {id:'aucun_nacelle',l:'Pas d’accès à la toiture : je travaille depuis la nacelle',niv:V,hint:'La nacelle est un poste de travail, pas un moyen d’accès : elle se déclare à l’étape C.'}
+  ],
+  chemin:[
+    {id:'aucun_nacelle',l:'Pas de cheminement : je travaille depuis la nacelle',niv:V},
+    {id:'aucun_echaf',l:'Pas de cheminement : je travaille depuis l’échafaudage',niv:V},
+    {id:'terrasse_protegee',l:'Toiture-terrasse protégée (acrotère de 1 m ou plus, ou garde-corps)',niv:V},
+    {id:'chemin_permanent',l:'Chemin de circulation permanent / passerelle',niv:V},
+    {id:'chemin_provisoire',l:'Chemin provisoire (platelage, Sécuriplac)',niv:O,devis:'Chemin de circulation provisoire (platelage / Sécuriplac) : fourniture + pose'},
+    {id:'echelle_toit',l:'Échelle de toit / échelle plate',niv:O,devis:'Échelle de toit : mise en place et accrochage au faîtage'},
+    {id:'ldv',l:'Sous EPI, sur ligne de vie ou ancrages',niv:O,devis:'Cheminement sous EPI : temps de sécurisation + vérification de la ligne de vie',qty:'ldv'}
+  ],
+  epc:[
+    {id:'gc_permanent',l:'Garde-corps permanents',niv:V},
+    {id:'acrotere',l:'Acrotère de 1 m ou plus',niv:V,hint:'En dessous de 1 m, l’acrotère ne suffit pas : ajoutez un autre moyen.'},
+    {id:'gc_temp',l:'Garde-corps temporaires',niv:O,devis:'Garde-corps temporaires : fourniture, pose, dépose',qty:'gc'},
+    {id:'echaf',l:'Échafaudage de pied (protection de rive / bas de pente)',niv:O,devis:L_ECHAF,qty:'echaf'},
+    {id:'filet_sousface',l:'Filets en sous-face',niv:O,devis:'Filets en sous-face : pose par personnel formé + accès par l’intérieur'},
+    {id:'filet_periph',l:'Filets périphériques',niv:O,devis:'Filets périphériques sur consoles : fourniture, pose, dépose'},
+    {id:'nacelle',l:'Travail depuis la nacelle (PEMP)',niv:O,devis:L_NACELLE},
+    {id:'aucun',l:'Aucune protection collective possible',niv:O,hint:'À justifier. La protection individuelle devient obligatoire.'}
+  ],
+  epi:[
+    {id:'MOSICRET',l:'Avec cordage de retenue (MOSICRET)',niv:O,devis:'EPI — mode opératoire MOSICRET (cordage de retenue)'},
+    {id:'MOSILAM',l:'Avec longe antichute manuelle (MOSILAM)',niv:O,devis:'EPI — mode opératoire MOSILAM (longe antichute manuelle)'},
+    {id:'MOSIEA',l:'Avec enrouleur antichute (MOSIEA)',niv:O,devis:'EPI — mode opératoire MOSIEA (enrouleur antichute)'},
+    {id:'MOSICAM',l:'Avec cordage et antichute mobile (MOSICAM)',niv:O,devis:'EPI — mode opératoire MOSICAM (cordage et antichute mobile)'},
+    {id:'MOSID',l:'Sécuriplac DIMOS (MOSID)',niv:O,devis:'Sécuriplac DIMOS (MOSID) : mise à disposition + pose'},
+    {id:'specifique',l:'Mode opératoire spécifique à l’intervention (annexe)',niv:O,devis:'Mode opératoire spécifique à rédiger et joindre en annexe'}
+  ],
+  ancrage:[
+    {id:'existant_ok',l:'Ancrage existant, vérification à jour',niv:V},
+    {id:'existant_inconnu',l:'Ancrage existant, vérification inconnue ou dépassée',niv:O,devis:'Vérification des ancrages / de la ligne de vie existants avant utilisation'},
+    {id:'a_creer',l:'Ancrage à créer',niv:O,devis:'Création de points d’ancrage (EN 795) : fourniture + pose',qty:'ancrage'},
+    {id:'nsp',l:'Je ne sais pas',niv:R,why:'Ancrage des EPI non défini'}
+  ],
+  appro:[
+    {id:'port_manuel',l:'Port manuel (petite quantité, sans dispositif)',niv:V,hint:'Jamais les mains chargées sur une échelle.'},
+    {id:'poulie',l:'Poulie / palan manuel',niv:V},
+    {id:'treuil',l:'Treuil',niv:O,devis:'Treuil : mise à disposition + fixation'},
+    {id:'monte_materiaux',l:'Monte-matériaux / monte-charge',niv:O,devis:'Monte-matériaux : mise à disposition + installation'},
+    {id:'grue',l:'Grue mobile / autogrue',niv:O,devis:'Grue mobile avec opérateur : location + balisage de la zone de levage'}
+  ],
+  repli:[
+    {id:'demontage_epc',l:'Démontage des protections collectives',niv:O,hint:'Le démontage se fait sous EPI ancré.',devis:'Démontage des protections collectives sous EPI : temps + ancrage'},
+    {id:'dechets',l:'Évacuation des déchets (benne, goulotte, rotations)',niv:O,devis:'Évacuation des déchets : benne / goulotte / rotations'},
+    {id:'dechets_amiante',l:'Déchets amiantés',niv:O,devis:'Déchets amiantés : conditionnement, BSDA, filière agréée'},
+    {id:'depose_ancrages',l:'Dépose des ancrages et lignes de vie provisoires',niv:O,devis:'Dépose des ancrages et lignes de vie provisoires'}
+  ]
+};
+
+/* Logo ATTILA détouré, dessiné sur le camion et la nacelle du plan */
+const LOGO='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAADAFBMVEVMaXHy9fTv8e/w9PXm5ubw8vHw8vHMw8Xf3d/5+vpGSEo2QEbx9fXs7+rXBgjz9vfw9/aepKjy9vaKjpD2+/qmq656gofw9vbii4xHUVeXmZvCw8LX2tvDx8vx/PaTlpv0+/qrrK6oqq66u7u3u7/6/fjUiIn+3dZNT072+/ne4ODOz9D6/fOKkJJiZWXYr7PgjohYWVjPjYvrlY+TkpV3eXlIS0r83dXR09Rqa2zGys1cYGCdnaHT1deif4c4ODnc292wtbfAi4f61NLU1dWwi5NbXV1vcnPe4OCzhoPJrqtUV1aepKj52s8+QUHIiYvDxcWGe3uxtbf28utjZGO8urv7+O/33t3dycSJfoeVlZXqxL715+LieX52dnh9fX2bcW/ZoqL9AQE2Rk45SFHfAgNCUVrvICA8RUzlAgOeAQL2ICL5AQE8TFVzfYXZAgKSAQGMAgKJkpn1AgLvAgKrAQJATVZHVV7BAgLGAwK2AQK7AgLTAgLrHR5rd31VYGilAgOSmaBbZm+EjpXPAQJQXWfKAwS4vsRhbnfrAgPxHBqGAQGOlp3zIh7lGxq1u7+iqa2mrLCXAgJveoFmdHx/ipJncHext7yVnaRMW2NKV2HQCgx/AQFjam+wAgF6AQKaoaiqsLN6hY3yIyR2gYq8w8hVYm5caXRtAQF+h427vsE+SVH8ICP6HBxSWmHCx8pzAgJHTVCutLc3PEDHy873DQrkXV8/QkRbY2qepazfFhbeDg3XERPvEQxkAQHXICb4ExQuMzmfpajyExPmEA/P1NY2NjtPVVZaAgJSBQRKAgL8BgsiJCYYHR5BAgFucHTqCwkrMDEBBgecn6KhMC7mJzEPEhWac3TsFxbrJyOLFRWHjI8xOEC4HCCrExjVU1fIIyZ1YGAnKyucExaFaGteDA/UPUDEVVSnsrh5EBM0BgRFPDtsUVyxKipORkVaSlKpQ0TFEBDMpKxZWVtpDw+/lp9iUUhFKR3Og4I3MjBHCw0tOzlYOjL1xL06DgvgMUhtHXYBAAAA/HRSTlMAGhIuBQoOAQIUBv4mCP4fPd40xEU7/lDi/sH8/q+D4Fzfvf7BctvG9Wf+/o/e9v769Pf8/fST1dz1nfzNq/yU39D7r33+k/LF+LSU7fCUzsL9T6qVj76Z/vKj0Pf+jKLN8//////////////////////////////////////////////////////////////////////////////////////////////////+//////////////////////////////////////////////////////////////////////////////////////7///////////////////53HnDzAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAWRklEQVR42r1bC1xV9Zbe7322nMM5nE6eS3gR9TINRl0HdfSqNV61udrYjNX0uo+Z+Zl4RFAi0HjmI6SA8FWBiUJFDxVRCclU6KIoPgsccQQzvWZpL0unbuate2e+9f/vfTgoKcrjE9GDwvr2Wuv/rcfeRxBuDIpuUxVF0QXF0ByKarPpQu/CJhhupzsy0hsRFekyVEnpXQaKQxJFe9T4Xw4dMvSXjzwUJdrwRd3WW9YFw2m4XJ7xfzhzITu7uPiPb/81WnTKhgNh6RUONsUu2j3RQ88UZ8bFBgfHJibW/GG81xsRabdpSu/43+2KemhoDWzHJmZmJmYGxxa/favXEy6rWu+EQHPLDwwtjouLjc3MzgxmyDl5b5Rs6IbR8+Z1RTPssB8bnA3k5OQUFwcHb98OBtF2m2Hvaeu64DBkORzXH5sD69nZmSBQXLOdMfCKNsXWCwFwRg6piYuNi0P8QSCT29++Pfjt8eEuwab3pCDAxZLbHT2kJjY3jhIwEQgOrqmp2bYLCH77VpeuSQ46jD1CQhdEl9srRw+ticvNJfOxBFz7NsKu2lowcEoRTtWh9ZQTVFEOx/mLS0mBA+LicuOApqZdLS2Lgdrq+u1v3yrbo2RBU3uKgUbXn9tEpnOTE5JTgOr6lpa8vKysxYvr6+GDER6PIfSEILJLkkTYb4qNS8nNzU1JSGaorqvPKyjIiweHuvp6RMGrCXajB5LAoQtOV/iQC7m5iXF05cm4/uSEhOTq6ro8MIiP9xXkMQYjZMkr6t1NwGFoiiJFQn/iKPa4fjgABKYyAr7WgoKCigpiUEun0c2KYzeWR12QI5xOZ/SQC8FxpAC5KQhAyoGpoLBt24E6OKBiPSG+oq6azoKsinQQHGr3JZ/hkOXIoReKE1H74uJSePhTEg7UHDu/uC6vguyXgUB8HmMw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';
+
+/* Éléments du plan. k : veh = véhicule à l'échelle · pt = pastille · line = tracé · txt = texte */
+const TOOLS={
+  camion:{g:'Installation',n:'Camion',k:'veh',c:'#1f4e79',w:7,h:2.5},
+  nacelle:{g:'Installation',n:'Nacelle (poste de travail)',p:'Nacelle',k:'veh',c:'#d35400',w:6.5,h:2.3,reach:10,lab:'Nacelle'},
+  balisage:{g:'Installation',n:'Cône de balisage',p:'Cône',k:'pt',c:'#ef6c00',cone:1},
+  echelle:{g:'Accès',n:'Échelle',k:'pt',c:'#0b7a75',code:'ÉCH'},
+  echaf:{g:'Accès',n:'Échafaudage',k:'line',c:'#5d4037',sw:1.1,dash:[.5,.5],short:'Échaf.'},
+  crino:{g:'Accès',n:'Crinoline',k:'pt',c:'#0b7a75',code:'CRI'},
+  escalier:{g:'Accès',n:'Escalier ext.',k:'pt',c:'#0b7a75',code:'ESC'},
+  acces:{g:'Accès',n:'Autre accès',k:'pt',c:'#0b7a75',code:'ACC',ask:1},
+  levage:{g:'Levage',n:'Grue / moyen de levage',p:'Grue / levage',k:'pt',c:'#6a1b9a',code:'LEV',ask:1},
+  poste:{g:'Postes',n:'Poste de travail',k:'pt',c:'#C0392B',num:1,ask:1},
+  texte:{g:'Postes',n:'Texte libre',p:'Texte',k:'txt',c:'#111',ask:1},
+  ancrage:{g:'Sécurisation',n:'Ancrage',k:'pt',c:'#c2185b',small:1},
+  ldv:{g:'Sécurisation',n:'Ligne de vie',k:'line',c:'#c2185b',sw:.5,dash:[1.6,.8],short:'Ligne de vie'},
+  gc:{g:'Sécurisation',n:'Garde-corps temporaire',p:'Garde-corps',k:'line',c:'#1565c0',sw:.7,short:'Garde-corps'},
+  secu:{g:'Sécurisation',n:'Sécuriplac / plaque de répartition',p:'Sécuriplac',k:'line',c:'#d3d8dc',edge:'#4f575d',sw:.6,short:'Sécuriplac',plate:1}
+};
+/* Ce qui est posé sur le plan pré-coche la réponse correspondante dans l'analyse. */
+const PLAN2AN={echelle:['acces','echelle'],echaf:['acces','echaf_pied'],crino:['acces','crinoline'],escalier:['acces','escalier'],nacelle:['epc','nacelle'],gc:['epc','gc_temp']};
+
+const SRC={
+  ign:{n:'IGN',max:19,url:'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',att:'© IGN'},
+  esri:{n:'Esri',max:19,url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',att:'© Esri, Maxar'}
+};
+const STEPS=[
+  {k:'A',n:'Accès',f:'Accès',q:'Comment je monte ?'},
+  {k:'B',n:'Chemin.',f:'Cheminement',q:'Comment je chemine jusqu’au poste ?'},
+  {k:'C',n:'Poste',f:'Poste de travail',q:'Comment je me sécurise au poste ?'},
+  {k:'D',n:'Appro.',f:'Approvisionnement',q:'Comment je monte mes matériaux ?'},
+  {k:'E',n:'Repli',f:'Repli',q:'Y a-t-il des risques particuliers au repli ?'}
+];
+
+/* =====================================================================================
+   2. ÉTAT
+   ===================================================================================== */
+const KEY='attila_analyse_risque_toiture_v2';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const multi=()=>({sel:[],autre:''});
+const blank=()=>({v:2,client:'',redacteur:'',adresse:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
+  an:{acces:multi(),chemin:multi(),epc:multi(),epcWhy:'',epi:multi(),ancrage:'',ancrageAutre:'',appro:multi(),repli:{risk:'',sel:[],autre:''}},
+  step:1,sub:'A'});
+let S=blank();
+try{const j=JSON.parse(localStorage.getItem(KEY)||'null'); if(j&&j.v===2) S=Object.assign(blank(),j);}catch(e){}
+S.objs=S.objs.flatMap(o=>o.t==='balisage'&&o.pts?o.pts.map(q=>({id:uid(),t:'balisage',x:q[0],y:q[1],r:0,label:''})):[o]);
+if(S.an.acces.sel.includes('nacelle')){S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='nacelle'); S.synced=S.synced.filter(x=>x!=='nacelle');}
+S.an.chemin.sel=S.an.chemin.sel.filter(x=>x!=='sans_protection');
+S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='echaf_roulant'&&x!=='aucun_roulant'); S.an.epc.sel=S.an.epc.sel.filter(x=>x!=='echaf_roulant');   // pas d'échafaudage roulant chez Attila
+let saveT; function save(){clearTimeout(saveT); saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300); feu();}
+
+/* =====================================================================================
+   3. MOTEUR VERT / ORANGE / ROUGE
+   ===================================================================================== */
+function measures(){
+  const k=S.frozen&&S.frozen.mpp, m={};
+  S.objs.forEach(o=>{const e=m[o.t]||(m[o.t]={n:0,len:0}); e.n++;
+    if(o.pts){let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
+      if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]);
+      e.len+=k?d*k:NaN;}});
+  return m;
+}
+function qtyTxt(t,M){const e=M[t]; if(!e) return 'non tracé sur le plan — métré à faire';
+  if(TOOLS[t].k==='line') return isNaN(e.len)?e.n+' tracé(s), échelle inconnue':Math.round(e.len)+' ml mesurés sur le plan';
+  return e.n+(TOOLS[t].cone?' cône'+(e.n>1?'s':''):'')+' sur le plan';}
+const up5=x=>Math.ceil(x-1e-5);   // arrondi toujours au-dessus, dès que ça dépasse de plus de 0,00001
+function secuCount(M){const e=M.secu; if(!e) return null; if(isNaN(e.len)) return NaN; return Math.max(1,up5(up5(e.len)/SECU_LEN));}
+function secuTxt(M){const n=secuCount(M); if(n===null) return ''; if(isNaN(n)) return M.secu.n+' tracé(s), échelle inconnue : plaques à compter';
+  const L=up5(M.secu.len); return `${L} m de Sécuriplac, soit environ ${L} / ${SECU_LEN} = ${n} plaque${n>1?'s':''}`;}
+function isFragile(r){return FRAGILE.has(r.mat)||!!r.translu;}
+function amianteFlag(r){return r.periode==='avant'||r.periode==='nsp';}
+
+function evaluate(){
+  const a=S.an, M=measures(), D=[];
+  const add=(txt,qty)=>{const d=D.find(x=>x.txt===txt); if(d){if(qty&&!d.qty)d.qty=qtyTxt(qty,M);} else D.push({txt,qty:qty?qtyTxt(qty,M):''});};
+  const up=(it,niv,msg)=>{it.lvl=Math.max(it.lvl,niv); if(msg) it.r.push(msg);};
+  const evalMulti=(it,key,nom)=>{
+    a[key].sel.forEach(id=>{
+      if(id==='autre'){const t=a[key].autre.trim(); if(!t) up(it,INC,'« Autre » : à préciser'); else {up(it,O); it.labels.push('Autre : '+t); add('Autre ('+nom+') : '+t);} return;}
+      const o=OPT[key].find(x=>x.id===id); if(!o) return;
+      it.labels.push(o.l); up(it,o.niv,o.niv===R?(o.why||o.l):''); if(o.devis) add(o.devis,o.qty);
+    });
+  };
+  const item=(k,n)=>({k,n,lvl:V,r:[],labels:[]});
+
+  /* Toiture et amiante */
+  const T=item('T','Toiture et amiante');
+  if(!S.roofs.length) up(T,INC,'Aucun toit sélectionné');
+  const bcDone=a.chemin.sel.length&&(a.epc.sel.length||a.epi.sel.length);
+  const horsToit=a.chemin.sel.length&&a.chemin.sel.every(x=>x==='aucun_nacelle'||x==='aucun_echaf');
+  const fragileCouvert=horsToit||a.chemin.sel.includes('chemin_provisoire')||a.epi.sel.includes('MOSID')||a.epc.sel.includes('filet_sousface');
+  S.roofs.forEach(r=>{
+    const n=r.name||'Toit';
+    if(!r.mat) up(T,INC,n+' : matériau à renseigner');
+    else if(r.mat==='autre') up(T,O,n+' : matériau à confirmer'+(r.matAutre?' ('+r.matAutre+')':'')+', fragilité inconnue');
+    if(!r.periode) up(T,INC,n+' : date du permis de construire à renseigner');
+    else if(amianteFlag(r)){
+      if(r.rat==='absent') T.labels.push(n+' : repérage reçu, pas d’amiante');
+      else if(r.rat==='present'){up(T,O,n+' : amiante présent, intervention SS4'); add('Intervention amiante SS4 : mode opératoire, EPI et APR, déchets amiantés (BSDA)');}
+      else if(r.rat==='autre'&&(r.ratAutre||'').trim()){up(T,O,n+' : amiante — '+r.ratAutre.trim()); add('Amiante ('+n+') : '+r.ratAutre.trim());}
+      else if(FIBRO.has(r.mat)) up(T,R,n+' : fibrociment avant 1997 sans repérage, amiante présumé. Obtenir le repérage ou chiffrer en SS4.');
+      else {up(T,O,n+' : risque amiante, repérage avant travaux à demander au client'); add('Repérage amiante avant travaux à obtenir du donneur d’ordre avant le chiffrage définitif');}
+    }
+    if(isFragile(r)){
+      if(!M.secu) add('Toit fragile : platelage de répartition / Sécuriplac');
+      if(!bcDone) up(T,O,n+' : toit fragile, à traiter aux étapes B et C');
+      else if(fragileCouvert) up(T,O,n+' : toit fragile, protection prévue');
+      else up(T,R,n+' : toit fragile sans platelage (Sécuriplac) ni filet en sous-face');
+    }
+  });
+
+  /* A, B, D : menus à choix multiples */
+  const simple=(k,key)=>{const st=STEPS.find(s=>s.k===k), it=item(k,st.f); if(!a[key].sel.length) up(it,INC,'À renseigner'); else evalMulti(it,key,st.f.toLowerCase()); return it;};
+  const A=simple('A','acces'), B=simple('B','chemin'), Dd=simple('D','appro');
+
+  /* C : collectif d'abord, individuel ensuite */
+  const C=item('C','Poste de travail');
+  if(!a.epc.sel.length&&!a.epi.sel.length) up(C,INC,'À renseigner');
+  else{
+    if(!a.epc.sel.length) up(C,R,'Protection collective non étudiée : la choisir, ou cocher « Aucune protection collective possible » et justifier');
+    else evalMulti(C,'epc','protection collective');
+    if(a.epc.sel.includes('aucun')){
+      if(!a.epcWhy.trim()) up(C,INC,'Justifier pourquoi le collectif est impossible');
+      if(!a.epi.sel.length) up(C,R,'Collectif impossible : le mode opératoire sous EPI reste à choisir');
+    }
+    if(a.epi.sel.length){
+      evalMulti(C,'epi','protection individuelle');
+      add('Travail sous EPI antichute : 2 personnes minimum sur site, harnais et longes vérifiés');
+      if(!a.ancrage) up(C,INC,'Ancrage des EPI à renseigner');
+      else if(a.ancrage==='autre'){const t=a.ancrageAutre.trim(); if(!t) up(C,INC,'Ancrage « Autre » : à préciser'); else {up(C,O); C.labels.push('Ancrage : '+t); add('Ancrage (autre) : '+t);}}
+      else{const o=OPT.ancrage.find(x=>x.id===a.ancrage); C.labels.push(o.l); up(C,o.niv,o.niv===R?o.why:''); if(o.devis) add(o.devis,o.qty);}
+    }
+  }
+
+  /* E : repli */
+  const E=item('E','Repli');
+  if(!a.repli.risk) up(E,INC,'À renseigner');
+  else if(a.repli.risk==='non') E.labels.push('Pas de risque particulier au repli');
+  else if(!a.repli.sel.length) up(E,INC,'Préciser le risque au repli');
+  else evalMulti(E,'repli','repli');
+
+  if(M.secu){const n=secuCount(M); D.push(isNaN(n)?{txt:'Sécuriplac / plaques de répartition de charge : nombre à compter',qty:'échelle du plan inconnue'}
+    :{txt:secuTxt(M)+' à prévoir',qty:'tracé sur le plan'});}
+  const items=[T,A,B,C,Dd,E];
+  return {items,global:Math.max(...items.map(i=>i.lvl)),devis:D,M};
+}
+function feu(){const g=evaluate().global, el=$('#feu'); el.className='feu n'+g; el.textContent=NIV_TXT[g];}
+
+/* =====================================================================================
+   4. NAVIGATION
+   ===================================================================================== */
+function go(n){
+  S.step=+n; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
+  $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
+  if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
+  if(S.step===2) renderPlanAll();
+  if(S.step===3){syncPlan(); renderAnalysis();}
+  if(S.step===4) renderSynth();
+  if(S.step===2&&S.frozen&&window.innerWidth>=700) window.scrollTo(0,$('#planWrap').getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-10);   // la palette vient se placer sous le menu
+  else window.scrollTo(0,0);
+  save();
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go);});
+$('#btnNew').onclick=()=>{$('#newConfirm').hidden=false; window.scrollTo(0,0);};
+$('#newNo').onclick=()=>$('#newConfirm').hidden=true;
+$('#newYes').onclick=()=>{try{localStorage.removeItem(KEY);}catch(e){} location.reload();};
+
+/* =====================================================================================
+   5. ÉCRAN 1 — adresse, carte, toits
+   ===================================================================================== */
+['client','redacteur'].forEach(id=>{$('#'+id).value=S[id]; $('#'+id).oninput=e=>{S[id]=e.target.value; save();};});
+const adr=$('#adresse'), acList=$('#acList'); adr.value=S.adresse;
+let acT, acSeq=0;
+adr.addEventListener('input',()=>{S.adresse=adr.value; save(); clearTimeout(acT); const q=adr.value.trim();
+  if(q.length<4){acList.hidden=true; return;}
+  acT=setTimeout(async()=>{const my=++acSeq, res=await geocode(q); if(my!==acSeq) return;
+    if(res===null){acList.innerHTML='<li><button type="button" disabled>Recherche d’adresse indisponible. Déplacez la carte à la main.</button></li>';}
+    else if(!res.length){acList.innerHTML='<li><button type="button" disabled>Aucune adresse trouvée</button></li>';}
+    else acList.innerHTML=res.map((r,i)=>`<li><button type="button" data-i="${i}">${esc(r.label)}</button></li>`).join('');
+    acList._res=res||[]; acList.hidden=false; adr.setAttribute('aria-expanded','true');},250);});
+acList.addEventListener('click',e=>{const b=e.target.closest('button[data-i]'); if(!b) return; const r=acList._res[+b.dataset.i];
+  adr.value=S.adresse=r.label; S.ll=r.ll; acList.hidden=true; adr.setAttribute('aria-expanded','false');
+  if(map){map.setView(r.ll,19); pin();} save();});
+document.addEventListener('click',e=>{if(!e.target.closest('.ac')) acList.hidden=true;});
+async function geocode(q){
+  const e=encodeURIComponent(q);
+  for(const u of [`https://data.geopf.fr/geocodage/search?q=${e}&autocomplete=1&index=address&limit=6`,`https://api-adresse.data.gouv.fr/search/?q=${e}&autocomplete=1&limit=6`]){
+    try{const r=await fetch(u); if(!r.ok) continue; const j=await r.json();
+      return (j.features||[]).map(f=>({label:f.properties.label,ll:[f.geometry.coordinates[1],f.geometry.coordinates[0]]}));}catch(err){}
+  }
+  return null;
+}
+
+let map,tiles,bLayer,roofLayer,draftLayer,pinLayer,mode='select',draft=[],bSeq=0,tileErr=0,tileOk=0;
+const mapMsg=t=>{$('#mapMsg').textContent=t;};
+function initMap(){
+  if(typeof L==='undefined'){mapMsg('Carte indisponible (pas de connexion). Importez une photo ou une capture ci-dessous.'); $('#map').hidden=true; $('#mapTools').hidden=true; return;}
+  map=L.map('map',{zoomControl:true,maxZoom:21,doubleClickZoom:false}).setView(S.ll||[46.6,2.4],S.ll?19:6);
+  setSrc(S.src);
+  bLayer=L.layerGroup().addTo(map); roofLayer=L.layerGroup().addTo(map); draftLayer=L.layerGroup().addTo(map); pinLayer=L.layerGroup().addTo(map);
+  map.on('moveend',()=>{clearTimeout(map._bt); map._bt=setTimeout(loadBuildings,350);});
+  map.on('click',onMapClick);
+  drawRoofsOnMap(); pin(); loadBuildings();
+}
+function pin(){if(!pinLayer) return; pinLayer.clearLayers(); if(S.ll) L.circleMarker(S.ll,{radius:6,color:'#fff',weight:2,fillColor:'#C0392B',fillOpacity:1,interactive:false}).addTo(pinLayer);}
+function setSrc(k){
+  S.src=k; if(tiles) map.removeLayer(tiles); tileErr=tileOk=0;
+  tiles=L.tileLayer(SRC[k].url,{maxNativeZoom:SRC[k].max,maxZoom:21,crossOrigin:true,attribution:SRC[k].att}).addTo(map);
+  tiles.on('tileload',()=>tileOk++);
+  tiles.on('tileerror',()=>{if(++tileErr>=4&&!tileOk&&S.src==='ign'){setSrc('esri'); mapMsg('Fond IGN injoignable : bascule sur le fond Esri.');}});
+  $('#srcBtn').textContent='Fond : '+SRC[k].n;
+}
+$('#srcBtn').onclick=()=>{if(map){setSrc(S.src==='ign'?'esri':'ign'); save();}};
+
+/* Emprises des bâtiments : BD TOPO (IGN), secours OpenStreetMap */
+async function loadBuildings(){
+  if(!map) return;
+  if(map.getZoom()<17){bLayer.clearLayers(); if(mode==='select') mapMsg(S.ll?'Zoomez pour faire apparaître les bâtiments.':'Saisissez une adresse pour commencer.'); return;}
+  const my=++bSeq, b=map.getBounds().pad(.15), box=[b.getWest(),b.getSouth(),b.getEast(),b.getNorth()].map(x=>x.toFixed(6));
+  let list=null;
+  try{
+    const r=await fetch(`https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=BDTOPO_V3:batiment&OUTPUTFORMAT=application/json&COUNT=1000&SRSNAME=EPSG:4326&BBOX=${box.join(',')},EPSG:4326`);
+    if(r.ok){const j=await r.json(); list=(j.features||[]).map(f=>{
+      const g=f.geometry, polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
+      const p=f.properties||{}, an=p.date_d_apparition?parseInt(p.date_d_apparition,10):null;
+      return {key:p.cleabs||f.id,rings:polys.map(pl=>pl.map(ring=>ring.map(c=>[c[1],c[0]]))),haut:p.hauteur||null,annee:an&&an>1700?an:null,srcN:'BD TOPO'};});}
+  }catch(e){}
+  if(list===null){
+    try{const q=`[out:json][timeout:15];way["building"](${box[1]},${box[0]},${box[3]},${box[2]});out geom;`;
+      const r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q));
+      if(r.ok){const j=await r.json(); list=(j.elements||[]).filter(w=>w.geometry).map(w=>({key:'osm'+w.id,rings:[[w.geometry.map(p=>[p.lat,p.lon])]],haut:null,annee:null,srcN:'OpenStreetMap'}));}
+    }catch(e){}
+  }
+  if(my!==bSeq) return;
+  bLayer.clearLayers();
+  if(list===null){if(mode==='select') mapMsg('Contours des bâtiments indisponibles : tracez le toit avec « Tracer le contour ».'); return;}
+  list.forEach(bd=>{
+    if(S.roofs.some(r=>r.key===bd.key)) return;
+    L.polygon(bd.rings,{color:'#ffd84d',weight:1.5,fillColor:'#ffd84d',fillOpacity:.08}).addTo(bLayer)
+      .on('click',ev=>{if(mode!=='select') return; L.DomEvent.stopPropagation(ev); addRoof({key:bd.key,src:bd.srcN,rings:bd.rings,haut:bd.haut,annee:bd.annee}); loadBuildings();});
+  });
+  if(mode==='select') mapMsg(list.length?'Touchez un bâtiment pour le sélectionner. Touchez-le à nouveau pour le retirer.':'Aucun contour connu ici : tracez le toit vous-même.');
+}
+function ringArea(r){const la0=r[0][0],ln0=r[0][1],kx=111320*Math.cos(la0*Math.PI/180),ky=110574; let s=0;
+  for(let i=0;i<r.length;i++){const a=r[i],b=r[(i+1)%r.length]; s+=(a[1]-ln0)*kx*(b[0]-la0)*ky-(b[1]-ln0)*kx*(a[0]-la0)*ky;} return Math.abs(s)/2;}
+function areaOf(rings){return rings.reduce((t,pl)=>t+pl.reduce((s,ring,i)=>s+(i?-1:1)*ringArea(ring),0),0);}
+function addRoof(d){
+  const n=S.roofs.length+1, r={id:uid(),name:'Toit '+n,key:d.key||null,src:d.src||'',rings:d.rings||null,area:d.rings?Math.round(areaOf(d.rings)):'',haut:d.haut||null,annee:d.annee||null,
+    mat:'',matAutre:'',periode:'',periodeAuto:false,translu:false,rat:'',ratAutre:''};
+  if(r.annee&&r.annee<1997){r.periode='avant'; r.periodeAuto=true;} else if(r.annee&&r.annee>1997){r.periode='apres'; r.periodeAuto=true;}
+  S.roofs.push(r); drawRoofsOnMap(); renderRoofs(); save();
+}
+function drawRoofsOnMap(){
+  if(!roofLayer) return; roofLayer.clearLayers();
+  S.roofs.forEach(r=>{if(!r.rings) return;
+    L.polygon(r.rings,{color:'#C0392B',weight:3,fillColor:'#C0392B',fillOpacity:.28}).addTo(roofLayer)
+      .bindTooltip(r.name,{permanent:true,direction:'center',className:'rooftip'})
+      .on('click',ev=>{if(mode!=='select') return; L.DomEvent.stopPropagation(ev); removeRoof(r.id);});});
+}
+function removeRoof(id){S.roofs=S.roofs.filter(r=>r.id!==id); drawRoofsOnMap(); renderRoofs(); loadBuildings(); save();}
+function setMode(m){
+  mode=m; draft=[]; draftLayer&&draftLayer.clearLayers(); $('#polyEnd').hidden=true;
+  $$('#mapTools [data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m)); $('#map').classList.toggle('draw',m!=='select');
+  mapMsg(m==='poly'?'Touchez chaque angle du toit, puis « Terminer le contour ».':'Touchez un bâtiment pour le sélectionner.');
+}
+$('#mapTools').addEventListener('click',e=>{const b=e.target.closest('[data-mode]'); if(b&&map) setMode(b.dataset.mode);});
+function onMapClick(e){
+  if(mode==='select') return;
+  draft.push([e.latlng.lat,e.latlng.lng]); draftLayer.clearLayers();
+  draft.forEach(p=>L.circleMarker(p,{radius:5,color:'#fff',weight:2,fillColor:'#C0392B',fillOpacity:1,interactive:false}).addTo(draftLayer));
+  if(mode==='poly'){if(draft.length>1) L.polyline(draft,{color:'#C0392B',weight:3,dashArray:'6 6',interactive:false}).addTo(draftLayer); $('#polyEnd').hidden=draft.length<3;}
+}
+$('#polyEnd').onclick=()=>{if(draft.length>=3){addRoof({src:'tracé',rings:[[draft.slice()]]}); setMode('select');}};
+$('#addRoof').onclick=()=>addRoof({src:'saisie'});
+
+function renderRoofs(){
+  const box=$('#roofs');
+  if(!S.roofs.length){box.innerHTML='<div class="empty">Aucun toit pour l’instant. Sélectionnez un bâtiment sur la vue aérienne.</div>'; return;}
+  box.innerHTML=S.roofs.map(r=>{
+    const am=amianteFlag(r), fr=isFragile(r);
+    let alerts='';
+    if(am){
+      const fib=FIBRO.has(r.mat), ok=r.rat==='absent';
+      alerts+=`<div class="alert ${ok?'v':(fib&&(!r.rat||r.rat==='non')?'r':'o')}"><span><b>Risque amiante.</b> ${fib?'Fibrociment d’avant 1997 : amiante présumé tant qu’un repérage ne dit pas le contraire.':'Permis d’avant le 1<sup>er</sup> juillet 1997 ou date inconnue : un repérage amiante avant travaux est à demander au client.'}</span>
+        <select data-f="rat" id="rat_${r.id}" aria-label="Repérage amiante avant travaux"><option value="">— Repérage amiante avant travaux —</option>${RAT.map(o=>`<option value="${o[0]}" ${r.rat===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
+        ${r.rat==='autre'?`<input type="text" data-f="ratAutre" id="ratA_${r.id}" placeholder="Précisez" value="${esc(r.ratAutre)}">`:''}</div>`;
+    }
+    if(fr) alerts+=`<div class="alert o"><span><b>Toit fragile.</b> On ne prend jamais appui directement dessus : platelage Sécuriplac ou filet en sous-face.</span></div>`;
+    return `<div class="roof" data-id="${r.id}">
+      <div class="top"><input type="text" data-f="name" id="name_${r.id}" value="${esc(r.name)}" aria-label="Nom du toit"><button type="button" class="btn del" data-del aria-label="Retirer ce toit">✕</button></div>
+      <div class="row"><label class="unit" for="area_${r.id}"><b>Surface</b><input type="number" data-f="area" id="area_${r.id}" min="0" step="1" value="${esc(r.area)}" placeholder="m²">m²</label>
+        ${r.haut?`<span class="pre">Hauteur ≈ ${String(r.haut).replace('.',',')} m (BD TOPO, à vérifier)</span>`:''}</div>
+      ${r.rings?'<span class="pre">Surface calculée sur l’emprise vue du ciel. Corrigez-la si la pente est forte.</span>':''}
+      <div class="field"><label for="mat_${r.id}">Matériau</label><select data-f="mat" id="mat_${r.id}"><option value="">— Sélectionner —</option>
+        ${MATS.map(g=>(g.g?`<optgroup label="${g.g}">`:'')+g.o.map(o=>`<option value="${o[0]}" ${r.mat===o[0]?'selected':''}>${o[1]}</option>`).join('')+(g.g?'</optgroup>':'')).join('')}</select>
+        ${r.mat==='autre'?`<input type="text" data-f="matAutre" id="matA_${r.id}" placeholder="Précisez le matériau si vous le connaissez" value="${esc(r.matAutre)}">`:''}</div>
+      <div class="field"><span class="flabel">Permis de construire</span><div class="seg" data-f="periode">
+        <button type="button" data-v="avant" class="${r.periode==='avant'?'on':''}">Avant le 1<sup>er</sup> juillet 1997</button>
+        <button type="button" data-v="apres" class="${r.periode==='apres'?'on':''}">Après</button>
+        <button type="button" data-v="nsp" class="${r.periode==='nsp'?'on':''}">Je ne sais pas</button></div>
+        ${r.periodeAuto&&r.annee?`<span class="pre">Pré-rempli : la BD TOPO date le bâtiment de ${r.annee}. À confirmer.</span>`:''}</div>
+      <label class="check"><input type="checkbox" data-f="translu" id="tr_${r.id}" ${r.translu?'checked':''}><span>Lanterneaux ou plaques translucides sur ce toit</span></label>
+      ${alerts}</div>`;}).join('');
+}
+$('#roofs').addEventListener('input',e=>{const c=e.target.closest('.roof'), f=e.target.dataset.f; if(!c||!f||e.target.type==='checkbox'||e.target.tagName==='SELECT') return;
+  const r=S.roofs.find(x=>x.id===c.dataset.id); r[f]=e.target.value; if(f==='name') drawRoofsOnMap(); save();});
+$('#roofs').addEventListener('change',e=>{const c=e.target.closest('.roof'), f=e.target.dataset.f; if(!c||!f) return; const r=S.roofs.find(x=>x.id===c.dataset.id);
+  if(e.target.type==='checkbox'){r[f]=e.target.checked; renderRoofs();} else if(e.target.tagName==='SELECT'){r[f]=e.target.value; renderRoofs();} save();});
+$('#roofs').addEventListener('click',e=>{const c=e.target.closest('.roof'); if(!c) return; const r=S.roofs.find(x=>x.id===c.dataset.id);
+  if(e.target.closest('[data-del]')) return removeRoof(r.id);
+  const b=e.target.closest('.seg button'); if(b){r.periode=b.dataset.v; r.periodeAuto=false; renderRoofs(); save();}});
+
+/* Figer la vue : on recompose les tuiles dans une image, les toits passent en pixels */
+const frzMsg=(t,err)=>{const m=$('#frzMsg'); m.textContent=t; m.className='msg'+(err?' err':'');};
+$('#btnFreeze').onclick=()=>{if(!map) return frzMsg('Carte indisponible : importez une image ci-dessus.',1);
+  if(!S.roofs.length) return frzMsg('Sélectionnez d’abord au moins un toit.',1);
+  if(S.objs.length){$('#frzConfirm').hidden=false; return;} freeze();};
+$('#frzNo').onclick=()=>{$('#frzConfirm').hidden=true; go(2);};
+$('#frzYes').onclick=()=>{$('#frzConfirm').hidden=true; S.objs=[]; S.synced=[]; freeze();};
+async function freeze(){
+  frzMsg('Capture de la vue…');
+  try{
+    const z=map.getZoom(), size=map.getSize(), src=SRC[S.src], s=Math.min(2,1800/size.x), zr=Math.min(src.max,Math.round(z)+(s>1?1:0));
+    const f=s*Math.pow(2,z-zr), tl=map.getPixelBounds().min, k=Math.pow(2,zr-z), tx0=tl.x*k, ty0=tl.y*k;
+    const W=Math.round(size.x*s), H=Math.round(size.y*s), cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+    const ctx=cv.getContext('2d'); ctx.fillStyle='#777'; ctx.fillRect(0,0,W,H);
+    const jobs=[]; let ko=0;
+    for(let x=Math.floor(tx0/256);x<=Math.floor((tx0+W/f)/256);x++) for(let y=Math.floor(ty0/256);y<=Math.floor((ty0+H/f)/256);y++)
+      jobs.push(new Promise(res=>{const im=new Image(); im.crossOrigin='anonymous';
+        im.onload=()=>{const dx=Math.floor((x*256-tx0)*f), dy=Math.floor((y*256-ty0)*f); ctx.drawImage(im,dx,dy,Math.ceil(256*f)+1,Math.ceil(256*f)+1); res();};
+        im.onerror=()=>{ko++; res();}; im.src=src.url.replace('{z}',zr).replace('{x}',x).replace('{y}',y);}));
+    await Promise.all(jobs);
+    if(ko>jobs.length/2) throw new Error('tuiles');
+    const data=cv.toDataURL('image/jpeg',.85);
+    const mpp=156543.03392*Math.cos(map.getCenter().lat*Math.PI/180)/Math.pow(2,z)/s;
+    S.roofs.forEach(r=>{r.px=r.rings?r.rings.map(pl=>pl[0].map(ll=>{const p=map.project(ll,z); return [Math.round((p.x-tl.x)*s),Math.round((p.y-tl.y)*s)];})):null;});
+    S.frozen={src:data,w:W,h:H,mpp}; frzMsg(''); go(2);
+  }catch(e){frzMsg('La capture a échoué. Changez de fond (IGN / Esri) ou importez une capture d’écran.',1);}
+}
+$('#impFile').onchange=e=>{const file=e.target.files[0]; if(!file) return; const fr=new FileReader();
+  fr.onload=()=>{const im=new Image(); im.onload=()=>{const s=Math.min(1,1800/im.width), cv=document.createElement('canvas'); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); const wm=parseFloat($('#impW').value);
+    S.roofs.forEach(r=>r.px=null); S.objs=[]; S.synced=[]; S.frozen={src:cv.toDataURL('image/jpeg',.85),w:cv.width,h:cv.height,mpp:wm>0?wm/cv.width:null,imported:true};
+    if(!S.roofs.length) addRoof({src:'saisie'}); go(2);}; im.src=fr.result;}; fr.readAsDataURL(file);};
+
+/* =====================================================================================
+   6. ÉCRAN 2 — plan d'installation
+   ===================================================================================== */
+let tool=null, selId=null, drag=null, line=null;
+const svg=$('#plan');
+/* Unité de dessin : 1 % de la largeur de l'image, grossie sur petit écran pour rester lisible */
+function unit(){const F=S.frozen, d=svg.getBoundingClientRect().width||Math.max(300,$('main').clientWidth-70); return F.w/100*Math.min(2.4,Math.max(1,760/d));}
+/* Sur grand écran, le plan est réduit pour que la palette, l'image et la légende tiennent ensemble dans la fenêtre */
+function fitPlan(){
+  const F=S.frozen; if(!F||S.step!==2) return; svg.style.width='';
+  if(window.innerWidth<700) return;
+  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#bar').offsetHeight+64+12*3+16;   // 64 = place gardée pour la légende
+  const maxH=Math.max(240,window.innerHeight-used), w=Math.min(svg.parentElement.clientWidth,maxH*F.w/F.h);
+  svg.style.width=Math.round(w)+'px';
+}
+function renderPalette(){
+  const groups={}; Object.entries(TOOLS).forEach(([k,t])=>(groups[t.g]=groups[t.g]||[]).push([k,t]));
+  $('#palette').innerHTML=Object.entries(groups).map(([g,ts])=>`<div class="pgroup"><span>${g}</span>${ts.map(([k,t])=>
+    `<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}"><i class="${t.cone?'c':t.plate?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}"></i>${t.p||t.n}</button>`).join('')}</div>`).join('');
+}
+$('#palette').addEventListener('click',e=>{const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
+function renderPlanAll(){
+  const F=S.frozen; $('#planEmpty').hidden=!!F; $('#planWrap').hidden=!F; if(!F) return;
+  svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`); const im=$('#planImg'); im.setAttribute('href',F.src); im.setAttribute('width',F.w); im.setAttribute('height',F.h);
+  renderPalette(); renderBar(); fitPlan();
+  const u=unit();
+  $('#planRoofs').innerHTML=S.roofs.map(r=>{if(!r.px) return ''; const all=r.px.flat(), cx=all.reduce((s,p)=>s+p[0],0)/all.length, cy=all.reduce((s,p)=>s+p[1],0)/all.length;
+    return r.px.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(r.area?' · '+r.area+' m²':''),u*1.45);}).join('');
+  renderPalette(); renderObjs(); renderBar();
+}
+function txt(x,y,s,fs,anchor){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="${anchor||'middle'}" dominant-baseline="central" fill="#fff" stroke="#1b1b1b" stroke-width="${fs*.22}" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(s)}</text>`;}
+function lenOf(o){const k=S.frozen.mpp; if(!k) return null; let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
+  if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]); return TOOLS[o.t].plate?(d*k).toFixed(1).replace('.',','):Math.round(d*k);}   // Sécuriplac : au dixième, le total est arrondi au-dessus
+function posteLen(o){if(o.x2==null) return null; const k=S.frozen&&S.frozen.mpp; return k?Math.max(1,Math.round(Math.hypot(o.x2-o.x,o.y2-o.y)*k)):null;}
+function posteTxt(o){const L=posteLen(o); return [o.label,L!==null?L+' m':''].filter(Boolean).join(' · ');}
+function drawObj(o,u,sel,num){
+  const T=TOOLS[o.t], F=S.frozen, m=F.mpp||(60/F.w);     // sans échelle connue : l'image est supposée faire 60 m de large
+  let h=`<g class="obj" data-id="${o.id}">`;
+  if(T.k==='veh'){
+    // à l'échelle, avec une longueur minimale de 4,5 % de l'image pour que le véhicule et son logo restent visibles
+    const kMin=Math.max(1,4.5*(F.w/100)/(T.w/m)), w=T.w/m*kMin, hh=T.h/m*kMin, ls=hh*.9, lx=-w*.11;
+    if(T.reach) h+=`<circle cx="${o.x}" cy="${o.y}" r="${T.reach/m}" fill="rgba(211,84,0,.10)" stroke="${T.c}" stroke-width="${u*.25}" stroke-dasharray="${u*.9} ${u*.6}" pointer-events="none"/>`;
+    h+=`<g transform="translate(${o.x},${o.y}) rotate(${o.r||0})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${hh*.12}" fill="#fff" stroke="${sel?'#ffe600':T.c}" stroke-width="${u*(sel?.5:.28)}"/>
+      <rect x="${w/2-w*.22}" y="${-hh/2}" width="${w*.22}" height="${hh}" rx="${hh*.12}" fill="${T.c}"/>
+      <image href="${LOGO}" x="${lx-ls/2}" y="${-ls/2}" width="${ls}" height="${ls}" transform="rotate(${-(o.r||0)} ${lx} 0)" pointer-events="none"/></g>`;
+    h+=txt(o.x,o.y-Math.max(w,hh)/2-u*1.2,(o.label||T.lab||T.n)+(T.reach&&F.mpp?' · portée ≈ '+T.reach+' m':''),u*1.35);
+  }else if(T.cone){
+    const r=u*1.15;
+    if(sel) h+=`<circle cx="${o.x}" cy="${o.y}" r="${r+u*.7}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
+    h+=`<circle cx="${o.x}" cy="${o.y}" r="${r*1.5}" fill="transparent"/><path d="M${o.x},${o.y-r}L${o.x+r*.85},${o.y+r*.8}H${o.x-r*.85}Z" fill="${T.c}" stroke="#fff" stroke-width="${u*.24}" stroke-linejoin="round"/><path d="M${o.x-r*.4},${o.y+r*.08}H${o.x+r*.4}" stroke="#fff" stroke-width="${u*.3}" pointer-events="none"/>`;
+    if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
+  }else if(T.k==='pt'){
+    const r=u*(T.small?.9:1.7);
+    if(o.x2!=null){const d=`d="M${o.x},${o.y}L${o.x2},${o.y2}" fill="none" stroke-linecap="round"`;   // poste étiré en zone (gouttière, faîtage…)
+      if(sel) h+=`<path ${d} stroke="#ffe600" stroke-width="${u*2}"/>`;
+      h+=`<path ${d} stroke="#fff" stroke-width="${u*1.3}"/><path ${d} stroke="${T.c}" stroke-width="${u*.85}"/><path ${d} stroke="transparent" stroke-width="${u*3.4}" pointer-events="stroke"/>`;}
+    if(sel) h+=`<circle cx="${o.x}" cy="${o.y}" r="${r+u*.7}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
+    h+=`<circle cx="${o.x}" cy="${o.y}" r="${r}" fill="${T.c}" stroke="#fff" stroke-width="${u*.3}"/>`;
+    if(T.small) h+=`<path d="M${o.x-r*.5},${o.y-r*.5}L${o.x+r*.5},${o.y+r*.5}M${o.x+r*.5},${o.y-r*.5}L${o.x-r*.5},${o.y+r*.5}" stroke="#fff" stroke-width="${u*.25}" pointer-events="none"/>`;
+    else h+=`<text x="${o.x}" y="${o.y}" font-family="Arial,Helvetica,sans-serif" font-size="${T.num?u*1.8:u*1.02}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="#fff" pointer-events="none">${T.num?num:T.code}</text>`;
+    const lab=T.num?posteTxt(o):o.label; if(lab) h+=txt(o.x,o.y+r+u*1.2,lab,u*1.35);
+    if(sel&&T.num){const hx=o.x2!=null?o.x2:o.x+u*3.6, hy=o.x2!=null?o.y2:o.y;   // poignée : on la tire pour étirer le poste
+      if(o.x2==null) h+=`<path d="M${o.x+r},${o.y}H${hx}" stroke="#fff" stroke-width="${u*.3}" stroke-dasharray="${u*.4} ${u*.4}" pointer-events="none"/>`;
+      h+=`<circle data-h="end" cx="${hx}" cy="${hy}" r="${u*2}" fill="transparent" style="cursor:crosshair"/><circle data-h="end" cx="${hx}" cy="${hy}" r="${u*.95}" fill="#fff" stroke="${T.c}" stroke-width="${u*.35}" style="cursor:crosshair"/>`;}
+  }else if(T.k==='txt'){
+    h+=`<rect x="${o.x-u*8}" y="${o.y-u*1.6}" width="${u*16}" height="${u*3.2}" fill="${sel?'rgba(255,230,0,.35)':'transparent'}"/>`+txt(o.x,o.y,o.label||'Texte',u*1.6);
+  }else{
+    const pts=o.pts.map(p=>p.join(',')).join(' '), tag=o.closed?'polygon':'polyline', com=`points="${pts}" fill="none" stroke-linejoin="round" stroke-linecap="round"`;
+    if(sel) h+=`<${tag} ${com} stroke="#ffe600" stroke-width="${u*(T.sw+1.1)}"/>`;
+    h+=`<${tag} ${com} stroke="${T.edge||'#fff'}" stroke-width="${u*(T.sw+.45)}"/><${tag} ${com} stroke="${T.c}" stroke-width="${u*T.sw}" ${T.dash?`stroke-dasharray="${T.dash.map(d=>d*u).join(' ')}"`:''} style="stroke-linecap:${T.dash?'butt':'round'}"/>`;
+    h+=`<${tag} ${com} stroke="transparent" stroke-width="${u*3.5}" pointer-events="stroke"/>`;
+    o.pts.forEach(p=>h+=`<circle cx="${p[0]}" cy="${p[1]}" r="${u*.45}" fill="${T.c}" stroke="${T.edge||'#fff'}" stroke-width="${u*.15}" pointer-events="none"/>`);
+    if(o.pts.length>1){const a=o.pts[0], b=o.pts[1], L=lenOf(o); h+=txt((a[0]+b[0])/2,(a[1]+b[1])/2-u*1.5,T.short+(L!==null?' '+L+' m':'')+(o.label?' · '+o.label:''),u*1.3);}
+  }
+  return h+'</g>';
+}
+function renderObjs(){
+  const F=S.frozen; if(!F) return; const u=unit(); let n=0;
+  let h=S.objs.map(o=>drawObj(o,u,o.id===selId,o.t==='poste'?++n:0)).join('');
+  if(line) h+=drawObj(line,u,true,0);
+  $('#planObjs').innerHTML=h; renderLegend();
+}
+function renderLegend(){
+  const M=measures(), k=Object.keys(TOOLS).filter(t=>M[t]);
+  $('#legend').innerHTML=k.length?k.map(t=>`<li><i style="background:${TOOLS[t].c}${TOOLS[t].edge?';outline:1.5px solid '+TOOLS[t].edge:''}"></i>${t==='secu'?secuTxt(M):TOOLS[t].n+' : '+(TOOLS[t].k==='line'?(isNaN(M[t].len)?M[t].n+' tracé(s)':Math.round(M[t].len)+' m'):M[t].n)}</li>`).join(''):'<li>Le plan est vide.</li>';
+}
+function renderBar(){
+  const bar=$('#bar'), o=S.objs.find(x=>x.id===selId);
+  if(line){bar.innerHTML=`<b>${TOOLS[line.t].n}</b><span>Touchez l’image pour poser chaque point, ou tirez le trait.</span><button type="button" class="btn sm pri" data-a="end">Terminer le tracé</button><button type="button" class="btn sm" data-a="cancel">Annuler</button>`; return;}
+  if(o){const T=TOOLS[o.t], L=o.pts?lenOf(o):posteLen(o);
+    bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}">
+      ${T.k==='veh'?'<button type="button" class="btn sm" data-a="rl" aria-label="Tourner à gauche">⟲</button><button type="button" class="btn sm" data-a="rr" aria-label="Tourner à droite">⟳</button>':''}
+      <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
+  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».':TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
+    :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter ou le supprimer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
+}
+$('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
+  if(a==='end') finishLine(); else if(a==='cancel'){line=null;}
+  else if(a==='del'){S.objs=S.objs.filter(x=>x.id!==selId); selId=null;}
+  else if(a==='undo'){S.objs.pop();}
+  else if(a==='rl'||a==='rr'){o.r=((o.r||0)+(a==='rl'?-15:15)+360)%360; renderObjs(); save(); return;}
+  renderObjs(); renderBar(); save();});
+$('#bar').addEventListener('input',e=>{if(e.target.id!=='objLabel') return; const o=S.objs.find(x=>x.id===selId); if(o){o.label=e.target.value; renderObjs(); save();}});
+function finishLine(){if(!line) return; if(line.pts.length>=2){line.id=uid(); S.objs.push(line); selId=line.id;} line=null; renderObjs(); renderBar(); save();}
+function svgPt(e){const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.round(q.x),Math.round(q.y)];}
+svg.addEventListener('pointerdown',e=>{
+  if(!S.frozen) return; e.preventDefault(); const p=svgPt(e), u=unit(), g=e.target.closest('[data-id]');
+  if(line){const f=line.pts[0]; if(line.pts.length>=3&&Math.hypot(p[0]-f[0],p[1]-f[1])<u*2.2){line.closed=true; finishLine();} else {line.pts.push(p); drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs();} return;}
+  if(g&&g.dataset.id){const o=S.objs.find(x=>x.id===g.dataset.id); if(o){selId=o.id; drag={o,p,ox:o.x,oy:o.y,ox2:o.x2,oy2:o.y2,pts:o.pts&&o.pts.map(q=>q.slice()),stretch:!!e.target.dataset.h}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}}
+  if(tool){const T=TOOLS[tool];
+    if(T.k==='line'){line={id:'',t:tool,pts:[p],label:''}; selId=null; drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}
+    const o={id:uid(),t:tool,x:p[0],y:p[1],r:0,label:''}; S.objs.push(o); selId=o.id;
+    drag={o,p,ox:o.x,oy:o.y,stretch:tool==='poste',focus:!!T.ask}; try{svg.setPointerCapture(e.pointerId);}catch(err){}
+    renderObjs(); renderBar(); save(); return;}
+  selId=null; renderObjs(); renderBar();
+});
+svg.addEventListener('pointermove',e=>{if(!drag) return; const p=svgPt(e), dx=p[0]-drag.p[0], dy=p[1]-drag.p[1], o=drag.o;
+  if(drag.lineDraw){if(!line) return; const far=Math.hypot(dx,dy)>unit()*1.8; if(drag.added) line.pts.pop(); drag.added=far; if(far) line.pts.push(p); renderObjs(); return;}   // on tire le trait : le point suivant suit le doigt
+  if(drag.stretch){if(Math.hypot(p[0]-o.x,p[1]-o.y)>unit()*1.8){o.x2=p[0]; o.y2=p[1];} else {delete o.x2; delete o.y2;} renderObjs(); return;}
+  if(o.pts) o.pts=drag.pts.map(q=>[q[0]+dx,q[1]+dy]); else {o.x=drag.ox+dx; o.y=drag.oy+dy; if(drag.ox2!=null){o.x2=drag.ox2+dx; o.y2=drag.oy2+dy;}} renderObjs();});
+const endDrag=()=>{if(!drag) return; const f=drag.focus, st=drag.stretch; drag=null; if(st) renderBar(); save(); if(f) $('#objLabel')?.focus();};
+svg.addEventListener('pointerup',endDrag); svg.addEventListener('pointercancel',endDrag);
+svg.addEventListener('dblclick',()=>finishLine());
+document.addEventListener('keydown',e=>{if(S.step!==2||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if((e.key==='Delete'||e.key==='Backspace')&&selId){S.objs=S.objs.filter(x=>x.id!==selId); selId=null; renderObjs(); renderBar(); save();}
+  if(e.key==='Enter') finishLine(); if(e.key==='Escape'){line=null; tool=null; renderPalette(); renderObjs(); renderBar();}});
+function syncPlan(){S.objs.forEach(o=>{const m=PLAN2AN[o.t]; if(!m||S.synced.includes(o.t)) return; S.synced.push(o.t); const g=S.an[m[0]];
+  if(!g.sel.includes(m[1])&&!g.sel.includes('aucun')) g.sel.push(m[1]);});}
+
+/* =====================================================================================
+   7. ÉCRAN 3 — analyse en 5 étapes
+   ===================================================================================== */
+function multiHtml(key,label,help){
+  const g=S.an[key];
+  return `<div class="field"><div class="flabel">${label}</div>${help?`<p class="help">${help}</p>`:''}
+    <details class="multi" data-k="${key}" ${g.sel.length?'':'open'}><summary><span class="val"></span></summary><div class="opts">
+    ${OPT[key].map(o=>`<label class="opt"><input type="checkbox" id="${key}_${o.id}" value="${o.id}" ${g.sel.includes(o.id)?'checked':''}><span>${esc(o.l)}${o.hint?`<small>${esc(o.hint)}</small>`:''}</span></label>`).join('')}
+    <label class="opt"><input type="checkbox" id="${key}_autre" value="autre" ${g.sel.includes('autre')?'checked':''}><span>Autre (champ libre)</span></label>
+    <input type="text" class="autre" id="${key}_autreTxt" data-k="${key}" placeholder="Précisez" value="${esc(g.autre)}"></div></details></div>`;
+}
+function planHint(types){const M=measures(), t=types.filter(x=>M[x]).map(x=>x==='secu'?secuTxt(M):TOOLS[x].n+' : '+(TOOLS[x].k==='line'&&!isNaN(M[x].len)?Math.round(M[x].len)+' m':M[x].n)); return t.length?`<p class="help">Repris du plan — ${t.join(' · ')}</p>`:'';}
+function renderAnalysis(){
+  const a=S.an, st=STEPS.find(s=>s.k===S.sub); let h=`<h3><small>Étape ${st.k} · ${st.f}</small>${st.q}</h3>`;
+  if(st.k==='A') h+=planHint(['echelle','echaf','crino','escalier','acces'])+multiHtml('acces','Moyen d’accès','Plusieurs choix possibles.');
+  if(st.k==='B') h+=(S.roofs.some(isFragile)?'<div class="alert o"><span><b>Toit fragile.</b> Le cheminement se fait sur platelage (Sécuriplac), jamais directement sur la couverture.</span></div>':'')+planHint(['secu'])+multiHtml('chemin','Cheminement','Plusieurs choix possibles.');
+  if(st.k==='C') h+=planHint(['nacelle','gc','secu','ldv','ancrage'])
+    +`<span class="rang">1 · Protection collective, toujours en premier</span>`+multiHtml('epc','Protection collective au poste','Plusieurs modes peuvent se combiner.')
+    +`<div class="field" id="whyBlock"><label for="epcWhy">Pourquoi le collectif est impossible ici</label><textarea id="epcWhy" placeholder="ex : intervention de moins d’une heure sur un point isolé, pose de garde-corps plus exposante que la tâche">${esc(a.epcWhy)}</textarea></div>`
+    +`<span class="rang">2 · Protection individuelle, en complément ou en dernier recours</span>`+multiHtml('epi','Mode opératoire sous EPI','Laissez vide si le collectif suffit.')
+    +`<div class="field" id="ancBlock"><label for="ancrage">Point d’ancrage</label><select id="ancrage"><option value="">— Sélectionner —</option>${OPT.ancrage.map(o=>`<option value="${o.id}" ${a.ancrage===o.id?'selected':''}>${esc(o.l)}</option>`).join('')}<option value="autre" ${a.ancrage==='autre'?'selected':''}>Autre (champ libre)</option></select>
+      <input type="text" id="ancrageAutre" placeholder="Précisez" value="${esc(a.ancrageAutre)}"></div>`;
+  if(st.k==='D') h+=planHint(['levage'])+multiHtml('appro','Moyen de levage ou d’approvisionnement','Plusieurs choix possibles.');
+  if(st.k==='E') h+=`<div class="seg" id="repliSeg"><button type="button" data-v="non" class="${a.repli.risk==='non'?'on':''}">Non, repli sans risque particulier</button><button type="button" data-v="oui" class="${a.repli.risk==='oui'?'on':''}">Oui, il y en a</button></div>`
+    +`<div id="repliBlock">${S.roofs.some(r=>amianteFlag(r)&&r.rat!=='absent')?'<div class="alert o" style="margin-bottom:12px"><span><b>Amiante possible.</b> Pensez au conditionnement et à l’évacuation des déchets amiantés.</span></div>':''}${multiHtml('repli','Risques au repli','Démontage des protections, évacuation des déchets ou autre.')}</div>`;
+  h+=`<div class="verdict" id="verdict"></div>`;
+  $('#panel').innerHTML=h; syncPanel();
+  $('#subPrev').hidden=S.sub==='A'; $('#subNext').textContent=S.sub==='E'?'Voir la synthèse devis':'Étape suivante';
+}
+function syncPanel(){
+  const a=S.an, ev=evaluate();
+  $$('#panel details.multi').forEach(d=>{const g=a[d.dataset.k], v=d.querySelector('.val');
+    const lab=g.sel.map(id=>id==='autre'?'Autre'+(g.autre?' : '+g.autre:''):OPT[d.dataset.k].find(o=>o.id===id)?.l).filter(Boolean);
+    v.textContent=lab.length?lab.join(' · '):'— Sélectionner —'; v.classList.toggle('vide',!lab.length);
+    d.querySelector('.autre').hidden=!g.sel.includes('autre');});
+  const set=(id,show)=>{const el=$(id); if(el) el.hidden=!show;};
+  set('#whyBlock',a.epc.sel.includes('aucun')); set('#ancBlock',a.epi.sel.length>0); set('#ancrageAutre',a.ancrage==='autre'); set('#repliBlock',a.repli.risk==='oui');
+  $('#path').innerHTML=STEPS.map(s=>{const it=ev.items.find(i=>i.k===s.k); return `<li><button type="button" data-sub="${s.k}" class="n${it.lvl}${S.sub===s.k?' on':''}" aria-current="${S.sub===s.k?'step':'false'}"><b>${s.k}</b>${s.n}</button></li>`;}).join('');
+  const it=ev.items.find(i=>i.k===S.sub), v=$('#verdict'), msg={0:'Vert — standard, rien à ajouter au devis pour cette étape.',1:'Orange — moyens de prévention à chiffrer.',2:'À compléter.',3:'Rouge — point bloquant à lever avant d’envoyer le devis.'};
+  v.className='verdict n'+it.lvl; v.innerHTML=`<b>${msg[it.lvl]}</b>${it.r.length?`<ul>${it.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
+  feu();
+}
+$('#path').addEventListener('click',e=>{const b=e.target.closest('[data-sub]'); if(b){S.sub=b.dataset.sub; renderAnalysis(); save();}});
+$('#subPrev').onclick=()=>{S.sub=STEPS[Math.max(0,STEPS.findIndex(s=>s.k===S.sub)-1)].k; renderAnalysis(); save();};
+$('#subNext').onclick=()=>{const i=STEPS.findIndex(s=>s.k===S.sub); if(i===STEPS.length-1) return go(4); S.sub=STEPS[i+1].k; renderAnalysis(); save(); $('#s3').scrollIntoView();};
+$('#panel').addEventListener('change',e=>{
+  const t=e.target, d=t.closest('details.multi'), a=S.an;
+  if(d&&t.type==='checkbox'){const g=a[d.dataset.k]; g.sel=g.sel.filter(x=>x!==t.value); if(t.checked) g.sel.push(t.value);
+    if(d.dataset.k==='epc'){ // « aucune protection collective » exclut les autres choix
+      if(t.value==='aucun'&&t.checked) g.sel=['aucun']; else g.sel=g.sel.filter(x=>x!=='aucun');
+      d.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=g.sel.includes(c.value));}
+    if(t.value==='autre'&&t.checked) setTimeout(()=>d.querySelector('.autre').focus(),30);}
+  if(t.id==='ancrage') a.ancrage=t.value;
+  syncPanel(); save();
+});
+$('#panel').addEventListener('input',e=>{const t=e.target, a=S.an;
+  if(t.classList.contains('autre')) a[t.dataset.k].autre=t.value; else if(t.id==='epcWhy') a.epcWhy=t.value; else if(t.id==='ancrageAutre') a.ancrageAutre=t.value; else return;
+  syncPanel(); save();});
+$('#panel').addEventListener('click',e=>{const b=e.target.closest('#repliSeg button'); if(!b) return; S.an.repli.risk=b.dataset.v;
+  $$('#repliSeg button').forEach(x=>x.classList.toggle('on',x===b)); syncPanel(); save();});
+
+/* =====================================================================================
+   8. ÉCRAN 4 — synthèse pour le devis
+   ===================================================================================== */
+const matLabel=r=>{const m=MATS.flatMap(g=>g.o).find(o=>o[0]===r.mat); return m?(r.mat==='autre'&&r.matAutre?r.matAutre:m[1].replace('⚠ ','')):'—';};
+const perLabel={avant:'Avant le 1er juillet 1997',apres:'Après le 1er juillet 1997',nsp:'Inconnue'};
+function renderSynth(){
+  const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
+  const head={0:['Vert — chiffrage standard','Aucun moyen de sécurisation particulier à ajouter au devis.'],
+    1:['Orange — moyens de prévention à chiffrer',`${ev.devis.length} ligne${ev.devis.length>1?'s':''} à intégrer au devis.`],
+    2:['Analyse incomplète',`${nb} rubrique${nb>1?'s':''} à compléter avant de pouvoir conclure.`],
+    3:['Rouge — ne pas envoyer le devis en l’état',`${rg} point${rg>1?'s':''} bloquant${rg>1?'s':''} à lever, ou à soumettre au service QHSE.`]}[g];
+  const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
+  if(S.frozen){selId=null; line=null; renderPlanAll();}
+  let h=`<div class="global n${g}"><span class="rond"></span><div><h2>${head[0]}</h2><p>${head[1]}</p>
+    <dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${new Date().toLocaleDateString('fr-FR')}</dd></div></dl></div></div>`;
+  if(S.frozen) h+=`<div class="card"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage" id="synthStage" style="margin-top:10px"></div>
+    <ul class="legend" style="margin-top:8px">${$('#legend').innerHTML}</ul>
+    ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}</div>`;
+  h+=`<div class="card"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
+    ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}</td><td class="num">${r.area?esc(r.area)+' m²':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
+      <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="6">Aucun toit sélectionné.</td></tr>'}
+    </tbody></table></div></div>
+  <div class="card"><h2><span class="num">${++n}</span>Analyse de risque</h2>
+    <div class="scroll"><table><thead><tr><th>Étape</th><th>Niveau</th><th>Ce qui est prévu</th><th>Points d’attention</th></tr></thead><tbody>
+    ${ev.items.map(i=>`<tr><td><b>${i.k==='T'?'':i.k+' · '}${i.n}</b></td><td><span class="pill n${i.lvl}">${NIV_TXT[i.lvl]}</span></td><td>${i.labels.map(esc).join('<br>')||'—'}</td><td>${i.r.map(esc).join('<br>')||'—'}</td></tr>`).join('')}
+    </tbody></table></div>${a_epcWhy()}</div>
+  <div class="card deviscard"><h2><span class="num">${++n}</span>À intégrer au devis</h2><p class="intro">Les quantités viennent du plan quand l’élément y est tracé.</p>
+    ${ev.devis.length?`<ul class="devis">${ev.devis.map(d=>`<li><span>${esc(d.txt)}</span><span>${esc(d.qty)}</span></li>`).join('')}</ul>`:'<p class="msg">Aucune ligne de sécurisation particulière.</p>'}</div>
+  <div class="card signcard"><h2><span class="num">${++n}</span>Signatures</h2><div class="signs">
+    <div class="sbox"><b>Signature du RA / CC</b><span>Nom : ${esc(S.redacteur)}</span><span>Date :</span><div class="zone"></div></div>
+    <div class="sbox"><b>Signature des techniciens intervenants</b><table><thead><tr><th>Nom</th><th>Date</th><th>Signature</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
+  </div></div>
+  <div class="row end noprint"><button type="button" class="btn" data-go="3">Retour à l’analyse</button><div class="row">
+    <span class="msg" id="copyMsg"></span><button type="button" class="btn" id="btnCopy">Copier le résumé</button>${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn pri" id="btnPrint">Imprimer / PDF</button></div></div>`;
+  $('#s4').innerHTML=h;
+  if(S.frozen){const c=svg.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); c.removeAttribute('style'); c.style.pointerEvents='none'; $('#synthStage').appendChild(c);}
+}
+function a_epcWhy(){return S.an.epc.sel.includes('aucun')&&S.an.epcWhy.trim()?`<p class="msg just"><b>Collectif impossible, justification :</b> ${esc(S.an.epcWhy.trim())}</p>`:'';}
+function summaryText(){
+  const ev=evaluate(), L=[];
+  L.push('ANALYSE DE RISQUE TOITURE — '+NIV_TXT[ev.global].toUpperCase(), 'Client : '+(S.client||'—'), 'Adresse : '+(S.adresse||'—'), 'Date : '+new Date().toLocaleDateString('fr-FR')+(S.redacteur?' — '+S.redacteur:''), '');
+  S.roofs.forEach(r=>L.push(`${r.name} : ${r.area?r.area+' m², ':''}${matLabel(r)}, permis ${(perLabel[r.periode]||'non renseigné').toLowerCase()}${isFragile(r)?', TOIT FRAGILE':''}`));
+  L.push(''); ev.items.forEach(i=>{L.push(`[${NIV_TXT[i.lvl]}] ${i.k==='T'?'':i.k+' · '}${i.n}${i.labels.length?' : '+i.labels.join(' ; '):''}`); i.r.forEach(r=>L.push('   ! '+r));});
+  if(ev.devis.length){L.push('','À INTÉGRER AU DEVIS'); ev.devis.forEach(d=>L.push('- '+d.txt+(d.qty?' ('+d.qty+')':'')));}
+  const p=S.objs.filter(o=>o.t==='poste'); if(p.length){L.push('','POSTES DE TRAVAIL'); p.forEach((o,i)=>L.push(`${i+1}. ${posteTxt(o)||'—'}`));}
+  return L.join('\n');
+}
+$('#s4').addEventListener('click',async e=>{
+  if(e.target.id==='btnPrint') window.print();
+  if(e.target.id==='btnCopy'){try{await navigator.clipboard.writeText(summaryText()); $('#copyMsg').textContent='Résumé copié.';}catch(err){$('#copyMsg').textContent='Copie impossible ici : utilisez Imprimer / PDF.';}}
+  if(e.target.id==='btnPng'){const F=S.frozen, c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
+    const im=new Image(); im.onload=()=>{const cv=document.createElement('canvas'); cv.width=F.w; cv.height=F.h; cv.getContext('2d').drawImage(im,0,0);
+      cv.toBlob(b=>{const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='plan-installation.png'; a.click();},'image/png');};
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(c));}
+});
+
+/* =====================================================================================
+   9. DÉMARRAGE
+   ===================================================================================== */
+window.addEventListener('resize',()=>{if(S.step===2) renderPlanAll();});
+initMap(); renderRoofs(); go(S.step||1);
+</script>
+</body>
+</html>
