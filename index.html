@@ -592,6 +592,7 @@ function evaluate(){
     const n=r.name||'Toit';
     if(!r.mat) up(T,INC,n+' : matériau à renseigner');
     else if(r.mat==='autre') up(T,O,n+' : matériau à confirmer'+(r.matAutre?' ('+r.matAutre+')':'')+', fragilité inconnue');
+    if(!penteOf(r)) up(T,INC,n+' : pente à renseigner');
     if(!r.periode) up(T,INC,n+' : date du permis de construire à renseigner');
     else if(amianteFlag(r)){
       if(r.rat==='absent') T.labels.push(n+' : repérage reçu, pas d’amiante');
@@ -1080,7 +1081,7 @@ const PDP_FIXES=[
   {icon:'objects',t:'Chute d’objets et heurts',
    r:'Aucune circulation de tiers sous la zone d’intervention. Prévention des heurts entre intervenants, charges manutentionnées et éléments de structure.',
    a:'Balisage et condamnation du périmètre au sol, goulotte ou descente contrôlée des gravats, arrimage de l’outillage en toiture, vigilance mutuelle lors des déplacements et manutentions.',
-   p:'Barrières, rubalise, panneaux « chantier interdit au public », filets de recueil, sacs à gravats, casque à jugulaire.'},
+   p:'Barrières, cônes de balisage, panneaux « chantier interdit au public », filets de recueil, sacs à gravats, casque à jugulaire.'},
   {icon:'weather',t:'Conditions météorologiques',
    r:'Arrêt immédiat des travaux en hauteur en cas de vent fort (rafales ≥ 50 km/h), d’orage, de forte chaleur, de verglas ou de toiture glissante (pluie, gel, mousse).',
    a:'Consultation météo avant chaque prise de poste, décision d’arrêt par le chef d’équipe sans validation hiérarchique préalable (droit de retrait ci-dessus).',
