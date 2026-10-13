@@ -111,7 +111,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .planctl{display:flex;flex-wrap:wrap;gap:6px 28px;align-items:center;font-size:14px}
 .planctl .pc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .planctl label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2)}
-.planctl input[type=range]{width:170px;accent-color:var(--rouge)} .planctl output{min-width:44px;font-variant-numeric:tabular-nums;font-weight:600}
+.planctl input[type=range]{width:150px;accent-color:var(--rouge)} .planctl output{min-width:44px;font-variant-numeric:tabular-nums;font-weight:600}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:48px;padding:4px 10px;border-radius:6px;background:var(--gris-pale);font-size:15px}
 .bar b{flex:none}
 .bar input{flex:1 1 220px;min-width:0}
@@ -366,6 +366,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
       <div class="palette noprint" id="palette"></div>
       <div class="planctl noprint" id="planCtl">
         <span class="pc"><label for="rotRange">Orientation du plan</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth">Nord en haut</button></span>
+        <span class="pc"><label for="zoomRange">Zoom</label><input type="range" id="zoomRange" min="100" max="300" step="5" value="100"><output id="zoomVal">100 %</output></span>
         <span class="pc"><label for="symRange">Taille des symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
       </div>
       <div class="bar noprint" id="bar"></div>
@@ -553,7 +554,7 @@ let saveT; function save(){clearTimeout(saveT); saveT=setTimeout(()=>{try{localS
    3. MOTEUR VERT / ORANGE / ROUGE
    ===================================================================================== */
 function measures(){
-  const k=S.frozen&&S.frozen.mpp, m={};
+  const k=mppEff(), m={};
   S.objs.forEach(o=>{const e=m[o.t]||(m[o.t]={n:0,len:0}); e.n++;
     if(o.pts){let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
       if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]);
@@ -872,11 +873,18 @@ const svg=$('#plan');
 function unit(){const F=S.frozen, d=svg.getBoundingClientRect().width||Math.max(300,$('main').clientWidth-70); return F.w/100*Math.min(2.4,Math.max(1,760/d))*(S.symK||.75);}
 /* Orientation : le fond pivote autour du centre, les éléments posés pivotent avec lui */
 function rotPt(p,deg,cx,cy){const a=deg*Math.PI/180, c=Math.cos(a), s=Math.sin(a), x=p[0]-cx, y=p[1]-cy; return [cx+x*c-y*s, cy+x*s+y*c];}
-function baseDisp(p){const F=S.frozen, ox=(F.w-(F.bw||F.w))/2, oy=(F.h-(F.bh||F.h))/2; return rotPt([p[0]+ox,p[1]+oy],F.rot||0,F.w/2,F.h/2);}
+/* Cadrage du fond : affichage = centre du cadre + décalage + rotation × zoom × (point de la capture − centre de la capture) */
+function mppEff(){const F=S.frozen; return F&&F.mpp?F.mpp/(F.z||1):null;}
+function baseDisp(p){const F=S.frozen, bw=F.bw||F.w, bh=F.bh||F.h, z=F.z||1, pan=F.pan||[0,0];
+  const q=rotPt([(p[0]-bw/2)*z,(p[1]-bh/2)*z],F.rot||0,0,0); return [F.w/2+pan[0]+q[0], F.h/2+pan[1]+q[1]];}
+function cadreOK(pan,z,rot){const F=S.frozen, bw=F.bw||F.w, bh=F.bh||F.h; if(F.imported) return true;   // le cadre doit rester dans la capture
+  return [[0,0],[F.w,0],[0,F.h],[F.w,F.h]].every(([x,y])=>{const v=rotPt([x-F.w/2-pan[0],y-F.h/2-pan[1]],-rot,0,0), bx=bw/2+v[0]/z, by=bh/2+v[1]/z; return bx>=-2&&by>=-2&&bx<=bw+2&&by<=bh+2;});}
+function moveAll(fn){S.objs.forEach(o=>{if(o.pts) o.pts=o.pts.map(fn); else {[o.x,o.y]=fn([o.x,o.y]); if(o.x2!=null)[o.x2,o.y2]=fn([o.x2,o.y2]);}});}
 function drawBase(){
   const F=S.frozen, u=unit(), im=$('#planImg'), bw=F.bw||F.w, bh=F.bh||F.h, rot=F.rot||0;
-  im.setAttribute('href',F.src); im.setAttribute('x',(F.w-bw)/2); im.setAttribute('y',(F.h-bh)/2); im.setAttribute('width',bw); im.setAttribute('height',bh);
-  im.setAttribute('transform',`rotate(${rot} ${F.w/2} ${F.h/2})`);
+  const z=F.z||1, pan=F.pan||[0,0];
+  im.setAttribute('href',F.src); im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',bw); im.setAttribute('height',bh);
+  im.setAttribute('transform',`translate(${F.w/2+pan[0]} ${F.h/2+pan[1]}) rotate(${rot}) scale(${z}) translate(${-bw/2} ${-bh/2})`);
   let h=S.roofs.map(r=>{if(!r.px) return ''; const pls=r.px.map(pl=>pl.map(baseDisp)), all=pls.flat(), cx=all.reduce((s,p)=>s+p[0],0)/all.length, cy=all.reduce((s,p)=>s+p[1],0)/all.length;
     return pls.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(surfPente(r)!==null?' · '+fmtN(surfPente(r))+' m² en pente ('+r.pente+'°)':r.area?' · '+fmtN(r.area)+' m² à plat':''),u*1.45);}).join('');
   if(!F.imported){const R=u*2.2, nx=F.w-R*1.8, ny=R*1.8, t=rotPt([nx,ny-R*1.45],rot,nx,ny);   // flèche du nord
@@ -885,11 +893,19 @@ function drawBase(){
   $('#planRoofs').innerHTML=h;
 }
 function setRot(v){const F=S.frozen; if(!F) return; finishLine(); const d=v-(F.rot||0); if(!d) return; const cx=F.w/2, cy=F.h/2;
-  S.objs.forEach(o=>{if(o.pts) o.pts=o.pts.map(p=>rotPt(p,d,cx,cy)); else {[o.x,o.y]=rotPt([o.x,o.y],d,cx,cy); if(o.x2!=null)[o.x2,o.y2]=rotPt([o.x2,o.y2],d,cx,cy); if(TOOLS[o.t].k==='veh') o.r=((o.r||0)+d+360)%360;}});
-  F.rot=v; $('#rotVal').textContent=v+'°'; drawBase(); renderObjs();}
+  moveAll(p=>rotPt(p,d,cx,cy)); S.objs.forEach(o=>{if(TOOLS[o.t].k==='veh') o.r=((o.r||0)+d+360)%360;});
+  F.pan=rotPt(F.pan||[0,0],d,0,0); F.rot=v; $('#rotVal').textContent=v+'°'; drawBase(); renderObjs();}
 $('#rotRange').addEventListener('input',e=>setRot(+e.target.value));
 $('#rotRange').addEventListener('change',()=>save());
 $('#rotNorth').onclick=()=>{$('#rotRange').value=0; setRot(0); save();};
+/* Zoom après recadrage : agrandit le fond autour du centre du cadre, les éléments posés suivent et gardent leurs longueurs réelles */
+function setZoom(z){const F=S.frozen; if(!F) return; finishLine(); const z0=F.z||1, k=z/z0; if(k===1) return; const cx=F.w/2, cy=F.h/2;
+  let pan=(F.pan||[0,0]).map(v=>v*k); for(let i=0;i<40&&!cadreOK(pan,z,F.rot||0);i++) pan=pan.map(v=>v*.85);   // en dézoomant, on recentre si le cadre sort de la capture
+  const pk=(F.pan||[0,0]).map(v=>v*k), dpx=pan[0]-pk[0], dpy=pan[1]-pk[1];
+  moveAll(p=>[cx+(p[0]-cx)*k+dpx, cy+(p[1]-cy)*k+dpy]); F.pan=pan; F.z=z;
+  $('#zoomVal').textContent=Math.round(z*100)+' %'; drawBase(); renderObjs(); renderBar();}
+$('#zoomRange').addEventListener('input',e=>setZoom(+e.target.value/100));
+$('#zoomRange').addEventListener('change',()=>save());
 $('#symRange').addEventListener('input',e=>{S.symK=+e.target.value/100; $('#symVal').textContent=e.target.value+' %'; drawBase(); renderObjs();});
 $('#symRange').addEventListener('change',()=>save());
 /* Sur grand écran, le plan est réduit pour que la palette, l'image et la légende tiennent ensemble dans la fenêtre */
@@ -909,17 +925,18 @@ $('#palette').addEventListener('click',e=>{const b=e.target.closest('[data-tool]
 function renderPlanAll(){
   const F=S.frozen; $('#planEmpty').hidden=!!F; $('#planWrap').hidden=!F; if(!F) return;
   svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`);
-  $('#rotRange').value=F.rot||0; $('#rotVal').textContent=(F.rot||0)+'°'; $('#rotRange').disabled=false;
+  $('#rotRange').value=F.rot||0; $('#rotVal').textContent=(F.rot||0)+'°';
+  const zz=Math.round((F.z||1)*100); $('#zoomRange').value=zz; $('#zoomVal').textContent=zz+' %';
   const k=Math.round((S.symK||.75)*100); $('#symRange').value=k; $('#symVal').textContent=k+' %';
   renderPalette(); renderBar(); fitPlan(); drawBase(); renderObjs();
 }
 function txt(x,y,s,fs,anchor){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="${anchor||'middle'}" dominant-baseline="central" fill="#fff" stroke="#1b1b1b" stroke-width="${fs*.22}" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(s)}</text>`;}
-function lenOf(o){const k=S.frozen.mpp; if(!k) return null; let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
+function lenOf(o){const k=mppEff(); if(!k) return null; let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
   if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]); return TOOLS[o.t].plate?(d*k).toFixed(1).replace('.',','):Math.round(d*k);}   // Sécuriplac : au dixième, le total est arrondi au-dessus
-function posteLen(o){if(o.x2==null) return null; const k=S.frozen&&S.frozen.mpp; return k?Math.max(1,Math.round(Math.hypot(o.x2-o.x,o.y2-o.y)*k)):null;}
+function posteLen(o){if(o.x2==null) return null; const k=mppEff(); return k?Math.max(1,Math.round(Math.hypot(o.x2-o.x,o.y2-o.y)*k)):null;}
 function posteTxt(o){const L=posteLen(o); return [o.label,L!==null?L+' m':''].filter(Boolean).join(' · ');}
 function drawObj(o,u,sel,num){
-  const T=TOOLS[o.t], F=S.frozen, m=F.mpp||(60/F.w);     // sans échelle connue : l'image est supposée faire 60 m de large
+  const T=TOOLS[o.t], F=S.frozen, m=mppEff()||(60/F.w/(F.z||1));     // sans échelle connue : l'image est supposée faire 60 m de large
   let h=`<g class="obj" data-id="${o.id}">`;
   if(T.k==='veh'){
     // à l'échelle réelle ; plancher de 2,5 % de l'image seulement sur les vues très larges
@@ -978,7 +995,7 @@ function renderBar(){
       ${T.k==='veh'||o.pts||o.x2!=null?'<button type="button" class="btn sm" data-a="rl" aria-label="Tourner à gauche">⟲</button><button type="button" class="btn sm" data-a="rr" aria-label="Tourner à droite">⟳</button>':''}
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
   bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(tool==='ldv'?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
-    :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter ou le supprimer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
+    :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter ou le supprimer. Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
   if(a==='end') finishLine(); else if(a==='cancel'){line=null;}
@@ -1008,15 +1025,17 @@ svg.addEventListener('pointerdown',e=>{
     const o={id:uid(),t:tool,x:p[0],y:p[1],r:0,label:''}; S.objs.push(o); selId=o.id;
     drag={o,p,ox:o.x,oy:o.y,stretch:tool==='poste',focus:!!T.ask}; try{svg.setPointerCapture(e.pointerId);}catch(err){}
     renderObjs(); renderBar(); save(); return;}
-  selId=null; renderObjs(); renderBar();
+  selId=null; drag={pan:true,p,last:[0,0]}; try{svg.setPointerCapture(e.pointerId);}catch(err){} svg.style.cursor='grabbing'; renderObjs(); renderBar();
 });
 svg.addEventListener('pointermove',e=>{if(!drag) return; const p=svgPt(e), dx=p[0]-drag.p[0], dy=p[1]-drag.p[1], o=drag.o;
+  if(drag.pan){const F=S.frozen, ix=dx-drag.last[0], iy=dy-drag.last[1], pan=F.pan||[0,0], c=[pan[0]+ix,pan[1]+iy];   // on fait glisser le fond
+    if(cadreOK(c,F.z||1,F.rot||0)){F.pan=c; drag.last=[dx,dy]; moveAll(q=>[q[0]+ix,q[1]+iy]); drawBase(); renderObjs();} return;}
   if(drag.lineDraw){if(!line) return; const far=Math.hypot(dx,dy)>unit()*1.8; if(drag.added) linePop(); drag.added=far; if(far) linePush(p); renderObjs(); return;}
   if(drag.vtx!=null){const a=o.t==='ldv'?snapAnc(p):null; o.pts[drag.vtx]=a?[a.x,a.y]:p;   // on déplace un point du tracé, accroché à l'ancrage le plus proche
     if(o.t==='ldv'){if(!o.anc) o.anc=o.pts.map(()=>null); o.anc[drag.vtx]=a?a.id:null;} renderObjs(); return;}   // on tire le trait : le point suivant suit le doigt
   if(drag.stretch){if(Math.hypot(p[0]-o.x,p[1]-o.y)>unit()*1.8){o.x2=p[0]; o.y2=p[1];} else {delete o.x2; delete o.y2;} renderObjs(); return;}
   if(o.pts){o.pts=drag.pts.map(q=>[q[0]+dx,q[1]+dy]); lineMoved(o);} else {o.x=drag.ox+dx; o.y=drag.oy+dy; if(drag.ox2!=null){o.x2=drag.ox2+dx; o.y2=drag.oy2+dy;} if(o.t==='ancrage') anchorMoved(o);} renderObjs();});
-const endDrag=()=>{if(!drag) return; const f=drag.focus, st=drag.stretch||drag.vtx!=null; drag=null; if(st) renderBar(); save(); if(f) $('#objLabel')?.focus();};
+const endDrag=()=>{if(!drag) return; svg.style.cursor=''; const f=drag.focus, st=drag.stretch||drag.vtx!=null; drag=null; if(st) renderBar(); save(); if(f) $('#objLabel')?.focus();};
 svg.addEventListener('pointerup',endDrag); svg.addEventListener('pointercancel',endDrag);
 svg.addEventListener('dblclick',()=>finishLine());
 document.addEventListener('keydown',e=>{if(S.step!==2||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
@@ -1109,8 +1128,7 @@ const EPI_ICONS=[
   ['Casque','<path d="M9 25a11 11 0 0 1 22 0z" fill="#fff"/><rect x="6" y="25" width="28" height="3.6" rx="1.6" fill="#fff"/>'],
   ['Harnais','<circle cx="20" cy="8.5" r="3.6" fill="#fff"/><path d="M14 14h12l-1 11h-2l-1 9h-4l-1-9h-2z" fill="#fff"/><path d="M15 15l10 9.5M25 15l-10 9.5" stroke="#1d5fa8" stroke-width="1.7"/>'],
   ['Gants','<g fill="#fff"><rect x="12.4" y="10.5" width="3.7" height="12" rx="1.85"/><rect x="16.5" y="8" width="3.7" height="14" rx="1.85"/><rect x="20.6" y="9" width="3.7" height="13" rx="1.85"/><rect x="24.7" y="12" width="3.5" height="10" rx="1.75"/><rect x="12.4" y="18.5" width="15.8" height="11.5" rx="3"/><rect x="7.6" y="17" width="4" height="10" rx="2" transform="rotate(-32 9.6 22)"/><rect x="13" y="30.5" width="14.6" height="4.2" rx="1"/></g>'],
-  ['Chaussures','<path d="M13 8h8v14l9 4a3 3 0 0 1 2 3v3H11z" fill="#fff"/>'],
-  ['Gilet HV','<path d="M14 7h4l2 4 2-4h4l4 6-3 3v17H13V16l-3-3z" fill="#fff"/><path d="M13 22h14M13 27h14" stroke="#1d5fa8" stroke-width="1.7"/>']
+  ['Chaussures','<path d="M13 8h8v14l9 4a3 3 0 0 1 2 3v3H11z" fill="#fff"/>']
 ];
 /* Risques toujours présents dans une intervention ATTILA (contenu fourni par la direction QHSE) */
 const PDP_FIXES=[
@@ -1179,7 +1197,7 @@ const PDP_OPTS=[
 const rcard=(o,fixe)=>`<article class="rcard"><header><span class="ricon">${ICON[o.icon||'warn']}</span><h3>${o.t}</h3><span class="badge${fixe?'':' alt'}">${fixe?'Obligatoire':'Propre au chantier'}</span></header>
   <dl class="rrows"><dt>Règle</dt><dd>${o.r}</dd><dt>Action</dt><dd>${o.a}</dd><dt>Protection</dt><dd>${o.p}</dd></dl>
   ${o.epi?`<div class="epis">${EPI_ICONS.map(([n,g])=>`<div class="epi"><span><svg viewBox="0 0 40 40">${g}</svg></span>${n}</div>`).join('')}</div>`:''}
-  ${fixe?'<p class="rnote">Contenu pré-évalué par la direction QHSE ATTILA — non modifiable.</p>':''}</article>`;
+</article>`;
 const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</div>`;
 const lines=n=>'<i></i>'.repeat(n);
 
