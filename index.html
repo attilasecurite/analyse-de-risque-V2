@@ -108,6 +108,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .tool i.b{border-radius:2px;width:18px;height:10px}
 .tool i.c{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
 .tool.on{background:var(--encre);border-color:var(--encre);color:#fff}
+.planctl{display:flex;flex-wrap:wrap;gap:6px 28px;align-items:center;font-size:14px}
+.planctl .pc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.planctl label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2)}
+.planctl input[type=range]{width:170px;accent-color:var(--rouge)} .planctl output{min-width:44px;font-variant-numeric:tabular-nums;font-weight:600}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:48px;padding:4px 10px;border-radius:6px;background:var(--gris-pale);font-size:15px}
 .bar b{flex:none}
 .bar input{flex:1 1 220px;min-width:0}
@@ -182,6 +186,7 @@ tr.tot td{border-top:2px solid var(--trait)}
   .steps button span{display:none} .steps button.on span{display:inline}
 }
 .global .meta{margin-top:10px}
+.meta .wide{flex-basis:100%} .penline{display:block;height:22px;border-bottom:1px solid #9a918d}
 .eyebrow{margin:0 0 2px!important;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--rouge-fonce)}
 .dochead{border-radius:8px;padding:16px 18px;background:var(--carte);border:2px solid var(--encre);border-left:8px solid var(--rouge)}
 .dochead h2{margin:0;font:900 22px/1.2 var(--titre)} .dochead>p{margin:4px 0 0} .dochead .meta{margin-top:10px}
@@ -238,7 +243,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 @page{size:A4;margin:9mm 10mm}
 @media print{
   .band button,.steps,.noprint,#s1,#s2,#s3,.card>p.intro,.card>h2 .num,.band h1 small{display:none!important}
-  .po{display:inline}
+  .po{display:inline} .so{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:#fff;font-size:8.5pt;line-height:1.25}
   .band{background:none;color:var(--encre)} .band .in{padding:0 0 1.5mm;max-width:none} .band h1{font-size:12pt;color:var(--rouge-fonce)}
@@ -278,7 +283,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 </head>
 <body>
 <header class="band"><div class="in">
-  <h1><span class="po">ATTILA · </span>Analyse de risque toiture<small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
+  <h1><span class="po">ATTILA · </span><span class="so">Analyse de risque toiture</span><span class="po" id="printName">Analyse de risque toiture</span><small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
   <button type="button" id="btnNew">Nouvelle analyse</button>
 </div></header>
 
@@ -309,6 +314,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
         <input type="text" id="adresse" autocomplete="off" placeholder="N°, rue, ville" role="combobox" aria-expanded="false" aria-controls="acList">
         <ul id="acList" hidden></ul>
       </div>
+      <div class="field" style="grid-column:1/-1"><label for="travaux">Nature des travaux</label><input type="text" id="travaux" autocomplete="off" placeholder="ex : nettoyage des chéneaux et reprise du faîtage"></div>
     </div>
   </div>
 
@@ -358,6 +364,10 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     <div id="planEmpty" class="empty" hidden>L’image n’est pas encore figée. Revenez à l’étape 1, cadrez la vue puis touchez « Figer l’image ».</div>
     <div id="planWrap" style="display:flex;flex-direction:column;gap:12px">
       <div class="palette noprint" id="palette"></div>
+      <div class="planctl noprint" id="planCtl">
+        <span class="pc"><label for="rotRange">Orientation du plan</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth">Nord en haut</button></span>
+        <span class="pc"><label for="symRange">Taille des symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
+      </div>
       <div class="bar noprint" id="bar"></div>
       <div class="stage"><svg id="plan" xmlns="http://www.w3.org/2000/svg"><image id="planImg"/><g id="planRoofs"></g><g id="planObjs"></g></svg></div>
       <ul class="legend" id="legend"></ul>
@@ -528,7 +538,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
 const multi=()=>({sel:[],autre:''});
-const blank=()=>({v:2,client:'',redacteur:'',adresse:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
+const blank=()=>({v:2,client:'',redacteur:'',adresse:'',travaux:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
   an:{acces:multi(),chemin:multi(),epc:multi(),epcWhy:'',epi:multi(),ancrage:'',ancrageAutre:'',appro:multi(),repli:{risk:'',sel:[],autre:''}},
   step:1,sub:'A'});
 let S=blank();
@@ -674,7 +684,7 @@ $('#newYes').onclick=()=>{try{localStorage.removeItem(KEY);}catch(e){} location.
 /* =====================================================================================
    5. ÉCRAN 1 — adresse, carte, toits
    ===================================================================================== */
-['client','redacteur'].forEach(id=>{$('#'+id).value=S[id]; $('#'+id).oninput=e=>{S[id]=e.target.value; save();};});
+['client','redacteur','travaux'].forEach(id=>{$('#'+id).value=S[id]||''; $('#'+id).oninput=e=>{S[id]=e.target.value; save();};});
 const adr=$('#adresse'), acList=$('#acList'); adr.value=S.adresse;
 let acT, acSeq=0;
 adr.addEventListener('input',()=>{S.adresse=adr.value; save(); clearTimeout(acT); const q=adr.value.trim();
@@ -830,11 +840,12 @@ async function freeze(){
   frzMsg('Capture de la vue…');
   try{
     const z=map.getZoom(), size=map.getSize(), src=SRC[S.src], s=Math.min(2,1800/size.x), zr=Math.min(src.max,Math.round(z)+(s>1?1:0));
-    const f=s*Math.pow(2,z-zr), tl=map.getPixelBounds().min, k=Math.pow(2,zr-z), tx0=tl.x*k, ty0=tl.y*k;
-    const W=Math.round(size.x*s), H=Math.round(size.y*s), cv=document.createElement('canvas'); cv.width=W; cv.height=H;
-    const ctx=cv.getContext('2d'); ctx.fillStyle='#777'; ctx.fillRect(0,0,W,H);
+    const W=Math.round(size.x*s), H=Math.round(size.y*s), D=Math.ceil(Math.hypot(W,H));   // carré qui couvre la vue même une fois pivotée
+    const f=s*Math.pow(2,z-zr), c=map.project(map.getCenter(),z), tl={x:c.x-D/2/s,y:c.y-D/2/s}, k=Math.pow(2,zr-z), tx0=tl.x*k, ty0=tl.y*k;
+    const cv=document.createElement('canvas'); cv.width=D; cv.height=D;
+    const ctx=cv.getContext('2d'); ctx.fillStyle='#777'; ctx.fillRect(0,0,D,D);
     const jobs=[]; let ko=0;
-    for(let x=Math.floor(tx0/256);x<=Math.floor((tx0+W/f)/256);x++) for(let y=Math.floor(ty0/256);y<=Math.floor((ty0+H/f)/256);y++)
+    for(let x=Math.floor(tx0/256);x<=Math.floor((tx0+D/f)/256);x++) for(let y=Math.floor(ty0/256);y<=Math.floor((ty0+D/f)/256);y++)
       jobs.push(new Promise(res=>{const im=new Image(); im.crossOrigin='anonymous';
         im.onload=()=>{const dx=Math.floor((x*256-tx0)*f), dy=Math.floor((y*256-ty0)*f); ctx.drawImage(im,dx,dy,Math.ceil(256*f)+1,Math.ceil(256*f)+1); res();};
         im.onerror=()=>{ko++; res();}; im.src=src.url.replace('{z}',zr).replace('{x}',x).replace('{y}',y);}));
@@ -843,7 +854,7 @@ async function freeze(){
     const data=cv.toDataURL('image/jpeg',.85);
     const mpp=156543.03392*Math.cos(map.getCenter().lat*Math.PI/180)/Math.pow(2,z)/s;
     S.roofs.forEach(r=>{r.px=r.rings?r.rings.map(pl=>pl[0].map(ll=>{const p=map.project(ll,z); return [Math.round((p.x-tl.x)*s),Math.round((p.y-tl.y)*s)];})):null;});
-    S.frozen={src:data,w:W,h:H,mpp}; frzMsg(''); go(2);
+    S.frozen={src:data,w:W,h:H,bw:D,bh:D,rot:0,mpp}; frzMsg(''); go(2);
   }catch(e){frzMsg('La capture a échoué. Changez de fond (IGN / Esri) ou importez une capture d’écran.',1);}
 }
 $('#impFile').onchange=e=>{const file=e.target.files[0]; if(!file) return; const fr=new FileReader();
@@ -858,12 +869,34 @@ $('#impFile').onchange=e=>{const file=e.target.files[0]; if(!file) return; const
 let tool=null, selId=null, drag=null, line=null;
 const svg=$('#plan');
 /* Unité de dessin : 1 % de la largeur de l'image, grossie sur petit écran pour rester lisible */
-function unit(){const F=S.frozen, d=svg.getBoundingClientRect().width||Math.max(300,$('main').clientWidth-70); return F.w/100*Math.min(2.4,Math.max(1,760/d));}
+function unit(){const F=S.frozen, d=svg.getBoundingClientRect().width||Math.max(300,$('main').clientWidth-70); return F.w/100*Math.min(2.4,Math.max(1,760/d))*(S.symK||.75);}
+/* Orientation : le fond pivote autour du centre, les éléments posés pivotent avec lui */
+function rotPt(p,deg,cx,cy){const a=deg*Math.PI/180, c=Math.cos(a), s=Math.sin(a), x=p[0]-cx, y=p[1]-cy; return [cx+x*c-y*s, cy+x*s+y*c];}
+function baseDisp(p){const F=S.frozen, ox=(F.w-(F.bw||F.w))/2, oy=(F.h-(F.bh||F.h))/2; return rotPt([p[0]+ox,p[1]+oy],F.rot||0,F.w/2,F.h/2);}
+function drawBase(){
+  const F=S.frozen, u=unit(), im=$('#planImg'), bw=F.bw||F.w, bh=F.bh||F.h, rot=F.rot||0;
+  im.setAttribute('href',F.src); im.setAttribute('x',(F.w-bw)/2); im.setAttribute('y',(F.h-bh)/2); im.setAttribute('width',bw); im.setAttribute('height',bh);
+  im.setAttribute('transform',`rotate(${rot} ${F.w/2} ${F.h/2})`);
+  let h=S.roofs.map(r=>{if(!r.px) return ''; const pls=r.px.map(pl=>pl.map(baseDisp)), all=pls.flat(), cx=all.reduce((s,p)=>s+p[0],0)/all.length, cy=all.reduce((s,p)=>s+p[1],0)/all.length;
+    return pls.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(surfPente(r)!==null?' · '+fmtN(surfPente(r))+' m² en pente ('+r.pente+'°)':r.area?' · '+fmtN(r.area)+' m² à plat':''),u*1.45);}).join('');
+  if(!F.imported){const R=u*2.2, nx=F.w-R*1.8, ny=R*1.8, t=rotPt([nx,ny-R*1.45],rot,nx,ny);   // flèche du nord
+    h+=`<g pointer-events="none"><circle cx="${nx}" cy="${ny}" r="${R}" fill="rgba(0,0,0,.45)" stroke="#fff" stroke-width="${u*.15}"/>
+      <path d="M${nx},${ny-R*.75}L${nx+R*.42},${ny+R*.5}L${nx},${ny+R*.22}L${nx-R*.42},${ny+R*.5}Z" fill="#fff" transform="rotate(${rot} ${nx} ${ny})"/></g>`+txt(t[0],t[1],'N',u*1.5);}
+  $('#planRoofs').innerHTML=h;
+}
+function setRot(v){const F=S.frozen; if(!F) return; finishLine(); const d=v-(F.rot||0); if(!d) return; const cx=F.w/2, cy=F.h/2;
+  S.objs.forEach(o=>{if(o.pts) o.pts=o.pts.map(p=>rotPt(p,d,cx,cy)); else {[o.x,o.y]=rotPt([o.x,o.y],d,cx,cy); if(o.x2!=null)[o.x2,o.y2]=rotPt([o.x2,o.y2],d,cx,cy); if(TOOLS[o.t].k==='veh') o.r=((o.r||0)+d+360)%360;}});
+  F.rot=v; $('#rotVal').textContent=v+'°'; drawBase(); renderObjs();}
+$('#rotRange').addEventListener('input',e=>setRot(+e.target.value));
+$('#rotRange').addEventListener('change',()=>save());
+$('#rotNorth').onclick=()=>{$('#rotRange').value=0; setRot(0); save();};
+$('#symRange').addEventListener('input',e=>{S.symK=+e.target.value/100; $('#symVal').textContent=e.target.value+' %'; drawBase(); renderObjs();});
+$('#symRange').addEventListener('change',()=>save());
 /* Sur grand écran, le plan est réduit pour que la palette, l'image et la légende tiennent ensemble dans la fenêtre */
 function fitPlan(){
   const F=S.frozen; if(!F||S.step!==2) return; svg.style.width='';
   if(window.innerWidth<700) return;
-  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#bar').offsetHeight+64+12*3+16;   // 64 = place gardée pour la légende
+  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#planCtl').offsetHeight+$('#bar').offsetHeight+64+12*4+16;   // 64 = place gardée pour la légende
   const maxH=Math.max(240,window.innerHeight-used), w=Math.min(svg.parentElement.clientWidth,maxH*F.w/F.h);
   svg.style.width=Math.round(w)+'px';
 }
@@ -875,12 +908,10 @@ function renderPalette(){
 $('#palette').addEventListener('click',e=>{const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
 function renderPlanAll(){
   const F=S.frozen; $('#planEmpty').hidden=!!F; $('#planWrap').hidden=!F; if(!F) return;
-  svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`); const im=$('#planImg'); im.setAttribute('href',F.src); im.setAttribute('width',F.w); im.setAttribute('height',F.h);
-  renderPalette(); renderBar(); fitPlan();
-  const u=unit();
-  $('#planRoofs').innerHTML=S.roofs.map(r=>{if(!r.px) return ''; const all=r.px.flat(), cx=all.reduce((s,p)=>s+p[0],0)/all.length, cy=all.reduce((s,p)=>s+p[1],0)/all.length;
-    return r.px.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(surfPente(r)!==null?' · '+fmtN(surfPente(r))+' m² en pente ('+r.pente+'°)':r.area?' · '+fmtN(r.area)+' m² à plat':''),u*1.45);}).join('');
-  renderPalette(); renderObjs(); renderBar();
+  svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`);
+  $('#rotRange').value=F.rot||0; $('#rotVal').textContent=(F.rot||0)+'°'; $('#rotRange').disabled=false;
+  const k=Math.round((S.symK||.75)*100); $('#symRange').value=k; $('#symVal').textContent=k+' %';
+  renderPalette(); renderBar(); fitPlan(); drawBase(); renderObjs();
 }
 function txt(x,y,s,fs,anchor){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="${anchor||'middle'}" dominant-baseline="central" fill="#fff" stroke="#1b1b1b" stroke-width="${fs*.22}" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(s)}</text>`;}
 function lenOf(o){const k=S.frozen.mpp; if(!k) return null; let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
@@ -891,8 +922,8 @@ function drawObj(o,u,sel,num){
   const T=TOOLS[o.t], F=S.frozen, m=F.mpp||(60/F.w);     // sans échelle connue : l'image est supposée faire 60 m de large
   let h=`<g class="obj" data-id="${o.id}">`;
   if(T.k==='veh'){
-    // à l'échelle, avec une longueur minimale de 4,5 % de l'image pour que le véhicule et son logo restent visibles
-    const kMin=Math.max(1,4.5*(F.w/100)/(T.w/m)), w=T.w/m*kMin, hh=T.h/m*kMin, ls=hh*.9, lx=-w*.11;
+    // à l'échelle réelle ; plancher de 2,5 % de l'image seulement sur les vues très larges
+    const kMin=Math.max(1,2.5*(F.w/100)/(T.w/m)), w=T.w/m*kMin, hh=T.h/m*kMin, ls=hh*.9, lx=-w*.11;
     if(T.reach) h+=`<circle cx="${o.x}" cy="${o.y}" r="${T.reach/m}" fill="rgba(211,84,0,.10)" stroke="${T.c}" stroke-width="${u*.25}" stroke-dasharray="${u*.9} ${u*.6}" pointer-events="none"/>`;
     h+=`<g transform="translate(${o.x},${o.y}) rotate(${o.r||0})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${hh*.12}" fill="#fff" stroke="${sel?'#ffe600':T.c}" stroke-width="${u*(sel?.5:.28)}"/>
       <rect x="${w/2-w*.22}" y="${-hh/2}" width="${w*.22}" height="${hh}" rx="${hh*.12}" fill="${T.c}"/>
@@ -924,6 +955,7 @@ function drawObj(o,u,sel,num){
     h+=`<${tag} ${com} stroke="${T.edge||'#fff'}" stroke-width="${u*(T.sw+.45)}"/><${tag} ${com} stroke="${T.c}" stroke-width="${u*T.sw}" ${T.dash?`stroke-dasharray="${T.dash.map(d=>d*u).join(' ')}"`:''} style="stroke-linecap:${T.dash?'butt':'round'}"/>`;
     h+=`<${tag} ${com} stroke="transparent" stroke-width="${u*3.5}" pointer-events="stroke"/>`;
     o.pts.forEach(p=>h+=`<circle cx="${p[0]}" cy="${p[1]}" r="${u*.45}" fill="${T.c}" stroke="${T.edge||'#fff'}" stroke-width="${u*.15}" pointer-events="none"/>`);
+    if(sel&&o.id) o.pts.forEach((p,i)=>h+=`<circle data-h="v${i}" cx="${p[0]}" cy="${p[1]}" r="${u*2}" fill="transparent" style="cursor:move"/><circle data-h="v${i}" cx="${p[0]}" cy="${p[1]}" r="${u*.9}" fill="#fff" stroke="${T.c}" stroke-width="${u*.35}" style="cursor:move"/>`);
     if(o.pts.length>1){const a=o.pts[0], b=o.pts[1], L=lenOf(o); h+=txt((a[0]+b[0])/2,(a[1]+b[1])/2-u*1.5,T.short+(L!==null?' '+L+' m':'')+(o.label?' · '+o.label:''),u*1.3);}
   }
   return h+'</g>';
@@ -942,37 +974,49 @@ function renderBar(){
   const bar=$('#bar'), o=S.objs.find(x=>x.id===selId);
   if(line){bar.innerHTML=`<b>${TOOLS[line.t].n}</b><span>Touchez l’image pour poser chaque point, ou tirez le trait.</span><button type="button" class="btn sm pri" data-a="end">Terminer le tracé</button><button type="button" class="btn sm" data-a="cancel">Annuler</button>`; return;}
   if(o){const T=TOOLS[o.t], L=o.pts?lenOf(o):posteLen(o);
-    bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}">
-      ${T.k==='veh'?'<button type="button" class="btn sm" data-a="rl" aria-label="Tourner à gauche">⟲</button><button type="button" class="btn sm" data-a="rr" aria-label="Tourner à droite">⟳</button>':''}
+    bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}">${o.pts?`<span class="pre">${o.t==='ldv'?'Points blancs : glissez-les sur un ancrage pour les accrocher.':'Points blancs : glissez-les pour modifier le tracé.'}</span>`:''}
+      ${T.k==='veh'||o.pts||o.x2!=null?'<button type="button" class="btn sm" data-a="rl" aria-label="Tourner à gauche">⟲</button><button type="button" class="btn sm" data-a="rr" aria-label="Tourner à droite">⟳</button>':''}
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
-  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».':TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
+  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(tool==='ldv'?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
     :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter ou le supprimer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
   if(a==='end') finishLine(); else if(a==='cancel'){line=null;}
   else if(a==='del'){S.objs=S.objs.filter(x=>x.id!==selId); selId=null;}
   else if(a==='undo'){S.objs.pop();}
-  else if(a==='rl'||a==='rr'){o.r=((o.r||0)+(a==='rl'?-15:15)+360)%360; renderObjs(); save(); return;}
+  else if(a==='rl'||a==='rr'){const d=a==='rl'?-15:15;
+    if(o.pts){const c=centre(o.pts); o.pts=o.pts.map(p=>rotPt(p,d,c[0],c[1])); lineMoved(o);}
+    else if(o.x2!=null){const cx=(o.x+o.x2)/2, cy=(o.y+o.y2)/2; [o.x,o.y]=rotPt([o.x,o.y],d,cx,cy); [o.x2,o.y2]=rotPt([o.x2,o.y2],d,cx,cy);}
+    else o.r=((o.r||0)+d+360)%360; renderObjs(); save(); return;}
   renderObjs(); renderBar(); save();});
 $('#bar').addEventListener('input',e=>{if(e.target.id!=='objLabel') return; const o=S.objs.find(x=>x.id===selId); if(o){o.label=e.target.value; renderObjs(); save();}});
+function snapAnc(p){let best=null, bd=unit()*2.6; S.objs.forEach(o=>{if(o.t!=='ancrage') return; const d=Math.hypot(o.x-p[0],o.y-p[1]); if(d<bd){bd=d; best=o;}}); return best;}
+function linePush(p){const a=line.t==='ldv'?snapAnc(p):null; line.pts.push(a?[a.x,a.y]:p); (line.anc||(line.anc=[])).push(a?a.id:null);}
+function linePop(){line.pts.pop(); line.anc&&line.anc.pop();}
+function anchorMoved(a){S.objs.forEach(l=>{if(l.anc) l.anc.forEach((id,i)=>{if(id===a.id) l.pts[i]=[a.x,a.y];});});}   // la ligne de vie suit son ancrage
+function lineMoved(l){if(l.anc) l.anc.forEach((id,i)=>{const a=id&&S.objs.find(x=>x.id===id); if(a){a.x=l.pts[i][0]; a.y=l.pts[i][1]; anchorMoved(a);}});}   // et l'ancrage suit sa ligne
+const centre=pts=>[pts.reduce((s,p)=>s+p[0],0)/pts.length, pts.reduce((s,p)=>s+p[1],0)/pts.length];
 function finishLine(){if(!line) return; if(line.pts.length>=2){line.id=uid(); S.objs.push(line); selId=line.id;} line=null; renderObjs(); renderBar(); save();}
 function svgPt(e){const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.round(q.x),Math.round(q.y)];}
 svg.addEventListener('pointerdown',e=>{
   if(!S.frozen) return; e.preventDefault(); const p=svgPt(e), u=unit(), g=e.target.closest('[data-id]');
-  if(line){const f=line.pts[0]; if(line.pts.length>=3&&Math.hypot(p[0]-f[0],p[1]-f[1])<u*2.2){line.closed=true; finishLine();} else {line.pts.push(p); drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs();} return;}
-  if(g&&g.dataset.id){const o=S.objs.find(x=>x.id===g.dataset.id); if(o){selId=o.id; drag={o,p,ox:o.x,oy:o.y,ox2:o.x2,oy2:o.y2,pts:o.pts&&o.pts.map(q=>q.slice()),stretch:!!e.target.dataset.h}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}}
+  if(line){const f=line.pts[0]; if(line.pts.length>=3&&Math.hypot(p[0]-f[0],p[1]-f[1])<u*2.2){line.closed=true; finishLine();} else {linePush(p); drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs();} return;}
+  if(tool&&TOOLS[tool].k==='line'){line={id:'',t:tool,pts:[],anc:[],label:''}; linePush(p); selId=null; drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}
+  if(g&&g.dataset.id){const o=S.objs.find(x=>x.id===g.dataset.id); if(o){const hd=e.target.dataset.h||''; selId=o.id;
+    drag={o,p,ox:o.x,oy:o.y,ox2:o.x2,oy2:o.y2,pts:o.pts&&o.pts.map(q=>q.slice()),stretch:hd==='end',vtx:hd[0]==='v'?+hd.slice(1):null}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}}
   if(tool){const T=TOOLS[tool];
-    if(T.k==='line'){line={id:'',t:tool,pts:[p],label:''}; selId=null; drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}
     const o={id:uid(),t:tool,x:p[0],y:p[1],r:0,label:''}; S.objs.push(o); selId=o.id;
     drag={o,p,ox:o.x,oy:o.y,stretch:tool==='poste',focus:!!T.ask}; try{svg.setPointerCapture(e.pointerId);}catch(err){}
     renderObjs(); renderBar(); save(); return;}
   selId=null; renderObjs(); renderBar();
 });
 svg.addEventListener('pointermove',e=>{if(!drag) return; const p=svgPt(e), dx=p[0]-drag.p[0], dy=p[1]-drag.p[1], o=drag.o;
-  if(drag.lineDraw){if(!line) return; const far=Math.hypot(dx,dy)>unit()*1.8; if(drag.added) line.pts.pop(); drag.added=far; if(far) line.pts.push(p); renderObjs(); return;}   // on tire le trait : le point suivant suit le doigt
+  if(drag.lineDraw){if(!line) return; const far=Math.hypot(dx,dy)>unit()*1.8; if(drag.added) linePop(); drag.added=far; if(far) linePush(p); renderObjs(); return;}
+  if(drag.vtx!=null){const a=o.t==='ldv'?snapAnc(p):null; o.pts[drag.vtx]=a?[a.x,a.y]:p;   // on déplace un point du tracé, accroché à l'ancrage le plus proche
+    if(o.t==='ldv'){if(!o.anc) o.anc=o.pts.map(()=>null); o.anc[drag.vtx]=a?a.id:null;} renderObjs(); return;}   // on tire le trait : le point suivant suit le doigt
   if(drag.stretch){if(Math.hypot(p[0]-o.x,p[1]-o.y)>unit()*1.8){o.x2=p[0]; o.y2=p[1];} else {delete o.x2; delete o.y2;} renderObjs(); return;}
-  if(o.pts) o.pts=drag.pts.map(q=>[q[0]+dx,q[1]+dy]); else {o.x=drag.ox+dx; o.y=drag.oy+dy; if(drag.ox2!=null){o.x2=drag.ox2+dx; o.y2=drag.oy2+dy;}} renderObjs();});
-const endDrag=()=>{if(!drag) return; const f=drag.focus, st=drag.stretch; drag=null; if(st) renderBar(); save(); if(f) $('#objLabel')?.focus();};
+  if(o.pts){o.pts=drag.pts.map(q=>[q[0]+dx,q[1]+dy]); lineMoved(o);} else {o.x=drag.ox+dx; o.y=drag.oy+dy; if(drag.ox2!=null){o.x2=drag.ox2+dx; o.y2=drag.oy2+dy;} if(o.t==='ancrage') anchorMoved(o);} renderObjs();});
+const endDrag=()=>{if(!drag) return; const f=drag.focus, st=drag.stretch||drag.vtx!=null; drag=null; if(st) renderBar(); save(); if(f) $('#objLabel')?.focus();};
 svg.addEventListener('pointerup',endDrag); svg.addEventListener('pointercancel',endDrag);
 svg.addEventListener('dblclick',()=>finishLine());
 document.addEventListener('keydown',e=>{if(S.step!==2||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
@@ -1064,7 +1108,7 @@ const ICON={
 const EPI_ICONS=[
   ['Casque','<path d="M9 25a11 11 0 0 1 22 0z" fill="#fff"/><rect x="6" y="25" width="28" height="3.6" rx="1.6" fill="#fff"/>'],
   ['Harnais','<circle cx="20" cy="8.5" r="3.6" fill="#fff"/><path d="M14 14h12l-1 11h-2l-1 9h-4l-1-9h-2z" fill="#fff"/><path d="M15 15l10 9.5M25 15l-10 9.5" stroke="#1d5fa8" stroke-width="1.7"/>'],
-  ['Gants','<path d="M13 32V17a2 2 0 0 1 4 0v-5a2 2 0 0 1 4 0v4a2 2 0 0 1 4 0v3l2-2a2 2 0 0 1 3 3l-5 8v4z" fill="#fff"/>'],
+  ['Gants','<g fill="#fff"><rect x="12.4" y="10.5" width="3.7" height="12" rx="1.85"/><rect x="16.5" y="8" width="3.7" height="14" rx="1.85"/><rect x="20.6" y="9" width="3.7" height="13" rx="1.85"/><rect x="24.7" y="12" width="3.5" height="10" rx="1.75"/><rect x="12.4" y="18.5" width="15.8" height="11.5" rx="3"/><rect x="7.6" y="17" width="4" height="10" rx="2" transform="rotate(-32 9.6 22)"/><rect x="13" y="30.5" width="14.6" height="4.2" rx="1"/></g>'],
   ['Chaussures','<path d="M13 8h8v14l9 4a3 3 0 0 1 2 3v3H11z" fill="#fff"/>'],
   ['Gilet HV','<path d="M14 7h4l2 4 2-4h4l4 6-3 3v17H13V16l-3-3z" fill="#fff"/><path d="M13 22h14M13 27h14" stroke="#1d5fa8" stroke-width="1.7"/>']
 ];
@@ -1140,11 +1184,11 @@ const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</di
 const lines=n=>'<i></i>'.repeat(n);
 
 function renderSynth(){
-  const v=S.view||'devis'; $('#feu').hidden=v!=='devis';
+  const v=S.view||'devis'; $('#feu').hidden=v!=='devis'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
   const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
   const date=new Date().toLocaleDateString('fr-FR');
-  const meta=`<dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div></dl>`;
+  const meta=`<dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'—'}</dd></div></dl>`;
   let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>`;
   if(S.frozen){selId=null; line=null; renderPlanAll();}
   const pr=S.pdpRisks||[];
@@ -1163,7 +1207,7 @@ function renderSynth(){
       <div class="cfglist">${PDP_OPTS.map(o=>`<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)?'checked':''}><span>${o.t}${o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`).join('')}
         <label class="check"><input type="checkbox" data-pr="autre" id="pr_autre" ${pr.includes('autre')?'checked':''}><span>Autre risque (fiche vierge à compléter à la main)</span></label></div></div>`;
     h+=`<div class="dochead"><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
-      <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div></dl></div>`;
+      <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'<i class="penline"></i>'}</dd></div></dl></div>`;
     h+=`<div class="retrait"><h2>Droit de retrait — la sécurité d’abord, toujours</h2>
       <p>Chaque collaborateur ATTILA a le droit de <b>se retirer immédiatement</b> de toute situation de travail qu’il estime dangereuse : conditions météo dégradées (chaleur, vent, pluie, orage), toiture ou point fragile, ou toute autre condition dangereuse constatée sur le site. Il se met en sécurité, <b>prévient sa hiérarchie et le client</b>, et les travaux ne reprennent qu’une fois la situation traitée. Aucune sanction ni retenue ne peut être appliquée pour l’exercice légitime de ce droit.</p>
       <small>Droit d’alerte et de retrait — articles L. 4131-1 et suivants du Code du travail. Mention permanente, applicable à tous les risques ci-dessous.</small></div>`;
@@ -1224,7 +1268,7 @@ function renderSynth(){
 function a_epcWhy(){return S.an.epc.sel.includes('aucun')&&S.an.epcWhy.trim()?`<p class="msg just"><b>Collectif impossible, justification :</b> ${esc(S.an.epcWhy.trim())}</p>`:'';}
 function summaryText(){
   const ev=evaluate(), L=[];
-  L.push('ANALYSE DE RISQUE TOITURE — '+NIV_TXT[ev.global].toUpperCase(), 'Client : '+(S.client||'—'), 'Adresse : '+(S.adresse||'—'), 'Date : '+new Date().toLocaleDateString('fr-FR')+(S.redacteur?' — '+S.redacteur:''), '');
+  L.push('ANALYSE DE RISQUE TOITURE — '+NIV_TXT[ev.global].toUpperCase(), 'Client : '+(S.client||'—'), 'Adresse : '+(S.adresse||'—'), 'Nature des travaux : '+(S.travaux||'—'), 'Date : '+new Date().toLocaleDateString('fr-FR')+(S.redacteur?' — '+S.redacteur:''), '');
   S.roofs.forEach(r=>L.push(`${r.name} : ${r.area?fmtN(r.area)+' m² à plat, ':''}${surfPente(r)!==null?'pente '+r.pente+'° → '+fmtN(surfPente(r))+' m² en pente, ':''}${matLabel(r)}, permis ${(perLabel[r.periode]||'non renseigné').toLowerCase()}${isFragile(r)?', TOIT FRAGILE':''}`));
   L.push(''); ev.items.forEach(i=>{L.push(`[${NIV_TXT[i.lvl]}] ${i.k==='T'?'':i.k+' · '}${i.n}${i.labels.length?' : '+i.labels.join(' ; '):''}`); i.r.forEach(r=>L.push('   ! '+r));});
   if(ev.devis.length){L.push('','À INTÉGRER AU DEVIS'); ev.devis.forEach(d=>L.push('- '+d.txt+(d.qty?' ('+d.qty+')':'')));}
@@ -1235,7 +1279,11 @@ $('#s4').addEventListener('change',e=>{const id=e.target.dataset.pr; if(!id) ret
   const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save();});
 $('#s4').addEventListener('click',async e=>{
   const vb=e.target.closest('[data-view]'); if(vb){S.view=vb.dataset.view; renderSynth(); save(); return;}
-  if(e.target.id==='btnPrint') window.print();
+  if(e.target.id==='btnPrint'){   // le PDF prend le nom du document, du client et de la date
+    const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const nom={devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:'Plan de prévention'}[S.view||'devis'];
+    const t0=document.title; document.title=[nom,S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');
+    window.print(); setTimeout(()=>{document.title=t0;},1000);}
   if(e.target.id==='btnCopy'){try{await navigator.clipboard.writeText(summaryText()); $('#copyMsg').textContent='Résumé copié.';}catch(err){$('#copyMsg').textContent='Copie impossible ici : utilisez Imprimer / PDF.';}}
   if(e.target.id==='btnPng'){const F=S.frozen, c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
     const im=new Image(); im.onload=()=>{const cv=document.createElement('canvas'); cv.width=F.w; cv.height=F.h; cv.getContext('2d').drawImage(im,0,0);
