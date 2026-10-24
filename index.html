@@ -117,7 +117,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .tool.on{background:var(--encre);border-color:var(--encre);color:#fff}
 .szl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600} .szl input{width:110px;accent-color:var(--rouge)} .szl output{min-width:42px;font-variant-numeric:tabular-nums}
 .minis{display:inline-flex;gap:4px} .minis .btn.on{background:var(--encre);border-color:var(--encre);color:#fff}
-.amrow{background:#fff8e1;border-radius:6px;padding:4px 6px} .tool.amt.on{background:#fbc02d;border-color:#c49000;color:#1b1b1b}
+.amcat{gap:10px}
+.amhead{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:4px 11px 4px 8px;border:1.5px solid #e9c46a;border-radius:6px;background:#fff8e1;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre)}
+.amhead:hover{border-color:#c49000} .amhead.on{background:#fbc02d;border-color:#c49000;color:#1b1b1b}
+.amhead .chev{width:12px;height:12px;flex:none;transition:transform .15s} .amhead.on .chev{transform:rotate(90deg)}
+.amhead i{width:14px;height:14px;flex:none;background:#fbc02d;clip-path:polygon(50% 0,100% 100%,0 100%)} .amhead.on i{background:#1b1b1b}
+.pgroup>span.amhint{font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--encre-2)}
+.amrow{background:#fff8e1;border-left:4px solid #fbc02d;border-radius:0 6px 6px 0;padding:5px 8px;margin:-2px 0 0 14px}
 .legtab td{vertical-align:middle} .legtab svg{display:block}
 .tagref{display:inline-block;min-width:24px;padding:1px 6px;border:1.5px solid #1b1b1b;border-radius:5px;background:#fff;font-weight:700;text-align:center;white-space:nowrap}
 .pnum{font-style:normal;font-weight:700;font-size:13px;width:24px;height:24px;border-radius:50%;background:var(--rouge);color:#fff;display:grid;place-items:center}
@@ -1055,10 +1061,12 @@ function fitPlan(){
 }
 function renderPalette(){
   const showAm=!!S.showAm, groups={}; Object.entries(TOOLS).forEach(([k,t])=>(groups[t.g]=groups[t.g]||[]).push([k,t]));
-  if(showAm) groups['Amiante'].push(['secu',TOOLS.secu]); else delete groups['Amiante'];   // Sécuriplac aussi dans l'amiante : toit fragile possible
+  const am=groups['Amiante'].concat([['secu',TOOLS.secu]]); delete groups['Amiante'];   // Sécuriplac aussi dans l'amiante : toit fragile possible
   const btn=([k,t])=>`<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}"><i class="${t.cone?'c':t.plate?'b':t.area?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}${t.area?';opacity:.55':''}"></i>${t.p||t.n}</button>`;
-  const amBtn=`<div class="pgroup"><button type="button" class="tool amt${showAm?' on':''}" data-amiante aria-pressed="${showAm}"><i class="c" style="background:#fbc02d"></i>Amiante</button></div>`;   // sur la même ligne que les postes
-  $('#palette').innerHTML=Object.entries(groups).map(([g,ts])=>(g==='Existant'?amBtn:'')+`<div class="pgroup${['Existant','À créer','Amiante'].includes(g)?' full':''}${g==='Amiante'?' amrow':''}"><span>${g==='Existant'?'Sécurisation existante':g==='À créer'?'Sécurisation à créer':g}</span>${ts.map(btn).join('')}</div>`).join('');
+  /* Amiante : une catégorie à part, sous la sécurisation à créer ; ses outils s'ouvrent dessous quand on appuie dessus */
+  const amCat=`<div class="pgroup full amcat"><button type="button" class="amhead${showAm?' on':''}" data-amiante aria-expanded="${showAm}" aria-controls="amTools"><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i></i>Amiante</button>${showAm?'':'<span class="amhint">Heras, zones sale et propre, UMD, déchets, panneau</span>'}</div>
+    ${showAm?`<div class="pgroup full amrow" id="amTools">${am.map(btn).join('')}</div>`:''}`;
+  $('#palette').innerHTML=Object.entries(groups).map(([g,ts])=>`<div class="pgroup${['Existant','À créer'].includes(g)?' full':''}"><span>${g==='Existant'?'Sécurisation existante':g==='À créer'?'Sécurisation à créer':g}</span>${ts.map(btn).join('')}</div>`+(g==='À créer'?amCat:'')).join('');
 }
 $('#palette').addEventListener('click',e=>{
   if(e.target.closest('[data-amiante]')){S.showAm=!(!!S.showAm); if(!S.showAm&&tool&&TOOLS[tool].g==='Amiante') tool=null; renderPalette(); renderBar(); fitPlan(); save(); return;}
@@ -1498,10 +1506,10 @@ function buildDoc(v,withCfg){
       <div class="sbox"><b>Entreprise utilisatrice</b><div class="pen"><span>Nom, prénom, fonction</span>${lines(1)}</div><div class="zone"><span>Signature</span></div></div>
       <div class="sbox"><b>Entreprise extérieure — ATTILA</b><div class="pen"><span>Nom, prénom, fonction</span>${S.redacteur?`<b class="pre">${esc(S.redacteur)}</b>`:lines(1)}</div><div class="zone"><span>Signature</span></div></div>
     </div></div>`;
-  }else{
+  }else if(v==='brief'){   // l'aide au chiffrage n'a pas de signatures : elles sont au briefing
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Signatures</h2><div class="signs">
       <div class="sbox"><b>Signature du RA / CC</b><span>Nom : ${esc(S.redacteur)}</span><span>Date :</span><div class="zone"></div></div>
-      <div class="sbox"><b>Signature des techniciens intervenants</b>${v==='brief'?`<div class="engage"><p>${ENGAGEMENT}</p><p><b>Secours :</b> ${SECOURS}</p></div>`:''}<table><thead><tr><th>Nom</th><th>Date</th><th>Signature</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
+      <div class="sbox"><b>Signature des techniciens intervenants</b><div class="engage"><p>${ENGAGEMENT}</p><p><b>Secours :</b> ${SECOURS}</p></div><table><thead><tr><th>Nom</th><th>Date</th><th>Signature</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
     </div></div>`;
   }
   return h;
