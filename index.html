@@ -29,6 +29,12 @@ button{cursor:pointer}
 .band .in{max-width:1080px;margin:0 auto;padding:14px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .band h1{margin:0;font:900 20px/1.2 var(--titre);letter-spacing:.2px}
 .band h1 small{display:block;font:400 13px/1.3 var(--texte);opacity:.9;margin-top:2px}
+.bandact{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sync{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(255,255,255,.92)}
+.sync .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);flex:none}
+.sync.on .dot{background:#7ED321} .sync.wait .dot{background:#FFD24A} .sync.err .dot{background:#2b2b2b}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--encre);color:#fff;padding:10px 16px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;z-index:3000;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .band button{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px}
 
 .steps{position:sticky;top:0;z-index:900;background:var(--carte);border-bottom:1px solid var(--trait)}
@@ -233,6 +239,9 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .signs.two{grid-template-columns:1fr 1fr}
 .sbox .zone>span{font-size:12px;color:var(--encre-2)}
 @media (max-width:560px){.rrows{grid-template-columns:1fr;gap:2px}}
+#printAll,.docband{display:none}
+.pdoc{display:flex;flex-direction:column;gap:18px}
+.quickprint{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:-6px}
 .engage p{margin:0} .engage p+p{margin-top:5px}
 .secours{margin:2px 0 0;padding:8px 11px;border-radius:6px;background:var(--gris-pale);font-size:14.5px}
 .rcard.libre header .ligne{flex:1;min-width:120px;align-self:flex-end;border-bottom:1px solid #9a918d;height:20px}
@@ -248,17 +257,18 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .sbox td{height:36px}
 .po{display:none}
 @media (max-width:700px){.signs{grid-template-columns:1fr}}
-@page{size:A4;margin:9mm 10mm}
-@page plan-l{size:A4 landscape;margin:8mm 10mm}
-@page plan-p{size:A4 portrait;margin:8mm 10mm}
+@page{size:A4 landscape;margin:8mm 10mm}
 @media print{
-  .band button,.steps,.noprint,#s1,#s2,#s3,.card>p.intro,.card>h2 .num,.band h1 small{display:none!important}
+  .band button,.sync,.toast,.steps,.noprint,#s1,#s2,#s3,.card>p.intro,.card>h2 .num,.band h1 small{display:none!important}
   .po{display:inline} .so{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:#fff;font-size:8.5pt;line-height:1.25}
   .band{background:none;color:var(--encre)} .band .in{padding:0 0 1.5mm;max-width:none} .band h1{font-size:12pt;color:var(--rouge-fonce)}
-  main{padding:0;max-width:none;display:block} section.ecran{display:block} #s4>*+*{margin-top:2.5mm}
-  body[data-po="l"] .pg-plan{page:plan-l} body[data-po="p"] .pg-plan{page:plan-p} .plancard,.legcard{break-inside:avoid}
+  main{padding:0;max-width:none;display:block} section.ecran,.pdoc{display:block} #s4>*+*,.pdoc>*+*{margin-top:2.5mm}
+  .plancard,.legcard{break-inside:avoid} .plancard{break-after:page} .pdoc[data-v="pdp"] .plancard{break-before:page}
+  body.printall #s4,body.printall .band{display:none!important} body.printall #printAll{display:block} body.printall .docband{display:block}
+  .pdoc+.pdoc{break-before:page}
+  .docband{font:700 12pt/1.2 var(--titre);color:var(--rouge-fonce);padding-bottom:1.5mm}
   .global{padding:2mm 3mm;gap:3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid;flex-direction:row;align-items:center}
   .global .rond{width:8mm;height:8mm;box-shadow:none} .global h2{font-size:11.5pt} .global p{margin:0;font-size:8.5pt}
   .global .meta,.dochead .meta{margin-top:1.2mm;gap:.5mm 7mm;font-size:8.5pt} .meta dt{font-size:6.5pt}
@@ -270,7 +280,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
   .ticks{font-size:8.5pt;gap:1mm 6mm;margin:1mm 0 0} .ticks span::before{width:3mm;height:3mm;border-width:1px}
   .urg{gap:2mm;margin-top:1.5mm} .urg span{font-size:7.5pt;padding:.3mm 2mm} .urg b{font-size:9pt}
-  .rlist{gap:2mm;margin-top:1.5mm} .rcard{padding:2mm 3mm;border-left-width:1.2mm;border-radius:1.5mm}
+  .rlist{gap:2mm;margin-top:1.5mm} .rlist{display:grid;grid-template-columns:1fr 1fr;align-items:start} .rcard{padding:2mm 3mm;border-left-width:1.2mm;border-radius:1.5mm}
   .rcard header{gap:2mm;margin-bottom:1.2mm} .ricon{width:6mm;height:6mm} .ricon svg{width:3.8mm;height:3.8mm} .rcard h3{font-size:9.5pt}
   .badge{font-size:6.5pt;padding:.3mm 1.5mm} .rrows{grid-template-columns:20mm 1fr;gap:.8mm 3mm;font-size:8.2pt} .rrows dt{font-size:6.5pt}
   .epis{gap:4mm;margin-top:1.5mm} .epi{font-size:6pt} .epi span{width:9mm;height:9mm} .epi svg{width:6.5mm;height:6.5mm}
@@ -279,11 +289,9 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .card{border:0;border-radius:0;padding:0;background:none}
   .card>h2{font-size:10pt;margin:0 0 .8mm;padding-bottom:.6mm;border-bottom:1.5px solid var(--rouge)}
   .stage{border:0;background:none;margin-top:0!important} .stage svg{width:100%}
-  body[data-po="l"] .plancard .stage svg{max-height:118mm} body[data-po="l"][data-v="pdp"] .plancard .stage svg{max-height:150mm}
-  body[data-po="p"] .plancard .stage svg{max-height:195mm} body[data-po="p"][data-v="pdp"] .plancard .stage svg{max-height:228mm}
-  body[data-lt="1"][data-po="l"] .plancard .stage svg{max-height:136mm} body[data-lt="1"][data-po="l"][data-v="pdp"] .plancard .stage svg{max-height:166mm}
-  body[data-lt="1"][data-po="p"] .plancard .stage svg{max-height:212mm} body[data-lt="1"][data-po="p"][data-v="pdp"] .plancard .stage svg{max-height:245mm}
-  .legtab{font-size:8pt} .legtab td{padding:.6mm 1.5mm} .legtab svg{width:auto;height:4.2mm} .tagref{font-size:8pt;padding:0 1.5mm;border-width:1px} .pnum{width:4.5mm;height:4.5mm;font-size:7pt} .legtot{font-size:8pt;margin-top:1mm}
+  .plancard .stage svg{max-height:118mm} .pdoc[data-v="pdp"] .plancard .stage svg{max-height:150mm}
+  body[data-lt="1"] .plancard .stage svg{max-height:136mm} body[data-lt="1"] .pdoc[data-v="pdp"] .plancard .stage svg{max-height:166mm}
+  .legtab{font-size:8pt;line-height:1.15} .legtab td{padding:.3mm 1.5mm} .legtab th{padding:.4mm 1.5mm} .legtab svg{width:auto;height:3.6mm} .tagref{font-size:7.5pt;padding:0 1.2mm;border-width:1px} .pnum{width:4mm;height:4mm;font-size:6.5pt} .legtot{font-size:8pt;margin-top:1mm}
   .legend{font-size:7.5pt;gap:.6mm 4mm;margin-top:1mm!important} .legend i{width:2.4mm;height:2.4mm}
   .postes{font-size:8pt;margin-top:1mm;gap:.6mm 5mm} .postes i{width:4mm;height:4mm;font-size:7pt}
   .scroll{overflow:visible} table{font-size:8pt} th{font-size:6.5pt;padding:.6mm 1.5mm;border-bottom-width:1px} td{padding:.8mm 1.5mm} tr{break-inside:avoid}
@@ -291,7 +299,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .just{font-size:8pt;margin-top:1mm}
   .devis{display:block;columns:2;column-gap:8mm;font-size:8pt} .devis li{padding:.8mm 0;gap:3mm;break-inside:avoid}
   .signcard,.deviscard,.keep{break-inside:avoid} .card>h2,h3.sub{break-after:avoid} .signs{grid-template-columns:1fr 1.7fr;gap:4mm;margin-top:1.5mm}
-  .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:24mm} .sbox td{height:8.5mm;border-bottom:1px solid #999}
+  .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:20mm} .sbox td{height:7.5mm;border-bottom:1px solid #999}
 }
 @media (prefers-reduced-motion:no-preference){.btn,.tool,.seg button{transition:background .12s,border-color .12s}}
 </style>
@@ -299,8 +307,10 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 <body>
 <header class="band"><div class="in">
   <h1><span class="po">ATTILA · </span><span class="so">Analyse de risque toiture</span><span class="po" id="printName">Analyse de risque toiture</span><small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
-  <button type="button" id="btnNew">Nouvelle analyse</button>
+  <div class="bandact"><span class="sync" id="syncState" hidden><span class="dot"></span><span id="syncTxt"></span></span>
+    <button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button></div>
 </div></header>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <nav class="steps" aria-label="Étapes"><div class="in">
   <button type="button" data-go="1"><i>1</i><span>Chantier et toits</span></button>
@@ -325,6 +335,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     <div class="grid2">
       <div class="field"><label for="client">Client</label><input type="text" id="client" autocomplete="off" placeholder="Nom du client ou du site"></div>
       <div class="field"><label for="redacteur">Chargé de clientèle</label><input type="text" id="redacteur" autocomplete="off" placeholder="Votre nom"></div>
+      <div class="field"><label for="agence">Agence ATTILA</label><select id="agence"><option value="">— Sélectionner —</option></select></div>
       <div class="field ac" style="grid-column:1/-1"><label for="adresse">Adresse du chantier</label>
         <input type="text" id="adresse" autocomplete="off" placeholder="N°, rue, ville" role="combobox" aria-expanded="false" aria-controls="acList">
         <ul id="acList" hidden></ul>
@@ -412,6 +423,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 
 <!-- ============ ÉCRAN 4 ============ -->
 <section class="ecran" id="s4" hidden></section>
+<div id="printAll"></div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -567,16 +579,79 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
 const multi=()=>({sel:[],autre:''});
-const blank=()=>({v:2,client:'',redacteur:'',adresse:'',travaux:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const PROFIL='attila_ar_profil';   // agence et chargé de clientèle, gardés pour la prochaine analyse
+const blank=()=>({v:2,did:newId(),client:'',redacteur:'',agence:'',adresse:'',travaux:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
   an:{acces:multi(),chemin:multi(),epc:multi(),epcWhy:'',epi:multi(),ancrage:'',ancrageAutre:'',appro:multi(),repli:{risk:'',sel:[],autre:''}},
   step:1,sub:'A'});
 let S=blank();
-try{const j=JSON.parse(localStorage.getItem(KEY)||'null'); if(j&&j.v===2) S=Object.assign(blank(),j);}catch(e){}
+try{const j=JSON.parse(localStorage.getItem(KEY)||'null'); if(j&&j.v===2) S=Object.assign(blank(),j); else {const pf=JSON.parse(localStorage.getItem(PROFIL)||'{}'); S.agence=pf.agence||''; S.redacteur=pf.redacteur||'';}}catch(e){}
+if(!S.did) S.did=newId();
+const MAJ0=S.maj||0;   // date de la dernière modification faite sur cet appareil
 S.objs=S.objs.flatMap(o=>o.t==='balisage'&&o.pts?o.pts.map(q=>({id:uid(),t:'balisage',x:q[0],y:q[1],r:0,label:''})):[o]);
 if(S.an.acces.sel.includes('nacelle')){S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='nacelle'); S.synced=S.synced.filter(x=>x!=='nacelle');}
 S.an.chemin.sel=S.an.chemin.sel.filter(x=>x!=='sans_protection');
 S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='echaf_roulant'&&x!=='aucun_roulant'); S.an.epc.sel=S.an.epc.sel.filter(x=>x!=='echaf_roulant');   // pas d'échafaudage roulant chez Attila
-let saveT; function save(){clearTimeout(saveT); saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},300); feu();}
+let saveT; function save(){S.maj=Date.now(); clearTimeout(saveT); saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(PROFIL,JSON.stringify({agence:S.agence,redacteur:S.redacteur}));}catch(e){}},300); feu(); queueSync();}
+
+/* =====================================================================================
+   2 bis. SAUVEGARDE EN LIGNE (même fonctionnement que le DOE)
+   Chaque analyse est enregistrée automatiquement dans un dossier Drive (données, photo, plan, résumé)
+   et indexée dans un Google Sheet, lu par le tableau de bord reporting.html.
+   ===================================================================================== */
+/* URL du déploiement Apps Script (/exec). Vide = sauvegarde sur l'appareil seulement. */
+const API_URL='';
+const API=new URLSearchParams(location.search).get('api')||API_URL;
+const syncOn=()=>!!API;
+let syncT=null, syncing=false, dirty=false, lastSync=0, imgSent='', booted=false;
+function toast(t){const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2800);}
+function setSync(cls,txt){const e=$('#syncState'); if(!e) return; e.hidden=!syncOn(); e.className='sync '+cls; $('#syncTxt').textContent=txt;}
+function queueSync(){if(!syncOn()||!booted) return; dirty=true; setSync('wait','Modifications en attente'); clearTimeout(syncT); syncT=setTimeout(pushSync,2500);}
+async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(j.ok===false) throw new Error(j.error||'refus du serveur'); return j;}
+const imgKey=()=>S.frozen&&S.frozen.src?S.did+'|'+S.frozen.src.length+'|'+S.frozen.src.slice(-48):'';
+function metaOf(){const ev=evaluate(), sp=S.roofs.map(surfPente);
+  return {agence:S.agence, redacteur:S.redacteur, client:S.client, adresse:S.adresse, travaux:S.travaux,
+    lat:S.ll?S.ll[0]:'', lng:S.ll?S.ll[1]:'', etape:S.step, feu:NIV_TXT[ev.global],
+    nbToits:S.roofs.length, surfacePlat:S.roofs.reduce((t,r)=>t+(+r.area||0),0), surfacePente:sp.every(x=>x!==null)?sp.reduce((t,x)=>t+x,0):'',
+    amiante:(roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante'))?'oui':'non',
+    nbElements:S.objs.length, lignesDevis:ev.devis.length, imprime:S.printed||{}};}
+/* Plan composé (photo + dessins) en JPEG, pour le dossier Drive */
+function planJpeg(){return new Promise(res=>{const F=S.frozen; if(!F) return res(''); try{
+  const c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
+  const im=new Image(); im.onload=()=>{try{const cv=document.createElement('canvas'); cv.width=F.w; cv.height=F.h; const x=cv.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,F.w,F.h); x.drawImage(im,0,0); res(cv.toDataURL('image/jpeg',.85));}catch(e){res('');}};
+  im.onerror=()=>res(''); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(c));}catch(e){res('');}});}
+async function pushSync(opt){
+  if(!syncOn()) return false;
+  if(syncing){clearTimeout(syncT); syncT=setTimeout(()=>pushSync(opt),1500); return false;}
+  syncing=true; dirty=false; setSync('wait','Enregistrement…');
+  try{const body={action:'save',id:S.did,meta:metaOf(),
+      data:JSON.stringify(Object.assign({},S,{frozen:S.frozen?Object.assign({},S.frozen,{src:null}):null}))};   // la photo part à part, une seule fois
+    const k=imgKey(); if(k&&k!==imgSent) body.capture=S.frozen.src;
+    if(opt&&opt.plan){body.plan=await planJpeg(); body.resume=summaryText();}
+    await api(body); if(body.capture) imgSent=k;
+    lastSync=Date.now(); setSync('on','Enregistré '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})); return true;}
+  catch(e){setSync('err','Hors ligne — gardé sur l’appareil'); dirty=true; return false;}
+  finally{syncing=false;}}
+function logEv(ev,detail){if(!syncOn()) return;
+  try{fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true,
+    body:JSON.stringify({action:'log',ev,id:S.did,agence:S.agence,redacteur:S.redacteur,client:S.client,etape:S.step,detail:detail||''})}).catch(()=>{});}catch(e){}}
+const appLink=()=>location.origin+location.pathname+'?id='+S.did+(new URLSearchParams(location.search).get('api')?'&api='+encodeURIComponent(API):'');
+/* Ouverture d'une analyse depuis son lien (?id=…) : la version en ligne remplace celle de l'appareil si elle est plus récente */
+async function restoreFromLink(){
+  const id=new URLSearchParams(location.search).get('id'); if(!id||!syncOn()) return false;
+  try{const j=await api({action:'load',id}); const d=JSON.parse(j.data);
+    const plusRecente=!j.maj||id!==S.did||new Date(j.maj).getTime()>MAJ0+5000; if(!plusRecente) return false;
+    if(id!==S.did&&(S.client||S.roofs.length||S.objs.length)) await pushSync();   // l'analyse en cours reste sauvegardée sous son propre lien
+    if(d.frozen&&!d.frozen.src) d.frozen.src=j.capture||null;
+    if(d.frozen&&!d.frozen.src) d.frozen=null;
+    const n=Object.assign(blank(),d); n.did=id; localStorage.setItem(KEY,JSON.stringify(n));
+    sessionStorage.setItem('ar_repris',id); location.reload(); return true;}
+  catch(e){toast('Ce lien n’a pas pu être ouvert : '+e.message); return false;}}
+/* Liste des agences : celle de l'onglet AGENCES du Sheet si elle est en ligne, sinon la liste officielle ci-dessous */
+const AGENCES=['TDR','Agen','Albi','Amiens','Ancenis Nantes Est','Angers Nord','Angers Sud','Anglet','Angoulême','Annecy Est','Annemasse','Arras','Aubagne','Auch','Avignon','Bain-de-Bretagne - Janzé','Bernay','Béziers Ouest','Bordeaux Est','Bordeaux Mérignac','Bordeaux Nord','Bordeaux Sud','Bourg En Bresse','Bourges','Brest est','Brignoles','Brive La Gaillarde','Caen Ouest','Carcassonne','Cergy Pontoise','Challans','Chalon Sur Saône','Chambéry Ouest','Chartres','Cholet Est','Cholet Ouest','Clermont-Ferrand','Cognac','Colmar','Dax','Dijon Nord','Dreux','Dunkerque','Elancourt','Fontainebleau','Grenoble Est','Grenoble Ouest','Issoire','La Roche Sur Yon','La Rochelle Sud','La Tour Du Pin','Laval','Le Mans Nord','Le Mans Sud','Le Puy En Velay','Les Sables D\'Olonne','Libourne','Lille - Marcq-En-Baroeul','Lille Seclin','Limoges Nord','Limoges Sud','Lorient','Lyon Nord Est','Lyon Nord Ouest','Lyon Plaine De L\'Ain','Lyon Sud Est','Lyon Sud Ouest','Mâcon','Massy','Mayenne','Melun','Mont De Marsan','Montargis','Montauban','Montélimar','Montpellier Est','Montpellier Nord','Montpellier Sud','Nancy Sud','Nantes Ouest','Nantes Sud','Narbonne','Nevers','Nice Ouest','Niort','Nord Poitiers','Orange','Orléans Nord','Oyonnax','Pau','Périgueux','Ploërmel Redon','Poitiers','Pontivy Loudéac','Pornic','Provins','Quimper','Reims Est','Reims Ouest','Rennes Nord','Rennes Sud','Roanne','Rodez','Rouen Est','Rouen Sud','Saint Brieuc','Saintes','Saint-Etienne Andrézieux','Saint-Etienne Firminy','Saint-Germain En Laye','Saint-Jean De Luz','Saint-Nazaire','Saint-Quentin','Saumur','Sens','Sete','Tarare La Plaine Du Forez','Tarbes','Toulon Ouest','Toulouse Nord','Toulouse Sud','Tours Est','Tours Ouest','Troyes','Valence','Vannes Ouest','Versailles','Vichy','Vienne','Villefranche','Villeneuve D\'Ascq','Vitré-Fougères','Vitrolles','Voiron','Yonne Centre','Yvetot/Barentin'];
+function fillAgences(list){const sel=$('#agence'), v=S.agence; const l=list.slice(); if(v&&!l.includes(v)) l.unshift(v);
+  sel.innerHTML='<option value="">— Sélectionner —</option>'+l.map(a=>`<option ${a===v?'selected':''}>${esc(a)}</option>`).join('');}
 
 /* =====================================================================================
    3. MOTEUR VERT / ORANGE / ROUGE
@@ -708,7 +783,7 @@ function feu(){const g=evaluate().global, el=$('#feu'); el.className='feu n'+g; 
    4. NAVIGATION
    ===================================================================================== */
 function go(n){
-  S.step=+n; if(S.step!==4){$('#feu').hidden=false; $('.band').classList.remove('pg-plan');} $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
+  S.step=+n; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
   $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
   if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
   if(S.step===2) renderPlanAll();
@@ -721,11 +796,19 @@ function go(n){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go);});
 $('#btnNew').onclick=()=>{$('#newConfirm').hidden=false; window.scrollTo(0,0);};
 $('#newNo').onclick=()=>$('#newConfirm').hidden=true;
-$('#newYes').onclick=()=>{try{localStorage.removeItem(KEY);}catch(e){} location.reload();};
+$('#newYes').onclick=async()=>{if(dirty) await pushSync();   // la précédente reste en ligne, avec son lien
+  try{localStorage.setItem(PROFIL,JSON.stringify({agence:S.agence,redacteur:S.redacteur})); localStorage.removeItem(KEY);}catch(e){}
+  sessionStorage.setItem('ar_nouvelle','1'); location.replace(location.pathname+(new URLSearchParams(location.search).get('api')?'?api='+encodeURIComponent(API):''));};
+$('#btnLink').onclick=async()=>{toast('Enregistrement…'); const ok=await pushSync(); if(!ok){toast('Enregistrement impossible : vérifiez la connexion. L’analyse reste sur cet appareil.'); return;}
+  const url=appLink(); logEv('lien_copie');
+  try{await navigator.clipboard.writeText(url); toast('Lien de reprise copié');}catch(e){window.prompt('Lien de reprise de cette analyse (copiez-le) :',url);}};
+window.addEventListener('beforeunload',e=>{if(dirty&&syncOn()){pushSync(); e.preventDefault(); e.returnValue='';}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty) pushSync();});
 
 /* =====================================================================================
    5. ÉCRAN 1 — adresse, carte, toits
    ===================================================================================== */
+fillAgences(AGENCES); $('#agence').onchange=e=>{S.agence=e.target.value; save();};
 ['client','redacteur','travaux'].forEach(id=>{$('#'+id).value=S[id]||''; $('#'+id).oninput=e=>{S[id]=e.target.value; save();};});
 const adr=$('#adresse'), acList=$('#acList'); adr.value=S.adresse;
 let acT, acSeq=0;
@@ -896,7 +979,7 @@ async function freeze(){
     const data=cv.toDataURL('image/jpeg',.85);
     const mpp=156543.03392*Math.cos(map.getCenter().lat*Math.PI/180)/Math.pow(2,z)/s;
     S.roofs.forEach(r=>{r.px=r.rings?r.rings.map(pl=>pl[0].map(ll=>{const p=map.project(ll,z); return [Math.round((p.x-tl.x)*s),Math.round((p.y-tl.y)*s)];})):null;});
-    S.frozen={src:data,w:W,h:H,bw:D,bh:D,rot:0,mpp}; frzMsg(''); go(2);
+    S.frozen={src:data,w:W,h:H,bw:D,bh:D,rot:0,mpp}; frzMsg(''); logEv('image_figee'); go(2);
   }catch(e){frzMsg('La capture a échoué. Changez de fond (IGN / Esri) ou importez une capture d’écran.',1);}
 }
 $('#impFile').onchange=e=>{const file=e.target.files[0]; if(!file) return; const fr=new FileReader();
@@ -1344,16 +1427,13 @@ const rcard=(o,fixe)=>`<article class="rcard"><header><span class="ricon">${ICON
 const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</div>`;
 const lines=n=>'<i></i>'.repeat(n);
 
-function renderSynth(){
-  const v=S.view||'devis'; $('#feu').hidden=v!=='devis';
-  /* Impression : le plan prend une page entière, en paysage si la photo est en largeur */
-  document.body.dataset.v=v; document.body.dataset.lt=S.legTable?'1':'0'; document.body.dataset.po=S.frozen&&S.frozen.w/S.frozen.h<1.15?'p':'l'; $('.band').classList.toggle('pg-plan',v!=='pdp'); $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
+/* Construit un des trois documents (devis, brief, pdp). withCfg : affiche les cases « risques particuliers » du plan de prévention */
+function buildDoc(v,withCfg){
   const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
   const date=new Date().toLocaleDateString('fr-FR');
   const meta=`<dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'—'}</dd></div></dl>`;
-  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>`;
-  if(S.frozen){selId=null; line=null; renderPlanAll();}
+  let h=`<div class="docband">ATTILA · ${VIEWS.find(x=>x[0]===v)[1]}</div>`;   // titre de chaque document dans l'impression des 3 documents
   const pr=S.pdpRisks||[];
 
   /* en-tête */
@@ -1362,11 +1442,11 @@ function renderSynth(){
       1:['Orange — moyens de prévention à chiffrer',`${ev.devis.length} ligne${ev.devis.length>1?'s':''} à intégrer au devis.`],
       2:['Analyse incomplète',`${nb} rubrique${nb>1?'s':''} à compléter avant de pouvoir conclure.`],
       3:['Rouge — ne pas envoyer le devis en l’état',`${rg} point${rg>1?'s':''} bloquant${rg>1?'s':''} à lever, ou à soumettre au service QHSE.`]}[g];
-    h+=`<div class="global pg-plan n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}</div></div>`;
+    h+=`<div class="global n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}</div></div>`;
   }else if(v==='brief'){
-    h+=`<div class="dochead pg-plan"><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>`;
+    h+=`<div class="dochead"><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>`;
   }else{
-    h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
+    if(withCfg) h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
       <div class="cfglist">${PDP_OPTS.map(o=>`<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)?'checked':''}><span>${o.t}${o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`).join('')}
         <label class="check"><input type="checkbox" data-pr="autre" id="pr_autre" ${pr.includes('autre')?'checked':''}><span>Autre risque (fiche vierge à compléter à la main)</span></label></div></div>`;
     h+=`<div class="dochead"><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
@@ -1381,7 +1461,7 @@ function renderSynth(){
   }
 
   /* plan, toits, analyse : communs aux trois documents */
-  if(S.frozen){h+=`<div class="card plancard pg-plan"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage" id="synthStage" style="margin-top:10px"></div>
+  if(S.frozen){h+=`<div class="card plancard"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage synthStage" style="margin-top:10px"></div>
     ${S.legTable?'':`<div style="margin-top:8px">${legendBlock()}</div>
     ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}`}</div>`;
     if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;}
@@ -1424,10 +1504,20 @@ function renderSynth(){
       <div class="sbox"><b>Signature des techniciens intervenants</b>${v==='brief'?`<div class="engage"><p>${ENGAGEMENT}</p><p><b>Secours :</b> ${SECOURS}</p></div>`:''}<table><thead><tr><th>Nom</th><th>Date</th><th>Signature</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
     </div></div>`;
   }
+  return h;
+}
+function fillStages(root){if(!S.frozen) return;
+  root.querySelectorAll('.synthStage').forEach(st=>{const c=svg.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); c.removeAttribute('style'); c.style.pointerEvents='none'; st.appendChild(c);});}
+function renderSynth(){
+  const v=S.view||'devis'; $('#feu').hidden=v!=='devis';
+  document.body.dataset.lt=S.legTable?'1':'0'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
+  if(S.frozen){selId=null; line=null; renderPlanAll();}
+  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
+    <div class="quickprint noprint"><button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les 3 documents</button></div>`;
+  h+=`<div class="pdoc" data-v="${v}">${buildDoc(v,true)}</div>`;
   h+=`<div class="row end noprint"><button type="button" class="btn" data-go="3">Retour à l’analyse</button><div class="row">
-    <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn pri" id="btnPrint">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:'Imprimer le plan de prévention'}[v]}</button></div></div>`;
-  $('#s4').innerHTML=h;
-  if(S.frozen){const c=svg.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); c.removeAttribute('style'); c.style.pointerEvents='none'; $('#synthStage').appendChild(c);}
+    <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn" data-print="all">Imprimer les 3 documents</button><button type="button" class="btn pri" id="btnPrint" data-print="one">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:'Imprimer le plan de prévention'}[v]}</button></div></div>`;
+  $('#s4').innerHTML=h; fillStages($('#s4'));
 }
 function a_epcWhy(){return S.an.epc.sel.includes('aucun')&&S.an.epcWhy.trim()?`<p class="msg just"><b>Collectif impossible, justification :</b> ${esc(S.an.epcWhy.trim())}</p>`:'';}
 function summaryText(){
@@ -1439,15 +1529,24 @@ function summaryText(){
   const p=S.objs.filter(o=>o.t==='poste'); if(p.length){L.push('','POSTES DE TRAVAIL'); p.forEach((o,i)=>L.push(`${i+1}. ${posteTxt(o)||'—'}`));}
   return L.join('\n');
 }
+/* Impression : le PDF prend le nom du document, du client et de la date. « Les 3 documents » : aide au chiffrage, briefing et plan de prévention à la suite */
+function finPrint(){document.body.classList.remove('printall'); $('#printAll').innerHTML='';}
+function doPrint(all){
+  finPrint();
+  const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'), vv=S.view||'devis';
+  const nom=all?'Dossier chantier (chiffrage, briefing, plan de prévention)':{devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:'Plan de prévention'}[vv];
+  const t0=document.title; document.title=[nom,S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');
+  const now=new Date().toISOString(); S.printed=Object.assign({},S.printed,all?{devis:now,brief:now,pdp:now}:{[vv]:now}); save(); logEv(all?'impression_3_documents':'impression_'+vv);
+  if(all){const pa=$('#printAll'); pa.innerHTML=VIEWS.map(([k])=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false)}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}
+  window.addEventListener('afterprint',()=>{finPrint(); document.title=t0;},{once:true});
+  window.print();
+  pushSync({plan:true});   // après l'impression : plan composé et résumé envoyés dans le dossier Drive (si la sauvegarde en ligne est active)
+}
 $('#s4').addEventListener('change',e=>{const id=e.target.dataset.pr; if(!id) return; const l=S.pdpRisks=(S.pdpRisks||[]).filter(x=>x!==id); if(e.target.checked) l.push(id);
   const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save();});
 $('#s4').addEventListener('click',async e=>{
   const vb=e.target.closest('[data-view]'); if(vb){S.view=vb.dataset.view; renderSynth(); save(); return;}
-  if(e.target.id==='btnPrint'){   // le PDF prend le nom du document, du client et de la date
-    const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    const nom={devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:'Plan de prévention'}[S.view||'devis'];
-    const t0=document.title; document.title=[nom,S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');
-    window.print(); setTimeout(()=>{document.title=t0;},1000);}
+  const pb=e.target.closest('[data-print]'); if(pb){doPrint(pb.dataset.print==='all'); return;}
   if(e.target.id==='btnCopy'){try{await navigator.clipboard.writeText(summaryText()); $('#copyMsg').textContent='Résumé copié.';}catch(err){$('#copyMsg').textContent='Copie impossible ici : utilisez Imprimer / PDF.';}}
   if(e.target.id==='btnPng'){const F=S.frozen, c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
     const im=new Image(); im.onload=()=>{const cv=document.createElement('canvas'); cv.width=F.w; cv.height=F.h; cv.getContext('2d').drawImage(im,0,0);
@@ -1460,6 +1559,12 @@ $('#s4').addEventListener('click',async e=>{
    ===================================================================================== */
 window.addEventListener('resize',()=>{if(S.step===2) renderPlanAll();});
 initMap(); renderRoofs(); go(S.step||1);
+booted=true;
+if(syncOn()){$('#btnLink').hidden=false; setSync('','Sauvegarde en ligne active');
+  const repris=sessionStorage.getItem('ar_repris'), nouv=sessionStorage.getItem('ar_nouvelle'); sessionStorage.removeItem('ar_repris'); sessionStorage.removeItem('ar_nouvelle');
+  if(repris){imgSent=imgKey(); toast('Analyse reprise'); logEv('reprise'); setSync('on','Analyse reprise');}
+  else restoreFromLink().then(r=>{if(!r) logEv(nouv?'nouvelle_analyse':'ouverture');});
+  api({action:'agences'}).then(j=>{if(j.agences&&j.agences.length) fillAgences(j.agences);}).catch(()=>{});}
 </script>
 </body>
 </html>
