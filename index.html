@@ -110,6 +110,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .tool i.c{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
 .tool.on{background:var(--encre);border-color:var(--encre);color:#fff}
 .szl{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600} .szl input{width:110px;accent-color:var(--rouge)} .szl output{min-width:42px;font-variant-numeric:tabular-nums}
+.minis{display:inline-flex;gap:4px} .minis .btn.on{background:var(--encre);border-color:var(--encre);color:#fff}
+.amrow{background:#fff8e1;border-radius:6px;padding:4px 6px} .tool.amt.on{background:#fbc02d;border-color:#c49000;color:#1b1b1b}
+.legtab td{vertical-align:middle} .legtab svg{display:block}
+.tagref{display:inline-block;min-width:24px;padding:1px 6px;border:1.5px solid #1b1b1b;border-radius:5px;background:#fff;font-weight:700;text-align:center;white-space:nowrap}
+.pnum{font-style:normal;font-weight:700;font-size:13px;width:24px;height:24px;border-radius:50%;background:var(--rouge);color:#fff;display:grid;place-items:center}
+.legtot{margin:8px 0 0;font-size:14px}
 .planctl{display:flex;flex-wrap:wrap;gap:6px 28px;align-items:center;font-size:14px}
 .planctl .pc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .planctl label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2)}
@@ -243,18 +249,20 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .po{display:none}
 @media (max-width:700px){.signs{grid-template-columns:1fr}}
 @page{size:A4;margin:9mm 10mm}
+@page plan-l{size:A4 landscape;margin:8mm 10mm}
+@page plan-p{size:A4 portrait;margin:8mm 10mm}
 @media print{
   .band button,.steps,.noprint,#s1,#s2,#s3,.card>p.intro,.card>h2 .num,.band h1 small{display:none!important}
   .po{display:inline} .so{display:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   body{background:#fff;font-size:8.5pt;line-height:1.25}
   .band{background:none;color:var(--encre)} .band .in{padding:0 0 1.5mm;max-width:none} .band h1{font-size:12pt;color:var(--rouge-fonce)}
-  main{padding:0;max-width:none;gap:2mm} section.ecran{gap:2mm}
+  main{padding:0;max-width:none;display:block} section.ecran{display:block} #s4>*+*{margin-top:2.5mm}
+  body[data-po="l"] .pg-plan{page:plan-l} body[data-po="p"] .pg-plan{page:plan-p} .plancard,.legcard{break-inside:avoid}
   .global{padding:2mm 3mm;gap:3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid;flex-direction:row;align-items:center}
   .global .rond{width:8mm;height:8mm;box-shadow:none} .global h2{font-size:11.5pt} .global p{margin:0;font-size:8.5pt}
   .global .meta,.dochead .meta{margin-top:1.2mm;gap:.5mm 7mm;font-size:8.5pt} .meta dt{font-size:6.5pt}
   .eyebrow{font-size:6.5pt} .dochead{padding:2mm 3mm;border-width:1.5px;border-left-width:2mm;border-radius:2mm;break-inside:avoid} .dochead h2{font-size:12pt} .dochead>p{margin:0;font-size:8.5pt}
-  .plancard.big .stage svg{max-height:128mm}
   .engage{font-size:7.5pt;padding:1.2mm 1.8mm;margin-bottom:.5mm} .engage p+p{margin-top:.8mm}
   .secours{font-size:8.2pt;padding:1.5mm 2.5mm;border-radius:1.5mm} .rcard.libre dd i{height:6.5mm;border-bottom-color:#777} .rcard.libre header .ligne{height:4mm;border-bottom-color:#777}
   .retrait{padding:2mm 3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid} .retrait h2{font-size:10pt;margin-bottom:1mm} .retrait p{font-size:8.5pt} .retrait small{font-size:7pt;margin-top:1mm}
@@ -270,7 +278,12 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .signs.two{grid-template-columns:1fr 1fr}
   .card{border:0;border-radius:0;padding:0;background:none}
   .card>h2{font-size:10pt;margin:0 0 .8mm;padding-bottom:.6mm;border-bottom:1.5px solid var(--rouge)}
-  .stage{border:0;background:none;margin-top:0!important} .stage svg{width:100%;max-height:98mm}
+  .stage{border:0;background:none;margin-top:0!important} .stage svg{width:100%}
+  body[data-po="l"] .plancard .stage svg{max-height:118mm} body[data-po="l"][data-v="pdp"] .plancard .stage svg{max-height:150mm}
+  body[data-po="p"] .plancard .stage svg{max-height:195mm} body[data-po="p"][data-v="pdp"] .plancard .stage svg{max-height:228mm}
+  body[data-lt="1"][data-po="l"] .plancard .stage svg{max-height:136mm} body[data-lt="1"][data-po="l"][data-v="pdp"] .plancard .stage svg{max-height:166mm}
+  body[data-lt="1"][data-po="p"] .plancard .stage svg{max-height:212mm} body[data-lt="1"][data-po="p"][data-v="pdp"] .plancard .stage svg{max-height:245mm}
+  .legtab{font-size:8pt} .legtab td{padding:.6mm 1.5mm} .legtab svg{width:auto;height:4.2mm} .tagref{font-size:8pt;padding:0 1.5mm;border-width:1px} .pnum{width:4.5mm;height:4.5mm;font-size:7pt} .legtot{font-size:8pt;margin-top:1mm}
   .legend{font-size:7.5pt;gap:.6mm 4mm;margin-top:1mm!important} .legend i{width:2.4mm;height:2.4mm}
   .postes{font-size:8pt;margin-top:1mm;gap:.6mm 5mm} .postes i{width:4mm;height:4mm;font-size:7pt}
   .scroll{overflow:visible} table{font-size:8pt} th{font-size:6.5pt;padding:.6mm 1.5mm;border-bottom-width:1px} td{padding:.8mm 1.5mm} tr{break-inside:avoid}
@@ -369,11 +382,12 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
       <div class="planctl noprint" id="planCtl">
         <span class="pc"><label for="rotRange">Orientation du plan</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth">Nord en haut</button></span>
         <span class="pc"><label for="zoomRange">Zoom</label><input type="range" id="zoomRange" min="100" max="300" step="5" value="100"><output id="zoomVal">100 %</output></span>
+        <span class="pc"><label>Légendes</label><span class="minis" id="legSeg"><button type="button" class="btn sm" data-lt="0">Sur le plan</button><button type="button" class="btn sm" data-lt="1">En tableau sous le plan</button></span></span>
         <span class="pc"><label for="symRange">Taille des symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
       </div>
       <div class="bar noprint" id="bar"></div>
       <div class="stage"><svg id="plan" xmlns="http://www.w3.org/2000/svg"><image id="planImg"/><g id="planRoofs"></g><g id="planObjs"></g></svg></div>
-      <ul class="legend" id="legend"></ul>
+      <div id="legend"></div>
     </div>
   </div>
   <div class="row end noprint">
@@ -435,6 +449,8 @@ const PENTES=[[0,0,1],[5,8.75,1.003819838],[10,17.63,1.015426612],[15,26.79,1.03
 const FRAGILE=new Set(['fibro_plaques','translu_pc','translu_verre','translu_grp']);   // les ardoises fibro-ciment reposent sur une charpente bois : risque amiante, mais pas toit fragile
 const FIBRO=new Set(['fibro_plaques','fibro_ardoises']);
 const RAT=[['non','Pas encore reçu'],['absent','Reçu : pas d’amiante dans la zone de travaux'],['present','Reçu : amiante présent (intervention SS4)'],['autre','Autre (champ libre)']];
+const HERAS_LEN=3.5;   // panneau Heras : 3,50 m de long (2 m de haut) — sert à compter les panneaux
+const UMD_DIM={3:[3,2],5:[4.3,2]};   // UMD en mètres (longueur × largeur) : 5 sas = modèle du marché 4,3 × 2 m ; 3 sas = estimation, à remplacer par votre matériel
 const SECU_LEN=3;   // longueur d'une Sécuriplac, en mètres : sert à compter les plaques à prévoir
 const L_NACELLE='Nacelle : journée(s) + conducteur autorisé (matériel Attila disponible jusqu’à 20 m, location au-delà)';
 const L_ECHAF='Échafaudage de pied (sous-traité) : montage, réception, démontage';
@@ -519,7 +535,14 @@ const TOOLS={
   ancrage:{g:'À créer',n:'Ancrage à créer',p:'Ancrage',k:'pt',c:'#13a538',small:1},
   ldv:{g:'À créer',n:'Ligne de vie à créer',p:'Ligne de vie',k:'line',c:'#13a538',sw:.5,dash:[1.6,.8],short:'Ligne de vie à créer'},
   gc:{g:'À créer',n:'Garde-corps à créer',p:'Garde-corps',k:'line',c:'#13a538',sw:.7,short:'Garde-corps à créer'},
-  secu:{g:'À créer',n:'Sécuriplac / plaque de répartition',p:'Sécuriplac',k:'line',c:'#d3d8dc',edge:'#4f575d',sw:.6,short:'Sécuriplac',plate:1}
+  secu:{g:'À créer',n:'Sécuriplac / plaque de répartition',p:'Sécuriplac',k:'line',c:'#d3d8dc',edge:'#4f575d',sw:.6,short:'Sécuriplac',plate:1},
+  heras:{g:'Amiante',n:'Barrière Heras',p:'Heras',k:'line',c:'#37474f',sw:.9,dash:[.35,.55],short:'Heras',heras:1},
+  zone_sale:{g:'Amiante',n:'Zone sale',p:'Zone sale',k:'line',c:'#d84315',sw:.45,area:1,short:'Zone sale'},
+  zone_propre:{g:'Amiante',n:'Zone propre',p:'Zone propre',k:'line',c:'#1565c0',sw:.45,area:1,short:'Zone propre'},
+  umd3:{g:'Amiante',n:'UMD 3 sas',p:'UMD 3 sas',k:'veh',c:'#455a64',w:UMD_DIM[3][0],h:UMD_DIM[3][1],umd:3,lab:'UMD 3 sas'},
+  umd5:{g:'Amiante',n:'UMD 5 sas',p:'UMD 5 sas',k:'veh',c:'#455a64',w:UMD_DIM[5][0],h:UMD_DIM[5][1],umd:5,lab:'UMD 5 sas'},
+  dechets:{g:'Amiante',n:'Stockage déchets amiantés',p:'Déchets',k:'pt',c:'#6d4c41',code:'DÉC'},
+  panneau:{g:'Amiante',n:'Panneau « Danger amiante »',p:'Panneau',k:'pt',c:'#fbc02d',fg:'#1b1b1b',code:'!'}
 };
 /* Ce qui est posé sur le plan pré-coche la réponse correspondante dans l'analyse. */
 const PLAN2AN={echelle:['acces','echelle'],echaf:['acces','echaf_pied'],crino:['acces','crinoline'],escalier:['acces','escalier'],nacelle:['epc','nacelle'],gc:['epc','gc_temp'],gc_ex:['epc','gc_permanent']};
@@ -563,7 +586,7 @@ function measures(){
   S.objs.forEach(o=>{const e=m[o.t]||(m[o.t]={n:0,len:0}); e.n++;
     if(o.pts){let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
       if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]);
-      e.len+=k?d*k:NaN;}});
+      e.len+=k?d*k:NaN; if(o.closed) e.area=(e.area||0)+(k?polyArea(o.pts)*k*k:NaN);}});
   if(m.ldv||m.ldv_ex) m.ldv_all={n:(m.ldv?m.ldv.n:0)+(m.ldv_ex?m.ldv_ex.n:0),len:(m.ldv?m.ldv.len:0)+(m.ldv_ex?m.ldv_ex.len:0)};
   return m;
 }
@@ -571,6 +594,10 @@ function qtyTxt(t,M){const e=M[t]; if(!e) return 'non tracé sur le plan — mé
   if((TOOLS[t]||{k:'line'}).k==='line') return isNaN(e.len)?e.n+' tracé(s), échelle inconnue':Math.round(e.len)+' ml mesurés sur le plan';
   return e.n+(TOOLS[t].cone?' cône'+(e.n>1?'s':''):'')+' sur le plan';}
 const up5=x=>Math.ceil(x-1e-5);   // arrondi toujours au-dessus, dès que ça dépasse de plus de 0,00001
+function polyArea(p){let a=0; for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length]; a+=p[i][0]*q[1]-q[0]*p[i][1];} return Math.abs(a)/2;}
+function rawLen(o){let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]); if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]); return d;}
+function herasCount(){const k=mppEff(); if(!k) return NaN; return S.objs.filter(o=>o.t==='heras').reduce((n,o)=>n+Math.max(1,up5(rawLen(o)*k/HERAS_LEN)),0);}   // chaque tronçon compte ses panneaux
+function herasTxt(M){const n=herasCount(); return isNaN(n)?M.heras.n+' tracé(s), échelle inconnue : panneaux à compter':`${Math.round(M.heras.len)} m de barrière Heras, soit ${n} panneau${n>1?'x':''} de ${String(HERAS_LEN).replace('.',',')} m`;}
 function secuCount(M){const e=M.secu; if(!e) return null; if(isNaN(e.len)) return NaN; return Math.max(1,up5(up5(e.len)/SECU_LEN));}
 function secuTxt(M){const n=secuCount(M); if(n===null) return ''; if(isNaN(n)) return M.secu.n+' tracé(s), échelle inconnue : plaques à compter';
   const L=up5(M.secu.len); return `${L} m de Sécuriplac, soit environ ${L} / ${SECU_LEN} = ${n} plaque${n>1?'s':''}`;}
@@ -669,6 +696,9 @@ function evaluate(){
 
   if(M.secu){const n=secuCount(M); D.push(isNaN(n)?{txt:'Sécuriplac / plaques de répartition de charge : nombre à compter',qty:'échelle du plan inconnue'}
     :{txt:secuTxt(M)+' à prévoir',qty:'tracé sur le plan'});}
+  /* Amiante : barrières Heras et UMD tracées sur le plan, chiffrées */
+  if(M.heras){D.push({txt:herasTxt(M)+' à prévoir (plots et colliers associés)',qty:'tracé sur le plan'}); up(T,O);}
+  [3,5].forEach(n=>{const e=M['umd'+n]; if(e){D.push({txt:`UMD ${n} sas : mise à disposition et installation sur site`,qty:e.n+' sur le plan'}); up(T,O);}});
   const items=[T,A,B,C,Dd,E];
   return {items,global:Math.max(...items.map(i=>i.lvl)),devis:D,M};
 }
@@ -678,7 +708,7 @@ function feu(){const g=evaluate().global, el=$('#feu'); el.className='feu n'+g; 
    4. NAVIGATION
    ===================================================================================== */
 function go(n){
-  S.step=+n; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
+  S.step=+n; if(S.step!==4){$('#feu').hidden=false; $('.band').classList.remove('pg-plan');} $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
   $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
   if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
   if(S.step===2) renderPlanAll();
@@ -908,7 +938,7 @@ function drawBase(){
   im.setAttribute('href',F.src); im.setAttribute('x',0); im.setAttribute('y',0); im.setAttribute('width',bw); im.setAttribute('height',bh);
   im.setAttribute('transform',`translate(${F.w/2+pan[0]} ${F.h/2+pan[1]}) rotate(${rot}) scale(${z}) translate(${-bw/2} ${-bh/2})`);
   let h=S.roofs.map(r=>{if(!r.px) return ''; const pls=r.px.map(pl=>pl.map(baseDisp)), all=pls.flat(), cx=all.reduce((s,p)=>s+p[0],0)/all.length, cy=all.reduce((s,p)=>s+p[1],0)/all.length;
-    return pls.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(surfPente(r)!==null?' · '+fmtN(surfPente(r))+' m² en pente ('+r.pente+'°)':r.area?' · '+fmtN(r.area)+' m² à plat':''),u*1.45);}).join('');
+    return pls.map(pl=>`<polygon points="${pl.map(p=>p.join(',')).join(' ')}" fill="rgba(255,255,255,.10)" stroke="#fff" stroke-width="${u*.35}" stroke-dasharray="${u} ${u*.6}"/>`).join('')+txt(cx,cy,r.name+(S.legTable?'':surfPente(r)!==null?' · '+fmtN(surfPente(r))+' m² en pente ('+r.pente+'°)':r.area?' · '+fmtN(r.area)+' m² à plat':''),S.legTable?u*1.7:u*1.45);}).join('');
   if(!F.imported){const R=u*2.2, nx=F.w-R*1.8, ny=R*1.8, t=rotPt([nx,ny-R*1.45],rot,nx,ny);   // flèche du nord
     h+=`<g pointer-events="none"><circle cx="${nx}" cy="${ny}" r="${R}" fill="rgba(0,0,0,.45)" stroke="#fff" stroke-width="${u*.15}"/>
       <path d="M${nx},${ny-R*.75}L${nx+R*.42},${ny+R*.5}L${nx},${ny+R*.22}L${nx-R*.42},${ny+R*.5}Z" fill="#fff" transform="rotate(${rot} ${nx} ${ny})"/></g>`+txt(t[0],t[1],'N',u*1.5);}
@@ -930,26 +960,33 @@ $('#zoomRange').addEventListener('input',e=>setZoom(+e.target.value/100));
 $('#zoomRange').addEventListener('change',()=>save());
 $('#symRange').addEventListener('input',e=>{S.symK=+e.target.value/100; $('#symVal').textContent=e.target.value+' %'; drawBase(); renderObjs();});
 $('#symRange').addEventListener('change',()=>save());
+$('#legSeg').addEventListener('click',e=>{const b=e.target.closest('[data-lt]'); if(!b) return; S.legTable=b.dataset.lt==='1';
+  $$('#legSeg button').forEach(x=>x.classList.toggle('on',x===b)); drawBase(); renderObjs(); save();});
 /* Sur grand écran, le plan est réduit pour que la palette, l'image et la légende tiennent ensemble dans la fenêtre */
 function fitPlan(){
   const F=S.frozen; if(!F||S.step!==2) return; svg.style.width='';
   if(window.innerWidth<700) return;
-  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#planCtl').offsetHeight+$('#bar').offsetHeight+64+12*4+16;   // 64 = place gardée pour la légende
+  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#planCtl').offsetHeight+$('#bar').offsetHeight+Math.min(110,Math.max(40,$('#legend').offsetHeight||64))+12*4+16;   // place gardée pour la légende (un tableau long reste dessous)
   const maxH=Math.max(240,window.innerHeight-used), w=Math.min(svg.parentElement.clientWidth,maxH*F.w/F.h);
   svg.style.width=Math.round(w)+'px';
 }
 function renderPalette(){
-  const groups={}; Object.entries(TOOLS).forEach(([k,t])=>(groups[t.g]=groups[t.g]||[]).push([k,t]));
-  $('#palette').innerHTML=Object.entries(groups).map(([g,ts])=>`<div class="pgroup${g==='Existant'||g==='À créer'?' full':''}"><span>${g==='Existant'?'Sécurisation existante':g==='À créer'?'Sécurisation à créer':g}</span>${ts.map(([k,t])=>
-    `<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}"><i class="${t.cone?'c':t.plate?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}"></i>${t.p||t.n}</button>`).join('')}</div>`).join('');
+  const showAm=!!S.showAm, groups={}; Object.entries(TOOLS).forEach(([k,t])=>(groups[t.g]=groups[t.g]||[]).push([k,t]));
+  if(showAm) groups['Amiante'].push(['secu',TOOLS.secu]); else delete groups['Amiante'];   // Sécuriplac aussi dans l'amiante : toit fragile possible
+  const btn=([k,t])=>`<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}"><i class="${t.cone?'c':t.plate?'b':t.area?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}${t.area?';opacity:.55':''}"></i>${t.p||t.n}</button>`;
+  const amBtn=`<div class="pgroup"><button type="button" class="tool amt${showAm?' on':''}" data-amiante aria-pressed="${showAm}"><i class="c" style="background:#fbc02d"></i>Amiante</button></div>`;   // sur la même ligne que les postes
+  $('#palette').innerHTML=Object.entries(groups).map(([g,ts])=>(g==='Existant'?amBtn:'')+`<div class="pgroup${['Existant','À créer','Amiante'].includes(g)?' full':''}${g==='Amiante'?' amrow':''}"><span>${g==='Existant'?'Sécurisation existante':g==='À créer'?'Sécurisation à créer':g}</span>${ts.map(btn).join('')}</div>`).join('');
 }
-$('#palette').addEventListener('click',e=>{const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
+$('#palette').addEventListener('click',e=>{
+  if(e.target.closest('[data-amiante]')){S.showAm=!(!!S.showAm); if(!S.showAm&&tool&&TOOLS[tool].g==='Amiante') tool=null; renderPalette(); renderBar(); fitPlan(); save(); return;}
+  const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
 function renderPlanAll(){
   const F=S.frozen; $('#planEmpty').hidden=!!F; $('#planWrap').hidden=!F; if(!F) return;
   svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`);
   $('#rotRange').value=F.rot||0; $('#rotVal').textContent=(F.rot||0)+'°';
   const zz=Math.round((F.z||1)*100); $('#zoomRange').value=zz; $('#zoomVal').textContent=zz+' %';
   const k=Math.round((S.symK||.75)*100); $('#symRange').value=k; $('#symVal').textContent=k+' %';
+  $$('#legSeg button').forEach(b=>b.classList.toggle('on',(b.dataset.lt==='1')===!!S.legTable));
   renderPalette(); renderBar(); fitPlan(); drawBase(); renderObjs();
 }
 function txt(x,y,s,fs,anchor){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="${anchor||'middle'}" dominant-baseline="central" fill="#fff" stroke="#1b1b1b" stroke-width="${fs*.22}" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(s)}</text>`;}
@@ -976,6 +1013,13 @@ function labelBox(o,sel,c){const G=labelGeom(o), u=G.u; if(!G.lines.length) retu
   if(sel){const hx=G.x0+G.bw, hy=G.top+G.bh/2;   // poignée blanche : on la tire pour élargir ou rétrécir la bulle
     h+=`<rect data-h="lw" x="${hx-u*1.6}" y="${hy-u*2.2}" width="${u*3.2}" height="${u*4.4}" fill="transparent" style="cursor:ew-resize"/><rect data-h="lw" x="${hx-u*.55}" y="${hy-u*1.3}" width="${u*1.1}" height="${u*2.6}" rx="${u*.3}" fill="#fff" stroke="${c}" stroke-width="${u*.3}" style="cursor:ew-resize"/>`;}
   return h;}
+/* Mode « légendes dans un tableau » : sur le plan, un simple repère ; le détail passe dans le tableau sous la photo */
+let REFS=null;
+const letterOf=i=>{let s=''; i++; while(i>0){const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26);} return s;};
+function needsTag(o){const T=TOOLS[o.t]; if(!T||T.num) return false; return T.k==='line'||T.k==='veh'||T.k==='txt'||!!o.label;}
+function refMap(){const m={}; let i=0; S.objs.forEach(o=>{if(needsTag(o)) m[o.id]=letterOf(i++);}); return m;}
+function tagBadge(x,y,s,u){const fs=u*1.25, w=u*(1.1+.85*String(s).length);
+  return `<g pointer-events="none"><rect x="${x-w/2}" y="${y-fs*.85}" width="${w}" height="${fs*1.7}" rx="${u*.45}" fill="#fff" stroke="#1b1b1b" stroke-width="${u*.18}"/><text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="#1b1b1b">${esc(s)}</text></g>`;}
 function drawObj(o,u,sel,num){
   if(TOOLS[o.t].k!=='veh'&&o.s) u*=o.s;   // taille réglée sur cet élément
   const T=TOOLS[o.t], F=S.frozen, m=mppEff()||(60/F.w/(F.z||1));     // sans échelle connue : l'image est supposée faire 60 m de large
@@ -984,15 +1028,20 @@ function drawObj(o,u,sel,num){
     // à l'échelle réelle ; plancher de 2,5 % de l'image seulement sur les vues très larges
     const kMin=Math.max(1,2.5*(F.w/100)/(T.w/m)), w=T.w/m*kMin, hh=T.h/m*kMin, ls=hh*.9, lx=-w*.11;
     if(T.reach) h+=`<circle cx="${o.x}" cy="${o.y}" r="${T.reach/m}" fill="rgba(211,84,0,.10)" stroke="${T.c}" stroke-width="${u*.25}" stroke-dasharray="${u*.9} ${u*.6}" pointer-events="none"/>`;
-    h+=`<g transform="translate(${o.x},${o.y}) rotate(${o.r||0})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${hh*.12}" fill="#fff" stroke="${sel?'#ffe600':T.c}" stroke-width="${u*(sel?.5:.28)}"/>
+    if(T.umd){const cw=w/T.umd;   // UMD : un compartiment par sas, côté sale en orange, côté propre en bleu
+      h+=`<g transform="translate(${o.x},${o.y}) rotate(${o.r||0})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" fill="#fff" stroke="${sel?'#ffe600':'#263238'}" stroke-width="${u*(sel?.5:.28)}"/>`;
+      for(let i=0;i<T.umd;i++) h+=`<rect x="${-w/2+i*cw}" y="${-hh/2}" width="${cw}" height="${hh}" fill="${i===0?'#ffab91':i===T.umd-1?'#90caf9':'#eceff1'}" stroke="#263238" stroke-width="${u*.14}"/>`;
+      h+=`</g>`;}
+    else h+=`<g transform="translate(${o.x},${o.y}) rotate(${o.r||0})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${hh*.12}" fill="#fff" stroke="${sel?'#ffe600':T.c}" stroke-width="${u*(sel?.5:.28)}"/>
       <rect x="${w/2-w*.22}" y="${-hh/2}" width="${w*.22}" height="${hh}" rx="${hh*.12}" fill="${T.c}"/>
       <image href="${LOGO}" x="${lx-ls/2}" y="${-ls/2}" width="${ls}" height="${ls}" transform="rotate(${-(o.r||0)} ${lx} 0)" pointer-events="none"/></g>`;
-    h+=txt(o.x,o.y-Math.max(w,hh)/2-u*1.2,(o.label||T.lab||T.n)+(T.reach&&F.mpp?' · portée ≈ '+T.reach+' m':''),u*1.35);
+    const vy=o.y-Math.max(w,hh)/2-u*1.2;
+    h+=REFS?(REFS[o.id]?tagBadge(o.x,vy,REFS[o.id],u):''):txt(o.x,vy,(o.label||T.lab||T.n)+(T.reach&&F.mpp?' · portée ≈ '+T.reach+' m':''),u*1.35);
   }else if(T.cone){
     const r=u*1.15;
     if(sel) h+=`<circle cx="${o.x}" cy="${o.y}" r="${r+u*.7}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
     h+=`<circle cx="${o.x}" cy="${o.y}" r="${r*1.5}" fill="transparent"/><path d="M${o.x},${o.y-r}L${o.x+r*.85},${o.y+r*.8}H${o.x-r*.85}Z" fill="${T.c}" stroke="#fff" stroke-width="${u*.24}" stroke-linejoin="round"/><path d="M${o.x-r*.4},${o.y+r*.08}H${o.x+r*.4}" stroke="#fff" stroke-width="${u*.3}" pointer-events="none"/>`;
-    if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
+    if(REFS){if(REFS[o.id]) h+=tagBadge(o.x+r*1.6,o.y-r*1.1,REFS[o.id],u);} else if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
   }else if(T.k==='pt'){
     const r=u*(T.small?.9:1.7);
     if(o.x2!=null){const d=`d="M${o.x},${o.y}L${o.x2},${o.y2}" fill="none" stroke-linecap="round"`;   // poste étiré en zone (gouttière, faîtage…)
@@ -1001,34 +1050,69 @@ function drawObj(o,u,sel,num){
     if(sel) h+=`<circle cx="${o.x}" cy="${o.y}" r="${r+u*.7}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
     h+=`<circle cx="${o.x}" cy="${o.y}" r="${r}" fill="${T.c}" stroke="#fff" stroke-width="${u*.3}"/>`;
     if(T.small) h+=`<path d="M${o.x-r*.5},${o.y-r*.5}L${o.x+r*.5},${o.y+r*.5}M${o.x+r*.5},${o.y-r*.5}L${o.x-r*.5},${o.y+r*.5}" stroke="#fff" stroke-width="${u*.25}" pointer-events="none"/>`;
-    else h+=`<text x="${o.x}" y="${o.y}" font-family="Arial,Helvetica,sans-serif" font-size="${T.num?u*1.8:u*1.02}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="#fff" pointer-events="none">${T.num?num:T.code}</text>`;
-    if(T.num) h+=labelBox(o,sel,T.c); else if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
+    else h+=`<text x="${o.x}" y="${o.y}" font-family="Arial,Helvetica,sans-serif" font-size="${T.num?u*1.8:u*1.02}" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="${T.fg||'#fff'}" pointer-events="none">${T.num?num:T.code}</text>`;
+    if(REFS){if(REFS[o.id]) h+=tagBadge(o.x+r*1.5,o.y-r*1.1,REFS[o.id],u);} else if(T.num) h+=labelBox(o,sel,T.c); else if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
     if(sel&&T.num){const hx=o.x2!=null?o.x2:o.x+u*3.6, hy=o.x2!=null?o.y2:o.y;   // poignée : on la tire pour étirer le poste
       if(o.x2==null) h+=`<path d="M${o.x+r},${o.y}H${hx}" stroke="#fff" stroke-width="${u*.3}" stroke-dasharray="${u*.4} ${u*.4}" pointer-events="none"/>`;
       h+=`<circle data-h="end" cx="${hx}" cy="${hy}" r="${u*2}" fill="transparent" style="cursor:crosshair"/><circle data-h="end" cx="${hx}" cy="${hy}" r="${u*.95}" fill="#fff" stroke="${T.c}" stroke-width="${u*.35}" style="cursor:crosshair"/>`;}
   }else if(T.k==='txt'){
-    h+=`<rect x="${o.x-u*8}" y="${o.y-u*1.6}" width="${u*16}" height="${u*3.2}" fill="${sel?'rgba(255,230,0,.35)':'transparent'}"/>`+txt(o.x,o.y,o.label||'Texte',u*1.6);
+    h+=`<rect x="${o.x-u*8}" y="${o.y-u*1.6}" width="${u*16}" height="${u*3.2}" fill="${sel?'rgba(255,230,0,.35)':'transparent'}"/>`+(REFS?tagBadge(o.x,o.y,REFS[o.id]||'?',u):txt(o.x,o.y,o.label||'Texte',u*1.6));
   }else{
     const pts=o.pts.map(p=>p.join(',')).join(' '), tag=o.closed?'polygon':'polyline', com=`points="${pts}" fill="none" stroke-linejoin="round" stroke-linecap="round"`;
+    if(T.area&&o.closed) h+=`<polygon points="${pts}" fill="${T.c}" fill-opacity=".22" pointer-events="none"/>`;   // zone amiante : surface teintée
     if(sel) h+=`<${tag} ${com} stroke="#ffe600" stroke-width="${u*(T.sw+1.1)}"/>`;
     h+=`<${tag} ${com} stroke="${T.edge||'#fff'}" stroke-width="${u*(T.sw+.45)}"/><${tag} ${com} stroke="${T.c}" stroke-width="${u*T.sw}" ${T.dash?`stroke-dasharray="${T.dash.map(d=>d*u).join(' ')}"`:''} style="stroke-linecap:${T.dash?'butt':'round'}"/>`;
     h+=`<${tag} ${com} stroke="transparent" stroke-width="${u*3.5}" pointer-events="stroke"/>`;
     o.pts.forEach(p=>h+=`<circle cx="${p[0]}" cy="${p[1]}" r="${u*.45}" fill="${T.c}" stroke="${T.edge||'#fff'}" stroke-width="${u*.15}" pointer-events="none"/>`);
     if(sel&&o.id) o.pts.forEach((p,i)=>h+=`<circle data-h="v${i}" cx="${p[0]}" cy="${p[1]}" r="${u*2}" fill="transparent" style="cursor:move"/><circle data-h="v${i}" cx="${p[0]}" cy="${p[1]}" r="${u*.9}" fill="#fff" stroke="${T.c}" stroke-width="${u*.35}" style="cursor:move"/>`);
-    if(o.pts.length>1){const a=o.pts[0], b=o.pts[1], L=lenOf(o); h+=txt((a[0]+b[0])/2,(a[1]+b[1])/2-u*1.5,T.short+(L!==null?' '+L+' m':'')+(o.label?' · '+o.label:''),u*1.3);}
+    if(o.pts.length>1){const a=o.pts[0], b=o.pts[1], L=lenOf(o), k=mppEff();
+      const c=T.area&&o.closed?centre(o.pts):[(a[0]+b[0])/2,(a[1]+b[1])/2-u*1.5];
+      const mes=T.area?(o.closed&&k?' '+fmtN(polyArea(o.pts)*k*k)+' m²':''):(L!==null?' '+L+' m':'')+(T.heras&&k?' · '+Math.max(1,up5(rawLen(o)*k/HERAS_LEN))+' panneaux':'');
+      h+=REFS?(REFS[o.id]?tagBadge(c[0],c[1],REFS[o.id],u):''):txt(c[0],c[1],T.short+mes+(o.label?' · '+o.label:''),u*1.3);}
   }
   return h+'</g>';
 }
 function renderObjs(){
-  const F=S.frozen; if(!F) return; const u=unit(); let n=0;
+  const F=S.frozen; if(!F) return; const u=unit(); let n=0; REFS=S.legTable?refMap():null;
   let h=S.objs.map(o=>drawObj(o,u,o.id===selId,o.t==='poste'?++n:0)).join('');
   if(line) h+=drawObj(line,u,true,0);
   $('#planObjs').innerHTML=h; renderLegend();
 }
-function renderLegend(){
-  const M=measures(), k=Object.keys(TOOLS).filter(t=>M[t]);
-  $('#legend').innerHTML=k.length?k.map(t=>`<li><i style="background:${TOOLS[t].c}${TOOLS[t].edge?';outline:1.5px solid '+TOOLS[t].edge:''}"></i>${t==='secu'?secuTxt(M):TOOLS[t].n+' : '+(TOOLS[t].k==='line'?(isNaN(M[t].len)?M[t].n+' tracé(s)':Math.round(M[t].len)+' m'):M[t].n)}</li>`).join(''):'<li>Le plan est vide.</li>';
-}
+function legItem(t,M){const T=TOOLS[t], e=M[t];
+  if(t==='secu') return secuTxt(M); if(t==='heras') return herasTxt(M);
+  if(T.area) return T.n+' : '+(isNaN(e.area)||e.area==null?e.n+' zone(s)':fmtN(e.area)+' m²');
+  return T.n+' : '+(T.k==='line'?(isNaN(e.len)?e.n+' tracé(s)':Math.round(e.len)+' m'):e.n);}
+function swatch(t){const T=TOOLS[t], c=T.c;
+  if(T.num) return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="${c}" stroke="#fff" stroke-width="1.5"/></svg>`;
+  if(T.area) return `<svg width="30" height="18" viewBox="0 0 30 18"><rect x="2" y="2" width="26" height="14" fill="${c}" fill-opacity=".25" stroke="${c}" stroke-width="2"/></svg>`;
+  if(T.k==='line') return `<svg width="34" height="14" viewBox="0 0 34 14"><line x1="3" y1="7" x2="31" y2="7" stroke="${T.edge||'#fff'}" stroke-width="${T.plate?9:7}" stroke-linecap="round"/><line x1="3" y1="7" x2="31" y2="7" stroke="${c}" stroke-width="${T.plate?6:4}" ${T.dash?`stroke-dasharray="${T.heras?'2 3':'6 3'}"`:''}/></svg>`;
+  if(T.cone) return `<svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 3L19 19H3Z" fill="${c}" stroke="#fff" stroke-width="1.2"/></svg>`;
+  if(T.umd) return `<svg width="34" height="16" viewBox="0 0 34 16">${Array.from({length:T.umd},(x,i)=>`<rect x="${1+i*32/T.umd}" y="2" width="${32/T.umd}" height="12" fill="${i===0?'#ffab91':i===T.umd-1?'#90caf9':'#eceff1'}" stroke="#263238" stroke-width="1"/>`).join('')}</svg>`;
+  if(T.k==='veh') return `<svg width="34" height="16" viewBox="0 0 34 16"><rect x="1" y="2" width="32" height="12" rx="2" fill="#fff" stroke="${c}" stroke-width="1.5"/><rect x="25" y="2" width="8" height="12" rx="2" fill="${c}"/></svg>`;
+  if(T.k==='txt') return `<svg width="22" height="22" viewBox="0 0 22 22"><text x="11" y="16" text-anchor="middle" font-family="Arial" font-weight="700" font-size="15" fill="#1b1b1b">T</text></svg>`;
+  return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="${c}" stroke="#fff" stroke-width="1.5"/>${T.small?'<path d="M7 7L15 15M15 7L7 15" stroke="#fff" stroke-width="1.6"/>':`<text x="11" y="11.5" text-anchor="middle" dominant-baseline="central" font-family="Arial" font-weight="700" font-size="${T.code&&T.code.length>2?6:8}" fill="${T.fg||'#fff'}">${T.code||''}</text>`}</svg>`;}
+function mesureOf(o){const T=TOOLS[o.t], k=mppEff();
+  if(T.num){const L=posteLen(o); return L!==null?L+' m':'';}
+  if(T.area) return o.closed&&k?fmtN(polyArea(o.pts)*k*k)+' m²':'';
+  if(T.k==='line'){const L=lenOf(o); if(L===null) return 'échelle inconnue'; return L+' m'+(T.heras?' · '+Math.max(1,up5(rawLen(o)*k/HERAS_LEN))+' panneaux':'');}
+  if(T.umd) return String(T.w).replace('.',',')+' × '+String(T.h).replace('.',',')+' m';
+  if(T.reach) return 'portée ≈ '+T.reach+' m';
+  return '';}
+function legendBlock(){const M=measures();
+  if(!S.legTable){const k=Object.keys(TOOLS).filter(t=>M[t]);
+    return `<ul class="legend">${k.length?k.map(t=>`<li><i style="background:${TOOLS[t].c}${TOOLS[t].edge?';outline:1.5px solid '+TOOLS[t].edge:''}"></i>${legItem(t,M)}</li>`).join(''):'<li>Le plan est vide.</li>'}</ul>`;}
+  const refs=refMap(), rows=[], grp={}; let pn=0;
+  S.roofs.forEach(r=>{const sp=surfPente(r); rows.push(`<tr><td><b class="tagref">${esc(r.name)}</b></td><td><svg width="30" height="18" viewBox="0 0 30 18"><rect x="2" y="2" width="26" height="14" fill="#9e9e9e" fill-opacity=".25" stroke="#555" stroke-width="1.5" stroke-dasharray="4 2"/></svg></td><td>Toit${isFragile(r)?' fragile':''} · ${esc(matLabel(r))}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${sp!==null?`<br><b>${fmtN(sp)} m² en pente (${r.pente}°)</b>`:''}</td><td></td></tr>`);});
+  S.objs.forEach(o=>{const T=TOOLS[o.t]; if(!T) return;
+    if(T.num){pn++; rows.push(`<tr><td><i class="pnum">${pn}</i></td><td>${swatch(o.t)}</td><td>${T.n}</td><td class="num">${mesureOf(o)}</td><td>${esc(o.label||'')}</td></tr>`); return;}
+    if(refs[o.id]){rows.push(`<tr><td><b class="tagref">${refs[o.id]}</b></td><td>${swatch(o.t)}</td><td>${T.n}</td><td class="num">${mesureOf(o)}</td><td>${esc(o.label||'')}</td></tr>`); return;}
+    (grp[o.t]=grp[o.t]||[]).push(o);});
+  Object.entries(grp).forEach(([t,l])=>rows.push(`<tr><td>—</td><td>${swatch(t)}</td><td>${TOOLS[t].n}</td><td class="num">× ${l.length}</td><td></td></tr>`));
+  const tot=[]; if(M.secu) tot.push(secuTxt(M)); if(M.heras) tot.push(herasTxt(M));
+  Object.keys(TOOLS).forEach(t=>{const T=TOOLS[t]; if(M[t]&&T.k==='line'&&!T.plate&&!T.heras&&!T.area&&M[t].n>1) tot.push(T.n+' : '+(isNaN(M[t].len)?'—':Math.round(M[t].len)+' m au total'));});
+  if(!rows.length) return '<p class="msg">Le plan est vide.</p>';
+  return `<div class="scroll"><table class="legtab"><thead><tr><th>Repère</th><th>Symbole</th><th>Élément</th><th>Longueur, surface ou quantité</th><th>Commentaire</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${tot.length?`<p class="legtot"><b>Totaux :</b> ${tot.map(esc).join(' · ')}</p>`:''}`;}
+function renderLegend(){$('#legend').innerHTML=legendBlock();}
 function renderBar(){
   const bar=$('#bar'), o=S.objs.find(x=>x.id===selId);
   if(line){bar.innerHTML=`<b>${TOOLS[line.t].n}</b><span>Touchez l’image pour poser chaque point, ou tirez le trait.</span><button type="button" class="btn sm pri" data-a="end">Terminer le tracé</button><button type="button" class="btn sm" data-a="cancel">Annuler</button>`; return;}
@@ -1038,7 +1122,7 @@ function renderBar(){
       ${T.k!=='veh'?`<span class="szl"><label for="objSize">Taille</label><input type="range" id="objSize" min="40" max="250" step="10" value="${Math.round((o.s||1)*100)}"><output id="objSizeVal">${Math.round((o.s||1)*100)} %</output></span>`:''}
       <button type="button" class="btn sm" data-a="dup" title="Dupliquer (Ctrl+D). Ctrl+C puis Ctrl+V colle sous la souris.">Dupliquer</button>
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
-  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
+  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(TOOLS[tool].area?'Touchez chaque angle de la zone, puis « Terminer le tracé » : la zone se ferme toute seule.':isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
     :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter, le dupliquer ou le supprimer (Ctrl+C / Ctrl+V). Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
@@ -1061,7 +1145,8 @@ function linePop(){line.pts.pop(); line.anc&&line.anc.pop();}
 function anchorMoved(a){S.objs.forEach(l=>{if(l.anc) l.anc.forEach((id,i)=>{if(id===a.id) l.pts[i]=[a.x,a.y];});});}   // la ligne de vie suit son ancrage
 function lineMoved(l){if(l.anc) l.anc.forEach((id,i)=>{const a=id&&S.objs.find(x=>x.id===id); if(a){a.x=l.pts[i][0]; a.y=l.pts[i][1]; anchorMoved(a);}});}   // et l'ancrage suit sa ligne
 const centre=pts=>[pts.reduce((s,p)=>s+p[0],0)/pts.length, pts.reduce((s,p)=>s+p[1],0)/pts.length];
-function finishLine(){if(!line) return; if(line.pts.length>=2){line.id=uid(); S.objs.push(line); selId=line.id;} line=null; renderObjs(); renderBar(); save();}
+function finishLine(){if(!line) return; if(TOOLS[line.t].area){if(line.pts.length>=3) line.closed=true; else line.pts=[];}   // une zone se ferme toute seule
+  if(line.pts.length>=2){line.id=uid(); S.objs.push(line); selId=line.id;} line=null; renderObjs(); renderBar(); save();}
 function svgPt(e){const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.round(q.x),Math.round(q.y)];}
 svg.addEventListener('pointermove',e=>{if(S.frozen) hover=svgPt(e);});
 svg.addEventListener('pointerleave',()=>{hover=null;});
@@ -1211,7 +1296,7 @@ const PDP_FIXES=[
    PROPOSITION À VALIDER par le service QHSE : textes rédigés à partir de l'analyse, à corriger librement ici. */
 const roofsAm=()=>S.roofs.some(r=>amianteFlag(r)&&r.rat!=='absent');
 const PDP_OPTS=[
-  {id:'amiante',t:'Amiante (sous-section 4)',sug:roofsAm,
+  {id:'amiante',t:'Amiante (sous-section 4)',sug:()=>roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante'),
    r:'Intervention sur matériaux amiantés uniquement par du personnel formé SS4, selon un mode opératoire validé. Le repérage amiante avant travaux est remis par le donneur d’ordre avant le démarrage.',
    a:'Mode opératoire SS4 présent sur le chantier, zone de travail balisée et interdite aux tiers, matériaux déposés sans casse et conditionnés sur place, déchets évacués sous BSDA.',
    p:'Appareil de protection respiratoire adapté au niveau d’empoussièrement, combinaison jetable type 5/6, gants, surbottes, moyens de décontamination.'},
@@ -1260,7 +1345,9 @@ const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</di
 const lines=n=>'<i></i>'.repeat(n);
 
 function renderSynth(){
-  const v=S.view||'devis'; $('#feu').hidden=v!=='devis'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
+  const v=S.view||'devis'; $('#feu').hidden=v!=='devis';
+  /* Impression : le plan prend une page entière, en paysage si la photo est en largeur */
+  document.body.dataset.v=v; document.body.dataset.lt=S.legTable?'1':'0'; document.body.dataset.po=S.frozen&&S.frozen.w/S.frozen.h<1.15?'p':'l'; $('.band').classList.toggle('pg-plan',v!=='pdp'); $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
   const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
   const date=new Date().toLocaleDateString('fr-FR');
@@ -1275,9 +1362,9 @@ function renderSynth(){
       1:['Orange — moyens de prévention à chiffrer',`${ev.devis.length} ligne${ev.devis.length>1?'s':''} à intégrer au devis.`],
       2:['Analyse incomplète',`${nb} rubrique${nb>1?'s':''} à compléter avant de pouvoir conclure.`],
       3:['Rouge — ne pas envoyer le devis en l’état',`${rg} point${rg>1?'s':''} bloquant${rg>1?'s':''} à lever, ou à soumettre au service QHSE.`]}[g];
-    h+=`<div class="global n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}</div></div>`;
+    h+=`<div class="global pg-plan n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}</div></div>`;
   }else if(v==='brief'){
-    h+=`<div class="dochead"><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>`;
+    h+=`<div class="dochead pg-plan"><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>`;
   }else{
     h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
       <div class="cfglist">${PDP_OPTS.map(o=>`<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)?'checked':''}><span>${o.t}${o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`).join('')}
@@ -1294,9 +1381,10 @@ function renderSynth(){
   }
 
   /* plan, toits, analyse : communs aux trois documents */
-  if(S.frozen) h+=`<div class="card plancard${v!=='devis'?' big':''}"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage" id="synthStage" style="margin-top:10px"></div>
-    <ul class="legend" style="margin-top:8px">${$('#legend').innerHTML}</ul>
-    ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}</div>`;
+  if(S.frozen){h+=`<div class="card plancard pg-plan"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage" id="synthStage" style="margin-top:10px"></div>
+    ${S.legTable?'':`<div style="margin-top:8px">${legendBlock()}</div>
+    ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}`}</div>`;
+    if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;}
   h+=`<div class="card keep"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
     ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
       <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="7">Aucun toit sélectionné.</td></tr>'}
