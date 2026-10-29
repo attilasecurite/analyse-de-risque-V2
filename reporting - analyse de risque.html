@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analyse de risque toiture — suivi réseau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+/* Même présentation que le suivi du DOE : bandeau rouge, cartes, KPI à liseré */
+:root{--red:#C0392B;--ink:#1E2328;--mute:#5E6770;--line:#D5DADF;--bg:#ECEFF1;--card:#fff;--ok:#38761D;--warn:#E69138;--ko:#CC0000}
+*{box-sizing:border-box}
+body{margin:0;font-family:Barlow,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+header{background:var(--red);color:#fff;padding:14px 16px}
+header div{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-family:"Barlow Condensed",sans-serif;font-size:22px;margin:0;flex:1;line-height:1.15}
+h1 small{display:block;font-family:Barlow,sans-serif;font-weight:500;font-size:13px;opacity:.85}
+main{max-width:1200px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px;min-width:0}
+h2{font-family:"Barlow Condensed",sans-serif;font-size:20px;margin:0 0 12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:#F4F6F7;border-radius:10px;padding:14px;border-left:5px solid var(--red)}
+.kpi b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--mute)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
+.two .card{margin-bottom:0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+th{background:#F4F6F7;font-size:13px;position:sticky;top:0;z-index:1}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.wrap{overflow:auto;max-height:70vh}
+a{color:#1565C0}
+.bar{height:9px;background:#E3E7EA;border-radius:5px;overflow:hidden;min-width:60px}
+.bar div{height:100%;background:var(--red)}
+input,select,button{font:inherit;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+button{background:var(--red);color:#fff;border:0;font-weight:700;cursor:pointer}
+button.line{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #1565C0;outline-offset:2px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tools input{flex:1 1 220px;min-width:0}
+.tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:12px;background:#EEF0F2;color:var(--mute);white-space:nowrap;display:inline-block;margin:1px 0}
+.tag.v{background:#EDF5EA;color:var(--ok)} .tag.o{background:#FDF4EA;color:#B26A1D} .tag.r{background:#FBEAEA;color:var(--ko)}
+.hint{font-size:14px;padding:10px 12px;border-radius:8px;background:#F4F6F7;border-left:4px solid #1565C0;margin-bottom:12px}
+.hint.ko{border-left-color:var(--ko);background:#FBEAEA}
+.mois{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:10px}
+.mois div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-size:11px;color:var(--mute);min-width:0}
+.mois i{display:block;width:100%;background:var(--red);border-radius:4px 4px 0 0;min-height:2px}
+.mois i.b{background:#E8B4AE;border-radius:0}
+.src{font-size:13px;color:var(--mute)}
+#carte{height:420px;border-radius:8px;border:1px solid var(--line);z-index:0}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:8px}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:1.5px solid #fff;box-shadow:0 0 0 1px #9aa}
+.leaflet-popup-content{font-family:Barlow,sans-serif;font-size:14px;line-height:1.35}
+@media (max-width:500px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div>
+  <h1>Analyse de risque toiture<small>Suivi d’usage du réseau ATTILA</small></h1>
+  <button class="line" id="btnRefresh" type="button">Actualiser</button>
+  <button class="line" id="btnCsv" type="button">Export CSV</button>
+</div></header>
+<main>
+  <div id="state"></div>
+
+  <div class="card"><h2>Vue d’ensemble</h2><div class="kpis" id="kpis"></div></div>
+
+  <div class="two">
+    <div class="card"><h2>Analyses par mois</h2><div class="mois" id="mois"></div>
+      <p class="src">Barre claire : analyses imprimées (aide au chiffrage, briefing ou plan de prévention). Barre foncée : analyses non imprimées.</p></div>
+    <div class="card"><h2>Où : chantiers analysés</h2><div id="carte"></div>
+      <div class="leg"><span><i style="background:#38761D"></i>Vert</span><span><i style="background:#E69138"></i>Orange</span><span><i style="background:#CC0000"></i>Rouge</span><span><i style="background:#8A939B"></i>À compléter</span></div></div>
+  </div>
+  <div style="height:14px"></div>
+
+  <div class="card"><h2>Usage par agence</h2>
+    <div class="wrap"><table id="tAgences"><thead><tr>
+      <th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th>Taux</th>
+      <th class="n">Utilisateurs</th><th class="n">Rouges</th><th class="n">Amiante</th><th>Dernière activité</th>
+    </tr></thead><tbody></tbody></table></div></div>
+
+  <div class="card"><h2>Qui : chargés de clientèle</h2>
+    <div class="wrap"><table id="tRed"><thead><tr>
+      <th>Chargé de clientèle</th><th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th>Dernière activité</th>
+    </tr></thead><tbody></tbody></table></div></div>
+
+  <div class="card"><h2>Répertoire des analyses</h2>
+    <div class="tools">
+      <input id="q" placeholder="Rechercher : agence, client, adresse, chargé de clientèle…" aria-label="Rechercher">
+      <select id="filtre" aria-label="Filtrer">
+        <option value="">Toutes les analyses</option>
+        <option value="imp">Imprimées</option>
+        <option value="nonimp">Non imprimées</option>
+        <option value="rouge">Feu rouge</option>
+        <option value="amiante">Avec amiante</option>
+      </select>
+    </div>
+    <div class="wrap"><table id="tAna"><thead><tr>
+      <th>Mise à jour</th><th>Agence</th><th>Client / adresse</th><th>Chargé</th><th>Feu</th><th>Imprimé</th><th>Ouvrir</th>
+    </tr></thead><tbody></tbody></table></div>
+    <p class="src">« Reprendre » rouvre l’analyse dans l’outil, à l’étape où elle a été laissée. « Dossier » ouvre son dossier sur le Drive (données, vue aérienne, plan, résumé). « Plan » ouvre directement le plan dessiné.</p></div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* URL du déploiement Apps Script (/exec) — la même que dans index.html */
+const API_URL='https://script.google.com/macros/s/AKfycbzgypmrK90dUcqQDq1qt0lCGrP4M6G2InzO8eQWwco9afQ-tBervpVW3UHJViYIIviCeg/exec';
+const API=new URLSearchParams(location.search).get('api')||API_URL;
+/* Adresse de l'outil, pour les liens de reprise */
+const APP=new URLSearchParams(location.search).get('app')||new URL('index.html',location.href).href;   // l'outil est dans le même dossier que ce tableau de bord (marche aussi sans « .html » dans l'adresse)
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=d=>{if(!d)return '—';const x=new Date(d);return isNaN(x)?'—':x.toLocaleDateString('fr-FR')+' '+x.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
+const num=n=>(Number(n)||0).toLocaleString('fr-FR');
+const FEU={Vert:['v','#38761D'],Orange:['o','#E69138'],Rouge:['r','#CC0000']};
+let ANA=[],STATS=null,carte=null,couche=null;
+
+async function call(body){
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();if(j.ok===false)throw new Error(j.error||'refus du serveur');return j;
+}
+async function load(){
+  if(!API){$('#state').innerHTML='<div class="hint ko"><b>À configurer :</b> renseignez API_URL dans ce fichier avec l’URL /exec du script Apps Script (voir Code.gs).</div>';return}
+  $('#state').innerHTML='<div class="hint">Chargement…</div>';
+  try{
+    const [s,l]=await Promise.all([call({action:'stats'}),call({action:'list',limit:1000})]);
+    STATS=s;ANA=l.analyses||[];$('#state').innerHTML='';
+    kpis();mois();agences();redacteurs();liste();carteMaj();
+  }catch(e){$('#state').innerHTML=`<div class="hint ko"><b>Lecture impossible :</b> ${esc(e.message)}. Vérifiez que le script est déployé en « accès : tout le monde ».</div>`}
+}
+function kpis(){
+  const t=STATS.totaux;
+  $('#kpis').innerHTML=[
+    ['Analyses',t.analyses],['Imprimées',t.imprimees],['Agences utilisatrices',t.agences],['Chargés de clientèle',t.utilisateurs],
+    ['Ouvertures sur 30 jours',t.ouvertures30j],['Aides au chiffrage',t.devis],['Briefings équipes',t.briefings],['Plans de prévention',t.pdp],
+    ['Feux rouges',t.rouges],['Chantiers avec amiante',t.amiante]
+  ].map(([k,v])=>`<div class="kpi"><b>${num(v)}</b><span>${k}</span></div>`).join('');
+}
+function mois(){
+  const m=STATS.parMois.slice(-12),max=Math.max(1,...m.map(x=>x.analyses));
+  $('#mois').innerHTML=m.length?m.map(x=>`<div title="${x.mois} : ${x.analyses} analyse(s), dont ${x.imprimees} imprimée(s)">
+    <i style="height:${(x.analyses-x.imprimees)/max*110}px"></i><i class="b" style="height:${x.imprimees/max*110}px"></i>
+    <span>${x.mois.slice(5)}/${x.mois.slice(2,4)}</span></div>`).join('')
+    :'<p class="src">Aucune analyse enregistrée pour le moment.</p>';
+}
+function agences(){
+  const r=STATS.parAgence;
+  $('#tAgences tbody').innerHTML=r.length?r.map(a=>`<tr>
+    <td>${esc(a.agence)}</td><td class="n">${a.analyses}</td><td class="n">${a.imprimees}</td>
+    <td><div class="bar" title="${a.analyses?Math.round(a.imprimees/a.analyses*100):0} % imprimées"><div style="width:${a.analyses?a.imprimees/a.analyses*100:0}%"></div></div></td>
+    <td class="n">${a.redacteurs}</td><td class="n">${a.rouges}</td><td class="n">${a.amiante}</td><td>${fmt(a.dernier)}</td></tr>`).join('')
+    :'<tr><td colspan="8" class="src">Aucune donnée.</td></tr>';
+}
+function redacteurs(){
+  const r=STATS.parRedacteur;
+  $('#tRed tbody').innerHTML=r.length?r.map(a=>`<tr><td>${esc(a.redacteur)}</td><td>${esc(a.agence)||'—'}</td>
+    <td class="n">${a.analyses}</td><td class="n">${a.imprimees}</td><td>${fmt(a.dernier)}</td></tr>`).join('')
+    :'<tr><td colspan="5" class="src">Aucune donnée.</td></tr>';
+}
+const imprimes=a=>[a.imprime_devis&&'Chiffrage',a.imprime_brief&&'Briefing',a.imprime_pdp&&'PdP'].filter(Boolean);
+const liens=a=>`<a href="${APP}?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener">Reprendre</a>${a.dossier?` · <a href="${esc(a.dossier)}" target="_blank" rel="noopener">Dossier</a>`:''}${a.plan?` · <a href="${esc(a.plan)}" target="_blank" rel="noopener">Plan</a>`:''}`;
+function filtrees(){
+  const q=$('#q').value.toLowerCase().trim(),f=$('#filtre').value;
+  return ANA.filter(a=>{
+    const txt=[a.agence,a.client,a.adresse,a.redacteur,a.travaux].join(' ').toLowerCase();
+    if(q&&!txt.includes(q))return false;
+    if(f==='imp'&&!imprimes(a).length)return false;
+    if(f==='nonimp'&&imprimes(a).length)return false;
+    if(f==='rouge'&&a.feu!=='Rouge')return false;
+    if(f==='amiante'&&a.amiante!=='oui')return false;
+    return true;
+  });
+}
+function liste(){
+  const rows=filtrees();
+  $('#tAna tbody').innerHTML=rows.length?rows.map(a=>{const fe=FEU[a.feu];const im=imprimes(a);
+    return `<tr><td>${fmt(a.maj_le)}</td><td>${esc(a.agence)||'—'}</td>
+      <td>${esc(a.client)||'—'}${a.adresse?'<br><span class="src">'+esc(a.adresse)+'</span>':''}${a.travaux?'<br><span class="src">'+esc(a.travaux)+'</span>':''}</td>
+      <td>${esc(a.redacteur)||'—'}</td>
+      <td><span class="tag ${fe?fe[0]:''}">${esc(a.feu)||'À compléter'}</span>${a.amiante==='oui'?' <span class="tag r">Amiante</span>':''}</td>
+      <td>${im.length?im.map(x=>`<span class="tag v">${x}</span>`).join(' '):`<span class="tag">étape ${esc(a.etape)||1}/4</span>`}</td>
+      <td>${liens(a)}</td></tr>`}).join('')
+    :'<tr><td colspan="7" class="src">Aucune analyse ne correspond.</td></tr>';
+  carteMaj();
+}
+function carteMaj(){
+  if(typeof L==='undefined'){$('#carte').innerHTML='<p class="src" style="padding:12px">Carte indisponible (pas de connexion).</p>';return}
+  if(!carte){carte=L.map('carte').setView([46.6,2.4],5);
+    L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',{maxZoom:18,attribution:'© IGN'}).addTo(carte);}
+  if(couche)carte.removeLayer(couche);couche=L.layerGroup().addTo(carte);
+  const pts=[];
+  filtrees().forEach(a=>{const lat=parseFloat(a.lat),lng=parseFloat(a.lng);if(!isFinite(lat)||!isFinite(lng)||(!lat&&!lng))return;
+    const c=(FEU[a.feu]||[0,'#8A939B'])[1];pts.push([lat,lng]);
+    L.circleMarker([lat,lng],{radius:7,color:'#fff',weight:2,fillColor:c,fillOpacity:.95}).addTo(couche)
+      .bindPopup(`<b>${esc(a.client)||'Sans client'}</b><br>${esc(a.adresse)}<br>${esc(a.agence)||'—'} · ${esc(a.redacteur)||'—'}<br>${fmt(a.maj_le)}<br>${liens(a)}`);});
+  if(pts.length)carte.fitBounds(pts,{padding:[30,30],maxZoom:12,animate:false});
+}
+$('#q').addEventListener('input',liste);
+$('#filtre').addEventListener('change',liste);
+$('#btnRefresh').onclick=load;
+$('#btnCsv').onclick=()=>{
+  if(!ANA.length)return;
+  const cols=['maj_le','cree_le','agence','redacteur','client','adresse','travaux','lat','lng','etape','feu','amiante','nb_toits','surface_plat','surface_pente','nb_elements','lignes_devis','imprime_devis','imprime_brief','imprime_pdp','dossier','plan'];
+  const csv=[cols.join(';'),...ANA.map(d=>cols.map(c=>`"${String(d[c]??'').replace(/"/g,'""')}"`).join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='analyses_risque_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();
+};
+load();
+</script>
+</body>
+</html>
