@@ -127,6 +127,28 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .tagref{display:inline-block;min-width:24px;padding:1px 6px;border:1.5px solid #1b1b1b;border-radius:5px;background:#fff;font-weight:700;text-align:center;white-space:nowrap}
 .pnum{font-style:normal;font-weight:700;font-size:13px;width:24px;height:24px;border-radius:50%;background:var(--rouge);color:#fff;display:grid;place-items:center}
 .legtot{margin:8px 0 0;font-size:14px}
+.planwrap,.planwrap .tools,.planwrap .work{display:flex;flex-direction:column;gap:12px;min-width:0}
+@media (min-width:1000px){
+  body[data-step="2"] main,body[data-step="2"] .steps .in,body[data-step="2"] .band .in{max-width:min(1880px,100%)}
+  body[data-step="2"] #s2>.card{padding:12px 16px 14px} body[data-step="2"] #s2>.card>h2,body[data-step="2"] #s2 .card>p.intro{display:none}
+  .planwrap{display:grid;grid-template-columns:clamp(300px,24vw,340px) minmax(0,1fr);gap:16px;align-items:start}
+  /* colonne d'outils : tout tient dans la fenêtre, sans barre de défilement (réduite automatiquement si l'écran est bas) */
+  .planwrap .tools{position:sticky;top:calc(var(--stepsH,60px) + 8px);gap:10px;padding:0}
+  .tools .palette{flex-direction:column;gap:6px}
+  .tools .pgroup{flex-basis:auto;gap:4px}
+  .tools .pgroup>span{flex-basis:100%;margin:0;font-size:10px;line-height:1.25}
+  .tools .tool{font-size:12.5px;min-height:27px;padding:2px 7px;gap:5px}
+  .tools .amhead{min-height:28px;padding:2px 10px 2px 7px}
+  .tools .pgroup>span.amhint{display:none} .tools .amrow{margin:0 0 0 6px;padding:4px 6px}
+  .tools .planctl{flex-direction:column;align-items:stretch;gap:6px;padding-top:8px;border-top:1px solid var(--trait)}
+  .tools .planctl .pc{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:2px 6px}
+  .tools .planctl .pc:first-child{grid-template-columns:72px minmax(0,1fr) auto auto}
+  .tools .planctl label{font-size:9.5px;line-height:1.2} .tools .planctl input[type=range]{width:100%;min-width:0}
+  .tools .planctl output{min-width:36px;text-align:right;font-size:12.5px}
+  .tools .planctl .minis{grid-column:2/4;justify-self:start;display:flex;flex-wrap:wrap;gap:4px}
+  .tools .planctl .btn.sm{padding:2px 8px;min-height:26px;font-size:12.5px}
+  .work .bar{min-height:40px;font-size:14px} .work .bar>span:first-child{flex:1 1 280px}
+}
 .planctl{display:flex;flex-wrap:wrap;gap:6px 28px;align-items:center;font-size:14px}
 .planctl .pc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .planctl label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2)}
@@ -138,6 +160,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;b
 .stage svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
 .stage svg .obj{cursor:grab}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;margin:0;padding:0;list-style:none}
+#legend .legend{font-size:12.5px;gap:3px 14px} #legend .legend i{width:10px;height:10px}
+#legend table{font-size:12.5px} #legend th{font-size:10px;padding:3px 6px} #legend td{padding:3px 6px;vertical-align:middle} #legend .legtab svg{height:15px;width:auto} #legend .tagref{font-size:11.5px;padding:0 4px;min-width:20px;border-width:1px} #legend .pnum{width:19px;height:19px;font-size:11px} #legend .legtot{font-size:12.5px;margin-top:4px}
 .legend li{display:flex;align-items:center;gap:7px}
 .legend i{width:12px;height:12px;border-radius:50%;flex:none} .legend .lgi{flex:none;align-self:center}
 
@@ -248,7 +272,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .signs.two{grid-template-columns:1fr 1fr}
 .sbox .zone>span{font-size:12px;color:var(--encre-2)}
 @media (max-width:560px){.rrows{grid-template-columns:1fr;gap:2px}}
-#printAll,.docband{display:none}
+#printAll,.docband{display:none} .planpage{display:contents}
 .pdoc{display:flex;flex-direction:column;gap:18px}
 .quickprint{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:-6px}
 .engage p{margin:0} .engage p+p{margin-top:5px}
@@ -274,7 +298,12 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   body{background:#fff;font-size:8.5pt;line-height:1.25}
   .band{background:none;color:var(--encre)} .band .in{padding:0 0 1.5mm;max-width:none} .band h1{font-size:12pt;color:var(--rouge-fonce)}
   main{padding:0;max-width:none;display:block} section.ecran,.pdoc{display:block} #s4>*+*,.pdoc>*+*{margin-top:2.5mm}
-  .plancard,.legcard{break-inside:avoid} .plancard{break-after:page} .pdoc[data-v="pdp"] .plancard{break-before:page}
+  .plancard,.legcard{break-inside:avoid} .plancard.solo{break-after:page} .pdoc[data-v="pdp"] .plancard.solo{break-before:page}
+  .band{display:none!important} .docband{display:block}
+  .pdoc{margin-top:0!important} .planpage{display:flex;flex-direction:column;height:190mm;break-inside:avoid;break-after:page} .planpage>*+*{margin-top:2.5mm}
+  .pdoc[data-v="pdp"] .planpage{break-before:page}
+  .planpage .plancard{flex:1 1 auto;min-height:0;display:flex;flex-direction:column} .planpage .plancard .stage{flex:1 1 0;min-height:0}
+  .planpage .plancard .stage svg{width:100%;height:100%;max-height:none}
   body.printall #s4,body.printall .band{display:none!important} body.printall #printAll{display:block} body.printall .docband{display:block}
   .pdoc+.pdoc{break-before:page}
   .docband{font:700 12pt/1.2 var(--titre);color:var(--rouge-fonce);padding-bottom:1.5mm}
@@ -299,8 +328,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .card{border:0;border-radius:0;padding:0;background:none}
   .card>h2{font-size:10pt;margin:0 0 .8mm;padding-bottom:.6mm;border-bottom:1.5px solid var(--rouge)}
   .stage{border:0;background:none;margin-top:0!important} .stage svg{width:100%}
-  .plancard .stage svg{max-height:118mm} .pdoc[data-v="pdp"] .plancard .stage svg{max-height:150mm}
-  body[data-lt="1"] .plancard .stage svg{max-height:136mm} body[data-lt="1"] .pdoc[data-v="pdp"] .plancard .stage svg{max-height:166mm}
+  .plancard.solo .stage svg{max-height:136mm} .pdoc[data-v="pdp"] .plancard.solo .stage svg{max-height:166mm}
   .legtab{font-size:8pt;line-height:1.15} .legtab td{padding:.3mm 1.5mm} .legtab th{padding:.4mm 1.5mm} .legtab svg{width:auto;height:3.6mm} .tagref{font-size:7.5pt;padding:0 1.2mm;border-width:1px} .pnum{width:4mm;height:4mm;font-size:6.5pt} .legtot{font-size:8pt;margin-top:1mm}
   .legend{font-size:7.5pt;gap:.6mm 4mm;margin-top:1mm!important} .legend i{width:2.4mm;height:2.4mm}
   .postes{font-size:8pt;margin-top:1mm;gap:.6mm 5mm} .postes i{width:4mm;height:4mm;font-size:7pt}
@@ -400,17 +428,21 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     <h2><span class="num">4</span>Plan d’installation</h2>
     <p class="intro">Choisissez un élément, puis touchez l’image pour le poser. Glissez pour déplacer. Chaque élément peut porter un texte.</p>
     <div id="planEmpty" class="empty" hidden>L’image n’est pas encore figée. Revenez à l’étape 1, cadrez la vue puis touchez « Figer l’image ».</div>
-    <div id="planWrap" style="display:flex;flex-direction:column;gap:12px">
+    <div id="planWrap" class="planwrap">
+      <aside class="tools noprint" id="planTools" aria-label="Éléments à poser et réglages du plan">
       <div class="palette noprint" id="palette"></div>
       <div class="planctl noprint" id="planCtl">
-        <span class="pc"><label for="rotRange">Orientation du plan</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth">Nord en haut</button></span>
+        <span class="pc"><label for="rotRange">Orientation</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth" title="Remettre le nord en haut">Nord ↑</button></span>
         <span class="pc"><label for="zoomRange">Zoom</label><input type="range" id="zoomRange" min="100" max="300" step="5" value="100"><output id="zoomVal">100 %</output></span>
-        <span class="pc"><label>Légendes</label><span class="minis" id="legSeg"><button type="button" class="btn sm" data-lt="0">Sur le plan</button><button type="button" class="btn sm" data-lt="1">En tableau sous le plan</button></span></span>
-        <span class="pc"><label for="symRange">Taille des symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
+        <span class="pc"><label>Légende</label><span class="minis" id="legSeg"><button type="button" class="btn sm" data-lt="0">Sur le plan</button><button type="button" class="btn sm" data-lt="1" title="Légende en tableau sous le plan">En tableau</button></span></span>
+        <span class="pc"><label for="symRange">Taille symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
       </div>
+      </aside>
+      <div class="work">
       <div class="bar noprint" id="bar"></div>
       <div class="stage"><svg id="plan" xmlns="http://www.w3.org/2000/svg"><defs><symbol id="logoAmiante" viewBox="0 0 469 587"><path d="M 217 1 C 215 1, 212 1, 210 1 C 209 1, 205 2, 202 2 C 198 2, 195 3, 191 4 C 190 4, 187 4, 185 5 C 182 5, 179 5, 177 6 C 176 6, 174 7, 173 7 C 172 7, 170 7, 169 8 C 167 8, 165 9, 163 9 C 161 10, 159 10, 158 11 C 158 11, 156 11, 155 12 C 154 12, 152 13, 151 13 C 150 14, 148 14, 147 14 C 145 15, 144 15, 143 16 C 142 16, 140 17, 139 18 C 137 18, 135 19, 134 20 C 132 20, 131 21, 131 21 C 130 21, 119 27, 118 27 C 118 28, 117 28, 116 28 C 116 29, 115 29, 114 29 C 114 30, 112 31, 111 31 C 110 32, 110 32, 109 32 C 109 33, 108 33, 107 34 C 106 34, 105 35, 104 36 C 103 36, 102 37, 102 38 C 101 38, 100 39, 100 39 C 99 39, 98 40, 98 40 C 97 41, 96 41, 95 42 C 94 43, 93 44, 92 44 C 89 47, 80 54, 75 59 C 68 66, 64 71, 62 73 C 61 75, 59 77, 58 78 C 58 78, 57 80, 56 81 C 54 84, 53 85, 51 87 C 51 87, 50 88, 50 89 C 50 90, 49 91, 49 91 C 48 91, 47 93, 47 94 C 46 95, 45 97, 44 97 C 44 98, 43 100, 42 101 C 40 104, 40 106, 39 106 C 38 107, 38 108, 37 109 C 37 110, 37 111, 37 111 C 36 111, 36 112, 35 113 C 35 115, 33 118, 31 122 C 29 125, 28 128, 28 129 C 28 129, 27 130, 27 131 C 26 131, 26 133, 25 134 C 25 135, 25 136, 24 136 C 24 137, 24 137, 23 138 C 23 139, 23 141, 22 142 C 20 147, 20 148, 19 151 C 18 152, 18 154, 17 155 C 17 156, 16 158, 16 159 C 16 160, 15 162, 15 163 C 14 165, 14 167, 13 168 C 13 169, 13 171, 12 171 C 12 172, 11 174, 11 176 C 11 177, 10 180, 10 181 C 9 182, 9 185, 9 186 C 8 188, 8 190, 8 191 C 7 192, 7 195, 6 198 C 6 201, 5 204, 5 205 C 5 205, 4 209, 4 212 C 4 216, 3 220, 3 222 C 2 224, 2 228, 2 233 C 2 243, 1 506, 2 517 C 2 527, 1 526, 9 525 C 14 525, 25 525, 26 526 C 28 526, 26 526, 18 526 C 12 526, 10 526, 8 526 C 7 527, 5 527, 4 527 C 3 527, 2 527, 2 527 C 1 528, 0 530, 0 531 C 0 532, 467 532, 468 531 C 468 530, 468 530, 467 529 C 466 528, 465 527, 462 527 C 460 527, 458 527, 457 526 C 456 526, 454 526, 452 526 C 449 526, 449 526, 451 525 C 453 525, 454 525, 457 525 C 459 525, 462 526, 463 526 C 467 526, 467 526, 467 525 C 468 524, 468 514, 468 374 C 468 265, 468 223, 467 221 C 467 219, 467 215, 466 212 C 466 209, 465 205, 465 203 C 465 201, 464 198, 464 197 C 464 196, 463 193, 463 191 C 463 188, 462 186, 462 185 C 462 184, 461 182, 461 180 C 461 178, 460 176, 460 175 C 459 174, 459 172, 458 170 C 458 168, 458 166, 457 166 C 457 165, 456 164, 456 162 C 456 160, 455 158, 455 158 C 455 157, 454 156, 454 154 C 453 153, 453 151, 452 151 C 452 150, 452 148, 451 147 C 451 145, 450 144, 450 143 C 449 142, 449 141, 449 141 C 449 140, 448 138, 447 137 C 445 131, 444 129, 444 128 C 444 128, 443 127, 443 126 C 443 126, 442 125, 442 124 C 441 123, 440 121, 439 119 C 439 118, 437 115, 437 114 C 436 113, 436 112, 435 112 C 435 111, 435 110, 434 110 C 434 109, 434 108, 433 108 C 433 107, 432 106, 432 106 C 432 104, 429 99, 428 98 C 428 98, 427 97, 427 97 C 427 96, 426 95, 425 94 C 424 92, 423 91, 422 90 C 422 89, 421 88, 420 87 C 419 85, 418 84, 418 83 C 417 82, 416 81, 416 81 C 415 80, 414 78, 413 77 C 412 76, 411 75, 411 75 C 410 75, 410 74, 409 72 C 408 71, 407 70, 406 70 C 406 70, 405 68, 403 66 C 401 63, 395 58, 392 56 C 392 55, 390 54, 389 53 C 388 52, 387 51, 387 50 C 386 50, 385 49, 384 48 C 381 46, 379 44, 377 43 C 375 41, 374 41, 368 37 C 367 36, 366 35, 365 35 C 365 34, 363 33, 362 33 C 359 30, 356 29, 353 27 C 351 26, 349 25, 349 25 C 348 24, 347 24, 347 24 C 346 24, 345 23, 344 23 C 343 22, 342 22, 342 22 C 341 22, 340 21, 339 20 C 337 20, 335 19, 334 19 C 333 18, 332 18, 331 17 C 330 17, 330 17, 329 17 C 329 17, 328 16, 327 16 C 326 15, 324 15, 323 14 C 321 14, 319 13, 318 13 C 317 12, 316 12, 315 12 C 313 11, 312 11, 311 11 C 311 10, 309 10, 307 10 C 306 9, 303 9, 302 8 C 301 8, 299 7, 297 7 C 295 7, 293 6, 292 6 C 290 5, 287 5, 285 4 C 282 4, 279 4, 279 3 C 277 3, 270 2, 262 2 C 260 1, 257 1, 255 1 C 253 1, 250 1, 248 0 C 243 0, 222 0, 217 1 M 106 526 C 105 526, 107 526, 110 526 C 114 526, 115 526, 114 526 C 114 525, 107 525, 106 526 M 117 526 C 116 526, 118 526, 126 526 C 133 526, 135 526, 134 526 C 133 525, 118 525, 117 526 M 327 526 C 326 526, 328 526, 331 526 C 335 526, 336 526, 335 526 C 334 525, 328 525, 327 526" fill="#fff"/><rect x="0" y="512" width="469" height="16" fill="#1b1b1b"/><path d="M 217 1 C 215 1, 212 1, 210 1 C 209 1, 205 2, 202 2 C 198 2, 195 3, 191 4 C 190 4, 187 4, 185 5 C 182 5, 179 5, 177 6 C 176 6, 174 7, 173 7 C 172 7, 170 7, 169 8 C 167 8, 165 9, 163 9 C 161 10, 159 10, 158 11 C 158 11, 156 11, 155 12 C 154 12, 152 13, 151 13 C 150 14, 148 14, 147 14 C 145 15, 144 15, 143 16 C 142 16, 140 17, 139 18 C 137 18, 135 19, 134 20 C 132 20, 131 21, 131 21 C 130 21, 119 27, 118 27 C 118 28, 117 28, 116 28 C 116 29, 115 29, 114 29 C 114 30, 112 31, 111 31 C 110 32, 110 32, 109 32 C 109 33, 108 33, 107 34 C 106 34, 105 35, 104 36 C 103 36, 102 37, 102 38 C 101 38, 100 39, 100 39 C 99 39, 98 40, 98 40 C 97 41, 96 41, 95 42 C 94 43, 93 44, 92 44 C 89 47, 80 54, 75 59 C 68 66, 64 71, 62 73 C 61 75, 59 77, 58 78 C 58 78, 57 80, 56 81 C 54 84, 53 85, 51 87 C 51 87, 50 88, 50 89 C 50 90, 49 91, 49 91 C 48 91, 47 93, 47 94 C 46 95, 45 97, 44 97 C 44 98, 43 100, 42 101 C 40 104, 40 106, 39 106 C 38 107, 38 108, 37 109 C 37 110, 37 111, 37 111 C 36 111, 36 112, 35 113 C 35 115, 33 118, 31 122 C 29 125, 28 128, 28 129 C 28 129, 27 130, 27 131 C 26 131, 26 133, 25 134 C 25 135, 25 136, 24 136 C 24 137, 24 137, 23 138 C 23 139, 23 141, 22 142 C 20 147, 20 148, 19 151 C 18 152, 18 154, 17 155 C 17 156, 16 158, 16 159 C 16 160, 15 162, 15 163 C 14 165, 14 167, 13 168 C 13 169, 13 171, 12 171 C 12 172, 11 174, 11 176 C 11 177, 10 180, 10 181 C 9 182, 9 185, 9 186 C 8 188, 8 190, 8 191 C 7 192, 7 195, 6 198 C 6 201, 5 204, 5 205 C 5 205, 4 209, 4 212 C 4 216, 3 220, 3 222 C 2 224, 2 228, 2 233 C 2 243, 1 506, 2 517 C 2 527, 1 526, 9 525 C 14 525, 25 525, 26 526 C 28 526, 26 526, 18 526 C 12 526, 10 526, 8 526 C 7 527, 5 527, 4 527 C 3 527, 2 527, 2 527 C 1 528, 0 530, 0 531 C 0 532, 467 532, 468 531 C 468 530, 468 530, 467 529 C 466 528, 465 527, 462 527 C 460 527, 458 527, 457 526 C 456 526, 454 526, 452 526 C 449 526, 449 526, 451 525 C 453 525, 454 525, 457 525 C 459 525, 462 526, 463 526 C 467 526, 467 526, 467 525 C 468 524, 468 514, 468 374 C 468 265, 468 223, 467 221 C 467 219, 467 215, 466 212 C 466 209, 465 205, 465 203 C 465 201, 464 198, 464 197 C 464 196, 463 193, 463 191 C 463 188, 462 186, 462 185 C 462 184, 461 182, 461 180 C 461 178, 460 176, 460 175 C 459 174, 459 172, 458 170 C 458 168, 458 166, 457 166 C 457 165, 456 164, 456 162 C 456 160, 455 158, 455 158 C 455 157, 454 156, 454 154 C 453 153, 453 151, 452 151 C 452 150, 452 148, 451 147 C 451 145, 450 144, 450 143 C 449 142, 449 141, 449 141 C 449 140, 448 138, 447 137 C 445 131, 444 129, 444 128 C 444 128, 443 127, 443 126 C 443 126, 442 125, 442 124 C 441 123, 440 121, 439 119 C 439 118, 437 115, 437 114 C 436 113, 436 112, 435 112 C 435 111, 435 110, 434 110 C 434 109, 434 108, 433 108 C 433 107, 432 106, 432 106 C 432 104, 429 99, 428 98 C 428 98, 427 97, 427 97 C 427 96, 426 95, 425 94 C 424 92, 423 91, 422 90 C 422 89, 421 88, 420 87 C 419 85, 418 84, 418 83 C 417 82, 416 81, 416 81 C 415 80, 414 78, 413 77 C 412 76, 411 75, 411 75 C 410 75, 410 74, 409 72 C 408 71, 407 70, 406 70 C 406 70, 405 68, 403 66 C 401 63, 395 58, 392 56 C 392 55, 390 54, 389 53 C 388 52, 387 51, 387 50 C 386 50, 385 49, 384 48 C 381 46, 379 44, 377 43 C 375 41, 374 41, 368 37 C 367 36, 366 35, 365 35 C 365 34, 363 33, 362 33 C 359 30, 356 29, 353 27 C 351 26, 349 25, 349 25 C 348 24, 347 24, 347 24 C 346 24, 345 23, 344 23 C 343 22, 342 22, 342 22 C 341 22, 340 21, 339 20 C 337 20, 335 19, 334 19 C 333 18, 332 18, 331 17 C 330 17, 330 17, 329 17 C 329 17, 328 16, 327 16 C 326 15, 324 15, 323 14 C 321 14, 319 13, 318 13 C 317 12, 316 12, 315 12 C 313 11, 312 11, 311 11 C 311 10, 309 10, 307 10 C 306 9, 303 9, 302 8 C 301 8, 299 7, 297 7 C 295 7, 293 6, 292 6 C 290 5, 287 5, 285 4 C 282 4, 279 4, 279 3 C 277 3, 270 2, 262 2 C 260 1, 257 1, 255 1 C 253 1, 250 1, 248 0 C 243 0, 222 0, 217 1 M 236 65 C 231 65, 227 65, 226 65 C 225 65, 221 66, 218 66 C 207 67, 203 67, 199 68 C 197 68, 193 69, 190 69 C 187 69, 184 70, 182 70 C 181 71, 179 71, 177 71 C 174 72, 172 72, 170 73 C 168 73, 166 74, 165 74 C 164 74, 163 75, 162 75 C 162 75, 160 76, 158 76 C 157 76, 155 77, 154 77 C 153 78, 151 78, 150 79 C 149 79, 148 79, 147 80 C 147 80, 145 81, 143 81 C 139 83, 135 84, 133 85 C 132 86, 127 88, 126 88 C 125 89, 125 89, 124 90 C 124 90, 122 91, 122 91 C 121 91, 120 92, 119 92 C 119 93, 118 93, 118 93 C 118 93, 116 94, 115 94 C 114 95, 112 96, 111 97 C 110 98, 109 98, 109 99 C 108 99, 107 100, 107 100 C 102 103, 91 113, 86 119 C 86 120, 85 122, 84 123 C 83 123, 83 124, 82 125 C 82 125, 82 126, 81 126 C 80 128, 76 136, 72 143 C 72 144, 71 146, 71 147 C 70 149, 69 151, 69 152 C 67 159, 66 161, 66 163 C 66 164, 66 166, 65 166 C 64 169, 64 174, 63 187 C 63 193, 63 194, 65 196 C 65 196, 65 196, 129 196 C 172 196, 192 196, 193 196 C 194 195, 194 194, 194 189 C 195 185, 195 183, 195 182 C 196 180, 196 178, 196 176 C 197 174, 197 172, 198 171 C 198 170, 199 168, 199 168 C 199 168, 199 166, 200 165 C 200 164, 201 162, 201 161 C 202 160, 202 159, 202 159 C 203 159, 203 158, 204 157 C 206 152, 211 147, 216 143 C 217 142, 218 141, 219 141 C 220 140, 221 139, 222 139 C 223 139, 225 138, 225 138 C 226 137, 228 137, 229 137 C 230 136, 232 136, 234 136 C 236 135, 244 135, 248 136 C 250 136, 253 136, 255 137 C 263 138, 270 143, 276 150 C 277 152, 280 156, 280 158 C 281 159, 281 160, 282 161 C 282 162, 283 165, 283 167 C 283 169, 284 171, 284 171 C 285 174, 285 177, 285 196 C 285 206, 285 215, 285 215 C 284 217, 286 217, 257 218 C 221 218, 207 218, 196 219 C 194 220, 189 220, 187 221 C 181 221, 180 221, 174 222 C 172 223, 169 223, 168 223 C 166 224, 164 224, 163 224 C 162 225, 160 225, 159 225 C 158 225, 155 226, 152 227 C 149 228, 146 228, 145 228 C 145 228, 144 229, 143 229 C 143 229, 141 230, 140 230 C 139 230, 137 231, 136 231 C 135 232, 133 232, 133 232 C 132 233, 130 233, 129 234 C 128 234, 126 235, 126 235 C 125 235, 124 235, 123 236 C 122 236, 120 237, 119 238 C 117 238, 113 240, 106 244 C 102 246, 99 247, 98 248 C 98 248, 97 249, 96 249 C 95 250, 94 251, 93 252 C 91 252, 90 253, 90 254 C 83 258, 67 272, 63 279 C 63 279, 62 280, 61 281 C 61 282, 59 284, 59 285 C 58 286, 57 287, 57 288 C 56 289, 56 290, 55 290 C 55 290, 54 291, 54 292 C 53 294, 52 296, 51 298 C 50 300, 49 302, 49 302 C 49 302, 49 303, 48 304 C 48 305, 47 307, 47 308 C 47 308, 46 310, 45 312 C 45 314, 44 316, 44 317 C 44 317, 44 319, 43 320 C 43 321, 42 322, 42 325 C 42 327, 41 329, 41 330 C 38 339, 38 377, 41 387 C 41 389, 42 391, 42 393 C 42 394, 43 396, 43 397 C 43 398, 44 400, 44 402 C 45 404, 45 406, 46 407 C 46 407, 47 409, 47 411 C 48 412, 48 415, 49 416 C 50 419, 52 423, 53 424 C 53 425, 54 426, 54 428 C 56 432, 57 433, 58 434 C 58 434, 59 436, 60 437 C 61 440, 65 444, 67 447 C 71 451, 80 460, 83 462 C 83 462, 84 463, 85 463 C 87 465, 97 471, 98 471 C 98 471, 99 472, 100 472 C 101 473, 102 473, 103 474 C 104 474, 105 474, 105 474 C 105 475, 106 475, 107 476 C 108 476, 110 477, 111 477 C 111 477, 113 478, 115 478 C 116 479, 118 479, 118 480 C 119 480, 121 480, 122 481 C 124 481, 126 482, 127 482 C 128 482, 131 483, 133 483 C 135 483, 137 484, 139 484 C 140 485, 143 485, 146 485 C 148 486, 153 486, 157 486 C 161 486, 167 487, 170 487 C 177 487, 194 485, 197 485 C 198 484, 200 484, 201 484 C 202 484, 203 483, 204 483 C 206 483, 207 483, 209 482 C 210 482, 212 481, 213 481 C 214 481, 216 480, 218 480 C 219 479, 220 479, 222 478 C 224 478, 232 474, 234 473 C 235 472, 236 472, 237 471 C 238 471, 240 470, 240 469 C 241 469, 241 469, 241 469 C 242 469, 243 468, 243 468 C 244 467, 246 466, 247 465 C 249 464, 250 463, 251 462 C 252 462, 253 461, 254 460 C 256 458, 267 447, 271 444 C 275 439, 278 435, 281 431 C 281 430, 281 429, 282 429 C 282 429, 283 428, 283 427 C 284 425, 286 423, 287 424 C 287 424, 287 425, 287 441 C 288 459, 288 463, 289 468 C 289 469, 290 471, 290 471 C 290 473, 290 474, 292 474 C 294 475, 300 475, 357 475 C 419 475, 421 475, 422 474 C 424 473, 424 473, 423 468 C 423 465, 423 461, 422 458 C 422 455, 422 452, 421 450 C 421 448, 420 444, 420 441 C 420 437, 420 433, 419 432 C 419 431, 419 429, 419 427 C 418 424, 418 421, 418 419 C 417 411, 417 407, 416 405 C 416 404, 416 373, 416 287 C 415 164, 416 168, 414 165 C 414 165, 413 163, 413 161 C 413 159, 412 156, 412 155 C 411 154, 411 152, 410 151 C 410 150, 410 148, 409 147 C 409 146, 408 145, 408 145 C 408 145, 408 143, 407 142 C 407 141, 406 140, 406 139 C 406 138, 405 138, 405 137 C 404 136, 404 135, 403 135 C 403 133, 402 132, 400 129 C 400 129, 399 127, 398 126 C 398 125, 396 123, 395 122 C 395 121, 393 119, 392 118 C 389 114, 379 104, 377 103 C 376 102, 375 101, 374 100 C 372 99, 364 94, 363 93 C 362 93, 361 92, 361 92 C 358 89, 340 80, 334 79 C 333 78, 332 78, 331 77 C 330 77, 328 76, 327 76 C 326 76, 324 75, 323 75 C 322 74, 321 74, 320 74 C 319 74, 317 73, 316 73 C 315 72, 314 72, 313 72 C 311 72, 307 70, 305 70 C 304 70, 302 69, 300 69 C 298 69, 295 68, 294 68 C 292 68, 288 67, 282 66 C 277 66, 271 65, 270 65 C 266 65, 244 64, 236 65 M 247 286 C 243 286, 239 286, 238 287 C 237 287, 234 287, 232 288 C 226 289, 222 290, 220 290 C 220 290, 219 291, 218 291 C 216 291, 203 298, 201 300 C 201 300, 200 300, 200 301 C 195 303, 184 314, 182 318 C 182 319, 181 320, 181 320 C 181 320, 180 321, 180 322 C 179 323, 179 324, 178 325 C 178 325, 178 326, 177 327 C 177 328, 177 330, 176 331 C 176 332, 175 333, 175 334 C 175 335, 174 348, 174 350 C 174 350, 174 353, 175 355 C 175 359, 177 366, 179 369 C 179 370, 179 371, 179 371 C 179 371, 180 372, 180 373 C 181 373, 182 375, 182 375 C 183 377, 183 378, 187 383 C 190 386, 192 388, 197 391 C 199 393, 205 396, 207 396 C 208 396, 210 397, 211 397 C 215 399, 229 399, 234 397 C 234 397, 237 397, 239 396 C 243 395, 248 394, 249 392 C 249 392, 250 392, 251 391 C 252 391, 253 390, 254 390 C 254 389, 255 389, 256 388 C 259 387, 267 378, 268 375 C 269 374, 270 373, 270 372 C 271 371, 273 367, 273 366 C 273 366, 274 365, 274 364 C 275 363, 275 362, 275 361 C 276 360, 276 359, 277 358 C 277 358, 278 356, 278 355 C 278 354, 278 352, 279 351 C 279 349, 280 347, 280 344 C 281 342, 282 339, 282 338 C 282 337, 283 332, 283 328 C 283 324, 284 320, 284 319 C 285 317, 285 289, 285 288 C 284 286, 284 286, 268 286 C 260 286, 250 286, 247 286 M 106 526 C 105 526, 107 526, 110 526 C 114 526, 115 526, 114 526 C 114 525, 107 525, 106 526 M 117 526 C 116 526, 118 526, 126 526 C 133 526, 135 526, 134 526 C 133 525, 118 525, 117 526 M 327 526 C 326 526, 328 526, 331 526 C 335 526, 336 526, 335 526 C 334 525, 328 525, 327 526" fill="#1b1b1b" fill-rule="evenodd"/><rect x="0" y="526" width="469" height="60" fill="#d7404a"/><text x="234" y="558" text-anchor="middle" dominant-baseline="central" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="34" letter-spacing="3.6" fill="#fff">AMIANTE</text></symbol></defs><image id="planImg"/><g id="planRoofs"></g><g id="planObjs"></g></svg></div>
       <div id="legend"></div>
+      </div>
     </div>
   </div>
   <div class="row end noprint">
@@ -797,7 +829,7 @@ function feu(){const g=evaluate().global, el=$('#feu'); el.className='feu n'+g; 
    4. NAVIGATION
    ===================================================================================== */
 function go(n){
-  S.step=+n; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
+  S.step=+n; document.body.dataset.step=S.step; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
   $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
   if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
   if(S.step===2) renderPlanAll();
@@ -1028,6 +1060,8 @@ function baseDisp(p){const F=S.frozen, bw=F.bw||F.w, bh=F.bh||F.h, z=F.z||1, pan
   const q=rotPt([(p[0]-bw/2)*z,(p[1]-bh/2)*z],F.rot||0,0,0); return [F.w/2+pan[0]+q[0], F.h/2+pan[1]+q[1]];}
 function cadreOK(pan,z,rot){const F=S.frozen, bw=F.bw||F.w, bh=F.bh||F.h; if(F.imported) return true;   // le cadre doit rester dans la capture
   return [[0,0],[F.w,0],[0,F.h],[F.w,F.h]].every(([x,y])=>{const v=rotPt([x-F.w/2-pan[0],y-F.h/2-pan[1]],-rot,0,0), bx=bw/2+v[0]/z, by=bh/2+v[1]/z; return bx>=-2&&by>=-2&&bx<=bw+2&&by<=bh+2;});}
+function panOK(pan,z,rot){const F=S.frozen, bw=F.bw||F.w, bh=F.bh||F.h; if(F.imported) return true;   // on peut amener n'importe quel point de la photo au centre, même au bord
+  const v=rotPt([-pan[0],-pan[1]],-rot,0,0), bx=bw/2+v[0]/z, by=bh/2+v[1]/z; return bx>=0&&by>=0&&bx<=bw&&by<=bh;}
 function moveAll(fn){S.objs.forEach(o=>{if(o.pts) o.pts=o.pts.map(fn); else {[o.x,o.y]=fn([o.x,o.y]); if(o.x2!=null)[o.x2,o.y2]=fn([o.x2,o.y2]);}});}
 function drawBase(){
   const F=S.frozen, u=unit(), im=$('#planImg'), bw=F.bw||F.w, bh=F.bh||F.h, rot=F.rot||0;
@@ -1049,7 +1083,7 @@ $('#rotRange').addEventListener('change',()=>save());
 $('#rotNorth').onclick=()=>{$('#rotRange').value=0; setRot(0); save();};
 /* Zoom après recadrage : agrandit le fond autour du centre du cadre, les éléments posés suivent et gardent leurs longueurs réelles */
 function setZoom(z){const F=S.frozen; if(!F) return; finishLine(); const z0=F.z||1, k=z/z0; if(k===1) return; const cx=F.w/2, cy=F.h/2;
-  let pan=(F.pan||[0,0]).map(v=>v*k); for(let i=0;i<40&&!cadreOK(pan,z,F.rot||0);i++) pan=pan.map(v=>v*.85);   // en dézoomant, on recentre si le cadre sort de la capture
+  let pan=(F.pan||[0,0]).map(v=>v*k); for(let i=0;i<40&&!panOK(pan,z,F.rot||0);i++) pan=pan.map(v=>v*.85);   // en dézoomant, on recentre si la vue sort de la photo
   const pk=(F.pan||[0,0]).map(v=>v*k), dpx=pan[0]-pk[0], dpy=pan[1]-pk[1];
   moveAll(p=>[cx+(p[0]-cx)*k+dpx, cy+(p[1]-cy)*k+dpy]); F.pan=pan; F.z=z;
   $('#zoomVal').textContent=Math.round(z*100)+' %'; drawBase(); renderObjs(); renderBar();}
@@ -1060,11 +1094,18 @@ $('#symRange').addEventListener('change',()=>save());
 $('#legSeg').addEventListener('click',e=>{const b=e.target.closest('[data-lt]'); if(!b) return; S.legTable=b.dataset.lt==='1';
   $$('#legSeg button').forEach(x=>x.classList.toggle('on',x===b)); drawBase(); renderObjs(); save();});
 /* Sur grand écran, le plan est réduit pour que la palette, l'image et la légende tiennent ensemble dans la fenêtre */
+function fitTools(){const t=$('#planTools'); if(!t) return; t.style.zoom='';   // la colonne d'outils est réduite juste assez pour tenir dans la fenêtre
+  if(window.innerWidth<1000||S.step!==2) return;
+  const avail=window.innerHeight-$('.steps').offsetHeight-18, need=t.scrollHeight;
+  if(need>avail) t.style.zoom=Math.max(.6,avail/need).toFixed(3);}
 function fitPlan(){
-  const F=S.frozen; if(!F||S.step!==2) return; svg.style.width='';
+  const F=S.frozen; if(!F||S.step!==2) return; svg.style.width=''; fitTools();
   if(window.innerWidth<700) return;
-  const used=$('.steps').offsetHeight+$('#palette').offsetHeight+$('#planCtl').offsetHeight+$('#bar').offsetHeight+Math.min(110,Math.max(40,$('#legend').offsetHeight||64))+12*4+16;   // place gardée pour la légende (un tableau long reste dessous)
-  const maxH=Math.max(240,window.innerHeight-used), w=Math.min(svg.parentElement.clientWidth,maxH*F.w/F.h);
+  const side=window.innerWidth>=1000, st=$('.steps').offsetHeight;   // grand écran : outils en colonne à gauche, le plan prend la hauteur de la fenêtre
+  document.documentElement.style.setProperty('--stepsH',st+'px');
+  const leg=Math.min(110,Math.max(40,$('#legend').offsetHeight||64));   // place gardée pour la légende (un tableau long reste dessous)
+  const used=st+(side?0:$('#palette').offsetHeight+$('#planCtl').offsetHeight+12*2)+$('#bar').offsetHeight+leg+12*2+(side?12:16);
+  const maxH=Math.max(side?320:240,window.innerHeight-used), w=Math.min(svg.parentElement.clientWidth,maxH*F.w/F.h);
   svg.style.width=Math.round(w)+'px';
 }
 function renderPalette(){
@@ -1228,7 +1269,7 @@ function renderBar(){
       <button type="button" class="btn sm" data-a="dup" title="Dupliquer (Ctrl+D). Ctrl+C puis Ctrl+V colle sous la souris.">Dupliquer</button>
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
   bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(TOOLS[tool].area?'Touchez chaque angle de la zone, puis « Terminer le tracé » : la zone se ferme toute seule.':isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
-    :`<span>Choisissez un élément ci-dessus. Touchez un élément posé pour le déplacer, l’annoter, le dupliquer ou le supprimer (Ctrl+C / Ctrl+V). Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
+    :`<span>Choisissez un élément ${window.innerWidth>=1000?'à gauche':'ci-dessus'} puis touchez le plan. Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
   if(a==='end') finishLine(); else if(a==='cancel'){line=null;}
@@ -1269,7 +1310,8 @@ svg.addEventListener('pointerdown',e=>{
 });
 svg.addEventListener('pointermove',e=>{if(!drag) return; const p=svgPt(e), dx=p[0]-drag.p[0], dy=p[1]-drag.p[1], o=drag.o;
   if(drag.pan){const F=S.frozen, ix=dx-drag.last[0], iy=dy-drag.last[1], pan=F.pan||[0,0], c=[pan[0]+ix,pan[1]+iy];   // on fait glisser le fond
-    if(cadreOK(c,F.z||1,F.rot||0)){F.pan=c; drag.last=[dx,dy]; moveAll(q=>[q[0]+ix,q[1]+iy]); drawBase(); renderObjs();} return;}
+    const ok=[c,[c[0],pan[1]],[pan[0],c[1]]].find(q=>panOK(q,F.z||1,F.rot||0)); drag.last=[dx,dy];   // en butée sur un côté, on continue de glisser sur l'autre
+    if(ok){const mx=ok[0]-pan[0], my=ok[1]-pan[1]; F.pan=ok; moveAll(q=>[q[0]+mx,q[1]+my]); drawBase(); renderObjs();} return;}
   if(drag.lineDraw){if(!line) return; const far=Math.hypot(dx,dy)>unit()*1.8; if(drag.added) linePop(); drag.added=far; if(far) linePush(p); renderObjs(); return;}
   if(drag.vtx!=null){const a=isLdv(o.t)?snapAnc(p):null; o.pts[drag.vtx]=a?[a.x,a.y]:p;   // on déplace un point du tracé, accroché à l'ancrage le plus proche
     if(isLdv(o.t)){if(!o.anc) o.anc=o.pts.map(()=>null); o.anc[drag.vtx]=a?a.id:null;} renderObjs(); return;}   // on tire le trait : le point suivant suit le doigt
@@ -1455,7 +1497,10 @@ function buildDoc(v,withCfg){
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
   const date=new Date().toLocaleDateString('fr-FR');
   const meta=`<dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'—'}</dd></div></dl>`;
-  let h=`<div class="docband">ATTILA · ${VIEWS.find(x=>x[0]===v)[1]}</div>`;   // titre de chaque document dans l'impression des 3 documents
+  /* Impression : le plan et sa légende tiennent sur une même page, le plan prend toute la place restante.
+     Légende en tableau très longue : le plan garde sa page et la légende suit. */
+  const legN=S.legTable?(legendBlock().match(/<tr>/g)||[]).length-1:0, group=!!S.frozen&&legN<=(v==='pdp'?16:10);
+  let h=(group&&v!=='pdp'?'<div class="planpage">':'')+`<div class="docband">ATTILA · ${VIEWS.find(x=>x[0]===v)[1]}</div>`;   // titre du document à l'impression
   const pr=S.pdpRisks||[];
 
   /* en-tête */
@@ -1485,10 +1530,11 @@ function buildDoc(v,withCfg){
   }
 
   /* plan, toits, analyse : communs aux trois documents */
-  if(S.frozen){h+=`<div class="card plancard"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage synthStage" style="margin-top:10px"></div>
+  if(S.frozen){h+=(group&&v==='pdp'?'<div class="planpage">':'')+`<div class="card plancard${group?'':' solo'}"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage synthStage" style="margin-top:10px"></div>
     ${S.legTable?'':`<div style="margin-top:8px">${legendBlock()}</div>
     ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}`}</div>`;
-    if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;}
+    if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;
+    if(group) h+='</div>';}
   h+=`<div class="card keep"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
     ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
       <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="7">Aucun toit sélectionné.</td></tr>'}
