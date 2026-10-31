@@ -218,6 +218,12 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 tr.tot td{border-top:2px solid var(--trait)}
 .scroll{overflow-x:auto}
 .devis{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.camion>h2 svg{vertical-align:-2px;margin-right:8px}
+.cbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 22px;background:#fff2b3;border:2px solid #e0a800;border-radius:8px;padding:12px 16px;margin-top:8px}
+.cgrp h4{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6b4e00}
+.cgrp ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.cgrp li{display:flex;gap:8px;align-items:flex-start;line-height:1.35}
+.cgrp li i{flex:none;width:14px;height:14px;border:1.5px solid #1b1b1b;border-radius:2px;background:#fff;margin-top:2px}
 .vigs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .vig{border:1.5px solid var(--trait);border-radius:8px;padding:9px 12px;background:#fff}
 .vig.on{border-color:#e0a800;background:#fffbe6}
@@ -345,6 +351,8 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .just{font-size:8pt;margin-top:1mm}
   .devis{display:block;columns:2;column-gap:8mm;font-size:8pt} .devis li{padding:.8mm 0;gap:3mm;break-inside:avoid}
   .vq,.vigcard .intro{display:none!important} .vig:not(.on){display:none} .vig{padding:1.5mm 2.5mm;border-width:1px;border-radius:1.5mm;break-inside:avoid} .vd{margin-top:0;gap:2mm} .vd svg{width:4.5mm;height:auto} .vd ul{margin-top:.5mm;padding-left:4mm} .vd li{margin:.2mm 0;font-size:8.2pt;line-height:1.25} .vigs{gap:1.5mm;margin-top:1mm} .vigalert{font-size:8.5pt;margin-top:1mm!important} .vigalert svg{width:3.8mm;height:auto}
+  .camion{break-inside:avoid} .camion>h2 svg{width:6mm;height:auto;margin-right:2mm} .cbox{grid-template-columns:repeat(4,1fr);gap:1.5mm 5mm;padding:2mm 3mm;border-width:1.5px;border-radius:2mm;margin-top:1mm}
+  .cgrp h4{font-size:6.5pt;margin-bottom:.8mm} .cgrp ul{gap:.6mm} .cgrp li{font-size:8.2pt;gap:1.5mm;line-height:1.2} .cgrp li i{width:3mm;height:3mm;border-width:1px;margin-top:.2mm}
   .signcard,.deviscard,.keep{break-inside:avoid} .card>h2,h3.sub{break-after:avoid} .signs{grid-template-columns:1fr 1.7fr;gap:4mm;margin-top:1.5mm}
   .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:20mm} .sbox td{height:7.5mm;border-bottom:1px solid #999}
 }
@@ -540,6 +548,38 @@ const VIGIL=[
    auto:()=>S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&/photovolta|\bpv\b|panneaux? solaires?/i.test(o.label||''))}];
 const vigOn=x=>x.auto()||!!(S.vig&&S.vig[x.id]);
 const vigActives=()=>VIGIL.filter(vigOn);
+/* Briefing : « À prendre dans le camion », rempli automatiquement */
+const amPossible=()=>roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante')||(S.pdpRisks||[]).includes('amiante');
+const EPI_MATOS={MOSILAM:'Longe antichute manuelle',MOSIEA:'Enrouleur antichute',MOSICRET:'Cordage de retenue',MOSICAM:'Cordage et antichute mobile',MOSID:'Sécuriplac DIMOS'};
+function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t].len)||!k?'longueur à mesurer':up5(M[t].len)+' m', nb=t=>M[t]?M[t].n:0, G=[];
+  const mat=[];
+  if(M.ldv) mat.push(['Ligne de vie',lng('ldv')+(nb('ldv')>1?' ('+nb('ldv')+' tronçons)':'')]);
+  if(M.ancrage) mat.push(['Points d’ancrage','× '+nb('ancrage')]);
+  if(M.gc) mat.push(['Garde-corps temporaires',lng('gc')]);
+  if(M.secu){const n=secuCount(M); mat.push(['Sécuriplac',isNaN(n)?'plaques à compter':n+' plaque'+(n>1?'s':'')+' ('+up5(M.secu.len)+' m)']);}
+  if(M.balisage) mat.push(['Cônes de balisage','× '+nb('balisage')]);
+  if(M.echelle) mat.push(['Échelle','× '+nb('echelle')]);
+  if(M.echaf) mat.push(['Échafaudage',lng('echaf')]);
+  if(M.nacelle) mat.push(['Nacelle',nb('nacelle')>1?'× '+nb('nacelle'):'à acheminer']);
+  if(M.levage) mat.push(['Grue / moyen de levage',nb('levage')>1?'× '+nb('levage'):'à prévoir']);
+  if(mat.length) G.push(['Matériel du plan',mat]);
+  const am=[];
+  if(M.heras){const n=herasCount(); am.push(['Barrières Heras',isNaN(n)?'panneaux à compter':n+' panneau'+(n>1?'x':'')]);}
+  ['umd3','umd5'].forEach(t=>{if(M[t]) am.push([TOOLS[t].n,'× '+nb(t)]);});
+  if(M.dechets) am.push(['Sacs et big bags déchets amiantés','étiquetés « a »']);
+  if(M.panneau) am.push(['Panneau « Danger amiante »','× '+nb('panneau')]);
+  if(am.length) G.push(['Amiante',am]);
+  const epi=[...EPI_BASE,...(amPossible()?EPI_AMIANTE:[])].map(c=>[ISO_EPI[c][0],'']);
+  epi.splice(1,1,['Harnais + longe double avec absorbeur','']);
+  (S.an.epi.sel||[]).forEach(id=>{if(EPI_MATOS[id]) epi.push([EPI_MATOS[id],'']);});
+  G.push(['EPI',epi]);
+  const doc=[['Kit de sauvetage JAG et mode opératoire de secours','à vérifier']];
+  if(S.vig&&S.vig.voirie) doc.push(['Autorisation de voirie','']);
+  if(S.printed&&S.printed.pdp) doc.push(['Plan de prévention signé','']);
+  if(amPossible()) doc.push(['Mode opératoire amiante','']);
+  G.push(['Secours et documents',doc]);
+  return G;}
+const camionIco='<svg viewBox="0 0 28 18" width="28" height="18" aria-hidden="true"><rect x="1" y="2" width="16" height="11" rx="1.5" fill="#1b1b1b"/><path d="M17 5h5.5l4 4.5V13H17z" fill="#1b1b1b"/><rect x="19" y="6.5" width="3.5" height="3" fill="#ffe36b"/><circle cx="6" cy="14.5" r="2.6" fill="#1b1b1b" stroke="#ffe36b" stroke-width="1.2"/><circle cx="21.5" cy="14.5" r="2.6" fill="#1b1b1b" stroke="#ffe36b" stroke-width="1.2"/></svg>';
 const HERAS_LEN=3.5;   // panneau Heras : 3,50 m de long (2 m de haut) — sert à compter les panneaux
 const UMD_DIM={3:[3,2],5:[4.3,2]};   // UMD en mètres (longueur × largeur) : 5 sas = modèle du marché 4,3 × 2 m ; 3 sas = estimation, à remplacer par votre matériel
 const SECU_LEN=3;   // longueur d'une Sécuriplac, en mètres : sert à compter les plaques à prévoir
@@ -1581,6 +1621,8 @@ function buildDoc(v,withCfg){
     ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}`}</div>`;
     if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;
     if(group) h+='</div>';}
+  if(v==='brief') h+=`<div class="card camion"><h2><span class="num">${++n}</span>${camionIco}À prendre dans le camion</h2><p class="intro noprint">Liste faite automatiquement à partir du plan, de l’analyse et des vigilances.</p>
+    <div class="cbox">${camionListe().map(([t,l])=>`<div class="cgrp"><h4>${t}</h4><ul>${l.map(([a,b])=>`<li><i></i><span>${a}${b?` <b>${esc(b)}</b>`:''}</span></li>`).join('')}</ul></div>`).join('')}</div></div>`;
   h+=`<div class="card keep"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
     ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
       <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="7">Aucun toit sélectionné.</td></tr>'}
