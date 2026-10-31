@@ -218,6 +218,14 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 tr.tot td{border-top:2px solid var(--trait)}
 .scroll{overflow-x:auto}
 .devis{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.vigs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.vig{border:1.5px solid var(--trait);border-radius:8px;padding:9px 12px;background:#fff}
+.vig.on{border-color:#e0a800;background:#fffbe6}
+.vq{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer;flex-wrap:wrap}
+.vq input{width:18px;height:18px;accent-color:var(--rouge);flex:none} .vq input:disabled{opacity:.8}
+.vd{display:none;gap:10px;margin-top:8px;align-items:flex-start} .vig.on .vd{display:flex} .vd svg{flex:none;margin-top:2px}
+.vd ul{margin:4px 0 0;padding-left:18px} .vd li{margin:3px 0;line-height:1.4}
+.vigalert{display:flex;align-items:center;gap:6px;margin:8px 0 0!important;font-weight:700;color:#7a5200}
 .devis li{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--trait)}
 .devis li span:last-child{flex:none;color:var(--encre-2);text-align:right;font-variant-numeric:tabular-nums;max-width:45%}
 .empty{padding:28px 16px;text-align:center;color:var(--encre-2);border:2px dashed var(--trait);border-radius:8px}
@@ -336,6 +344,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .pill{font-size:7pt;padding:0 2mm;gap:1mm} .pill::before{width:2mm;height:2mm}
   .just{font-size:8pt;margin-top:1mm}
   .devis{display:block;columns:2;column-gap:8mm;font-size:8pt} .devis li{padding:.8mm 0;gap:3mm;break-inside:avoid}
+  .vq,.vigcard .intro{display:none!important} .vig:not(.on){display:none} .vig{padding:1.5mm 2.5mm;border-width:1px;border-radius:1.5mm;break-inside:avoid} .vd{margin-top:0;gap:2mm} .vd svg{width:4.5mm;height:auto} .vd ul{margin-top:.5mm;padding-left:4mm} .vd li{margin:.2mm 0;font-size:8.2pt;line-height:1.25} .vigs{gap:1.5mm;margin-top:1mm} .vigalert{font-size:8.5pt;margin-top:1mm!important} .vigalert svg{width:3.8mm;height:auto}
   .signcard,.deviscard,.keep{break-inside:avoid} .card>h2,h3.sub{break-after:avoid} .signs{grid-template-columns:1fr 1.7fr;gap:4mm;margin-top:1.5mm}
   .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:20mm} .sbox td{height:7.5mm;border-bottom:1px solid #999}
 }
@@ -507,6 +516,30 @@ const FIBRO=new Set(['fibro_plaques','fibro_ardoises']);
 const RAT=[['non','Pas encore reçu'],['absent','Reçu : pas d’amiante dans la zone de travaux'],['present','Reçu : amiante présent (intervention SS4)'],['autre','Autre (champ libre)']];
 const AM_R=469/587;   // logo amiante officiel (largeur / hauteur)
 const amLogo=(h,cls)=>`<svg${cls?` class="${cls}"`:''} viewBox="0 0 469 587" width="${Math.round(h*AM_R*10)/10}" height="${h}" aria-hidden="true"><use href="#logoAmiante"/></svg>`;
+/* Picto risque : triangle jaune, point d'exclamation noir */
+const warnIcon=(h,cls)=>`<svg${cls?` class="${cls}"`:''} viewBox="0 0 24 21" width="${Math.round(h*24/21)}" height="${h}" aria-hidden="true"><path d="M12 1.3 22.8 19.7H1.2Z" fill="#FFCC00" stroke="#1b1b1b" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 7.3v6" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.45" fill="#1b1b1b"/></svg>`;
+const RISQUES_NOMS=['Électrique','Électrique (ligne aérienne)','Pression (réseau, cuve)','Gaz','Produits chimiques','Circulation d’engins','Zone fragile / lanterneaux','Chute d’objets','Chaleur / point chaud','Coactivité'];
+/* Vigilances avant devis — affichées uniquement dans l'aide au chiffrage.
+   Cochées par le chargé de clientèle, ou repérées seules sur le plan (triangle de risque nommé). */
+const VIGIL=[
+  {id:'voirie',t:'Occupation de la voie publique',q:'Camion, nacelle, benne ou balisage sur la voie publique',
+   d:['Autorisation à demander en mairie avant le chantier : permis de stationnement, ou permission de voirie si le matériel est ancré au sol. Délai variable selon la commune, de quelques jours à plusieurs semaines.',
+      'À chiffrer : redevance d’occupation (surface × durée) et signalisation temporaire.',
+      'Chaussée réduite : arrêté de circulation, panneaux, voire homme trafic, à chiffrer aussi.'],
+   sug:()=>{const l=[...new Set(S.objs.filter(o=>['camion','nacelle','balisage'].includes(o.t)).map(o=>TOOLS[o.t].p||TOOLS[o.t].n))]; return l.length?l.join(', ')+' sur le plan':'';},
+   auto:()=>false},
+  {id:'ligne',t:'Ligne électrique aérienne à proximité',q:'Ligne électrique aérienne proche (nacelle, grue, échelle, profilés longs)',
+   d:['Distances minimales à tenir avec la nacelle, l’échelle, les profilés et les charges : 3 m sous 50 000 V, 5 m à partir de 50 000 V.',
+      'Si elles ne peuvent pas être tenues : mise hors tension ou consignation par l’exploitant (Enedis, RTE), délai à anticiper ; DT-DICT selon les cas.',
+      'À chiffrer : temps de démarche, matériel adapté, intervention éventuelle de l’exploitant.'],
+   auto:()=>S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&/[ée]lectri/i.test(o.label||'')&&/ligne|a[ée]rien/i.test(o.label||''))},
+  {id:'pv',t:'Panneaux photovoltaïques en toiture',q:'Panneaux photovoltaïques sur la toiture',
+   d:['Le courant continu produit par les panneaux ne se coupe pas de jour.',
+      'Mise en sécurité préalable par l’installateur ou le mainteneur (coordonnées à obtenir du client). Ne jamais marcher sur les panneaux : zone traitée comme un toit fragile.',
+      'À chiffrer : intervention de l’installateur si nécessaire, cheminement et protections autour des panneaux.'],
+   auto:()=>S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&/photovolta|\bpv\b|panneaux? solaires?/i.test(o.label||''))}];
+const vigOn=x=>x.auto()||!!(S.vig&&S.vig[x.id]);
+const vigActives=()=>VIGIL.filter(vigOn);
 const HERAS_LEN=3.5;   // panneau Heras : 3,50 m de long (2 m de haut) — sert à compter les panneaux
 const UMD_DIM={3:[3,2],5:[4.3,2]};   // UMD en mètres (longueur × largeur) : 5 sas = modèle du marché 4,3 × 2 m ; 3 sas = estimation, à remplacer par votre matériel
 const SECU_LEN=3;   // longueur d'une Sécuriplac, en mètres : sert à compter les plaques à prévoir
@@ -587,6 +620,7 @@ const TOOLS={
   levage:{g:'Levage',n:'Grue / moyen de levage',p:'Grue / levage',k:'pt',c:'#6a1b9a',code:'LEV',ask:1},
   poste:{g:'Postes',n:'Poste de travail',k:'pt',c:'#C0392B',num:1,ask:1},
   texte:{g:'Postes',n:'Texte libre',p:'Texte',k:'txt',c:'#7a8590',ask:1},
+  risque:{g:'Risques',n:'Risque signalé',p:'Risque',k:'pt',c:'#FFCC00',warn:1,ask:1},   // triangle jaune « ! », nommé (électrique, pression…)
   ancrage_ex:{g:'Existant',n:'Ancrage existant',p:'Ancrage',k:'pt',c:'#111111',small:1},
   ldv_ex:{g:'Existant',n:'Ligne de vie existante',p:'Ligne de vie',k:'line',c:'#111111',sw:.5,dash:[1.6,.8],short:'Ligne de vie existante'},
   gc_ex:{g:'Existant',n:'Garde-corps existant',p:'Garde-corps',k:'line',c:'#111111',sw:.7,short:'Garde-corps existant'},
@@ -1111,7 +1145,7 @@ function fitPlan(){
 function renderPalette(){
   const showAm=!!S.showAm, groups={}; Object.entries(TOOLS).forEach(([k,t])=>(groups[t.g]=groups[t.g]||[]).push([k,t]));
   const am=groups['Amiante'].concat([['secu',TOOLS.secu]]); delete groups['Amiante'];   // Sécuriplac aussi dans l'amiante : toit fragile possible
-  const btn=([k,t])=>`<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}">${t.logo?amLogo(20):`<i class="${t.cone?'c':t.plate?'b':t.area?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}${t.area?';opacity:.55':''}"></i>`}${t.p||t.n}</button>`;
+  const btn=([k,t])=>`<button type="button" class="tool${tool===k?' on':''}" data-tool="${k}" title="${t.n}" aria-pressed="${tool===k}">${t.logo?amLogo(20):t.warn?warnIcon(17):`<i class=""${t.cone?'c':t.plate?'b':t.area?'b':t.k==='line'?'l':t.k==='veh'?'b':''}" style="background:${t.c}${t.edge?';outline:1.5px solid '+t.edge:''}${t.area?';opacity:.55':''}"></i>`}${t.p||t.n}</button>`;
   /* Amiante : une catégorie à part, sous la sécurisation à créer ; ses outils s'ouvrent dessous quand on appuie dessus */
   const amCat=`<div class="pgroup full amcat"><button type="button" class="amhead${showAm?' on':''}" data-amiante aria-expanded="${showAm}" aria-controls="amTools"><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>${amLogo(22)}Amiante</button>${showAm?'':'<span class="amhint">Heras, zones sale et propre, UMD, déchets, panneau</span>'}</div>
     ${showAm?`<div class="pgroup full amrow" id="amTools">${am.map(btn).join('')}</div>`:''}`;
@@ -1182,6 +1216,13 @@ function drawObj(o,u,sel,num){
     if(sel) h+=`<circle cx="${o.x}" cy="${o.y}" r="${r+u*.7}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
     h+=`<circle cx="${o.x}" cy="${o.y}" r="${r*1.5}" fill="transparent"/><path d="M${o.x},${o.y-r}L${o.x+r*.85},${o.y+r*.8}H${o.x-r*.85}Z" fill="${T.c}" stroke="#fff" stroke-width="${u*.24}" stroke-linejoin="round"/><path d="M${o.x-r*.4},${o.y+r*.08}H${o.x+r*.4}" stroke="#fff" stroke-width="${u*.3}" pointer-events="none"/>`;
     if(REFS){if(REFS[o.id]) h+=tagBadge(o.x+r*1.6,o.y-r*1.1,REFS[o.id],u);} else if(o.label) h+=txt(o.x,o.y+r+u*1.2,o.label,u*1.35);
+  }else if(T.warn){   // picto risque : triangle jaune, point d'exclamation noir, nom dessous
+    const sz=u*2.7, x=o.x, y=o.y, top=y-sz*.6, bot=y+sz*.44, hw=sz*.64, d=`M${x},${top}L${x+hw},${bot}H${x-hw}Z`;
+    if(sel) h+=`<circle cx="${x}" cy="${y}" r="${sz*.95}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/><circle cx="${x}" cy="${y}" r="${sz*.95+u*.3}" fill="none" stroke="#1b1b1b" stroke-width="${u*.12}"/>`;
+    h+=`<circle cx="${x}" cy="${y}" r="${sz*.85}" fill="transparent"/><path d="${d}" fill="none" stroke="#fff" stroke-width="${u*.75}" stroke-linejoin="round"/>
+      <path d="${d}" fill="#FFCC00" stroke="#1b1b1b" stroke-width="${u*.3}" stroke-linejoin="round"/>
+      <path d="M${x},${top+sz*.33}V${y+sz*.1}" stroke="#1b1b1b" stroke-width="${u*.4}" stroke-linecap="round" pointer-events="none"/><circle cx="${x}" cy="${y+sz*.27}" r="${u*.24}" fill="#1b1b1b" pointer-events="none"/>`;
+    if(REFS){if(REFS[o.id]) h+=tagBadge(x+hw+u*.9,top+u*.7,REFS[o.id],u);} else if(o.label) h+=txt(x,bot+u*1.3,o.label,u*1.35);
   }else if(T.logo){   // logo amiante officiel posé sur le plan
     const hh=u*4.2, ww=hh*AM_R, x=o.x-ww/2, y=o.y-hh/2;
     if(sel) h+=`<rect x="${x-u*.6}" y="${y-u*.6}" width="${ww+u*1.2}" height="${hh+u*1.2}" rx="${u*.6}" fill="none" stroke="#ffe600" stroke-width="${u*.5}"/>`;
@@ -1224,11 +1265,14 @@ function renderObjs(){
   $('#planObjs').innerHTML=h; renderLegend();
 }
 function legItem(t,M){const T=TOOLS[t], e=M[t];
+  if(T.warn){const l=S.objs.filter(o=>o.t===t), noms=[...new Set(l.map(o=>(o.label||'').trim()).filter(Boolean))], sans=l.filter(o=>!(o.label||'').trim()).length;   // risques : on liste leurs noms
+    return (l.length>1?'Risques':'Risque')+' : '+[...noms,sans?sans+' non nommé'+(sans>1?'s':''):''].filter(Boolean).join(' · ');}
   if(t==='secu') return secuTxt(M); if(t==='heras') return herasTxt(M);
   if(T.area) return T.n+' : '+(isNaN(e.area)||e.area==null?e.n+' zone(s)':fmtN(e.area)+' m²');
   return T.n+' : '+(T.k==='line'?(isNaN(e.len)?e.n+' tracé(s)':Math.round(e.len)+' m'):e.n);}
 function swatch(t){const T=TOOLS[t], c=T.c;
   if(T.logo) return amLogo(22);
+  if(T.warn) return warnIcon(18);
   if(T.num) return `<svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" fill="${c}" stroke="#fff" stroke-width="1.5"/></svg>`;
   if(T.area) return `<svg width="30" height="18" viewBox="0 0 30 18"><rect x="2" y="2" width="26" height="14" fill="${c}" fill-opacity=".25" stroke="${c}" stroke-width="2"/></svg>`;
   if(T.k==='line') return `<svg width="34" height="14" viewBox="0 0 34 14"><line x1="3" y1="7" x2="31" y2="7" stroke="${T.edge||'#fff'}" stroke-width="${T.plate?9:7}" stroke-linecap="round"/><line x1="3" y1="7" x2="31" y2="7" stroke="${c}" stroke-width="${T.plate?6:4}" ${T.dash?`stroke-dasharray="${T.heras?'2 3':'6 3'}"`:''}/></svg>`;
@@ -1246,12 +1290,13 @@ function mesureOf(o){const T=TOOLS[o.t], k=mppEff();
   return '';}
 function legendBlock(){const M=measures();
   if(!S.legTable){const k=Object.keys(TOOLS).filter(t=>M[t]);
-    return `<ul class="legend">${k.length?k.map(t=>`<li>${TOOLS[t].logo?amLogo(16,'lgi'):`<i style="background:${TOOLS[t].c}${TOOLS[t].edge?';outline:1.5px solid '+TOOLS[t].edge:''}"></i>`}${legItem(t,M)}</li>`).join(''):'<li>Le plan est vide.</li>'}</ul>`;}
+    return `<ul class="legend">${k.length?k.map(t=>`<li>${TOOLS[t].logo?amLogo(16,'lgi'):TOOLS[t].warn?warnIcon(14,'lgi'):`<i style=""background:${TOOLS[t].c}${TOOLS[t].edge?';outline:1.5px solid '+TOOLS[t].edge:''}"></i>`}${legItem(t,M)}</li>`).join(''):'<li>Le plan est vide.</li>'}</ul>`;}
   const refs=refMap(), rows=[], grp={}; let pn=0;
   S.roofs.forEach(r=>{const sp=surfPente(r); rows.push(`<tr><td><b class="tagref">${esc(r.name)}</b></td><td><svg width="30" height="18" viewBox="0 0 30 18"><rect x="2" y="2" width="26" height="14" fill="#9e9e9e" fill-opacity=".25" stroke="#555" stroke-width="1.5" stroke-dasharray="4 2"/></svg></td><td>Toit${isFragile(r)?' fragile':''} · ${esc(matLabel(r))}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${sp!==null?`<br><b>${fmtN(sp)} m² en pente (${r.pente}°)</b>`:''}</td><td></td></tr>`);});
   S.objs.forEach(o=>{const T=TOOLS[o.t]; if(!T) return;
     if(T.num){pn++; rows.push(`<tr><td><i class="pnum">${pn}</i></td><td>${swatch(o.t)}</td><td>${T.n}</td><td class="num">${mesureOf(o)}</td><td>${esc(o.label||'')}</td></tr>`); return;}
-    if(refs[o.id]){rows.push(`<tr><td><b class="tagref">${refs[o.id]}</b></td><td>${swatch(o.t)}</td><td>${T.n}</td><td class="num">${mesureOf(o)}</td><td>${esc(o.label||'')}</td></tr>`); return;}
+    if(refs[o.id]){const nomR=T.warn&&o.label;   // risque nommé : son nom dans la colonne « Élément »
+      rows.push(`<tr><td><b class="tagref">${refs[o.id]}</b></td><td>${swatch(o.t)}</td><td>${nomR?'Risque : <b>'+esc(o.label)+'</b>':T.n}</td><td class="num">${mesureOf(o)}</td><td>${nomR?'':esc(o.label||'')}</td></tr>`); return;}
     (grp[o.t]=grp[o.t]||[]).push(o);});
   Object.entries(grp).forEach(([t,l])=>rows.push(`<tr><td>—</td><td>${swatch(t)}</td><td>${TOOLS[t].n}</td><td class="num">× ${l.length}</td><td></td></tr>`));
   const tot=[]; if(M.secu) tot.push(secuTxt(M)); if(M.heras) tot.push(herasTxt(M));
@@ -1263,12 +1308,12 @@ function renderBar(){
   const bar=$('#bar'), o=S.objs.find(x=>x.id===selId);
   if(line){bar.innerHTML=`<b>${TOOLS[line.t].n}</b><span>Touchez l’image pour poser chaque point, ou tirez le trait.</span><button type="button" class="btn sm pri" data-a="end">Terminer le tracé</button><button type="button" class="btn sm" data-a="cancel">Annuler</button>`; return;}
   if(o){const T=TOOLS[o.t], L=o.pts?lenOf(o):posteLen(o);
-    bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}">${o.t==='poste'?'<span class="pre">Bulle : glissez-la pour la déplacer, tirez sa poignée blanche pour l’élargir ou la rétrécir.</span>':''}${o.pts?`<span class="pre">${isLdv(o.t)?'Points blancs : glissez-les sur un ancrage pour les accrocher.':'Points blancs : glissez-les pour modifier le tracé.'}</span>`:''}
+    bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':T.warn?'Nom du risque (ex : électrique, pression)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}"${T.warn?' list="risqueNoms"':''}>${T.warn?`<datalist id="risqueNoms">${RISQUES_NOMS.map(n=>`<option value="${n}">`).join('')}</datalist>`:''}${o.t==='poste'?'<span class="pre">Bulle : glissez-la pour la déplacer, tirez sa poignée blanche pour l’élargir ou la rétrécir.</span>':''}${o.pts?`<span class="pre">${isLdv(o.t)?'Points blancs : glissez-les sur un ancrage pour les accrocher.':'Points blancs : glissez-les pour modifier le tracé.'}</span>`:''}
       ${T.k==='veh'||o.pts||o.x2!=null?'<button type="button" class="btn sm" data-a="rl" aria-label="Tourner à gauche">⟲</button><button type="button" class="btn sm" data-a="rr" aria-label="Tourner à droite">⟳</button>':''}
       ${T.k!=='veh'?`<span class="szl"><label for="objSize">Taille</label><input type="range" id="objSize" min="40" max="250" step="10" value="${Math.round((o.s||1)*100)}"><output id="objSizeVal">${Math.round((o.s||1)*100)} %</output></span>`:''}
       <button type="button" class="btn sm" data-a="dup" title="Dupliquer (Ctrl+D). Ctrl+C puis Ctrl+V colle sous la souris.">Dupliquer</button>
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
-  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(TOOLS[tool].area?'Touchez chaque angle de la zone, puis « Terminer le tracé » : la zone se ferme toute seule.':isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':'Touchez l’image pour le poser.'}</span>`
+  bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(TOOLS[tool].area?'Touchez chaque angle de la zone, puis « Terminer le tracé » : la zone se ferme toute seule.':isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':TOOLS[tool].warn?'Touchez l’image à l’endroit du risque, puis donnez-lui un nom (électrique, pression…).':'Touchez l’image pour le poser.'}</span>`
     :`<span>Choisissez un élément ${window.innerWidth>=1000?'à gauche':'ci-dessus'} puis touchez le plan. Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
@@ -1509,7 +1554,8 @@ function buildDoc(v,withCfg){
       1:['Orange — moyens de prévention à chiffrer',`${ev.devis.length} ligne${ev.devis.length>1?'s':''} à intégrer au devis.`],
       2:['Analyse incomplète',`${nb} rubrique${nb>1?'s':''} à compléter avant de pouvoir conclure.`],
       3:['Rouge — ne pas envoyer le devis en l’état',`${rg} point${rg>1?'s':''} bloquant${rg>1?'s':''} à lever, ou à soumettre au service QHSE.`]}[g];
-    h+=`<div class="global n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}</div></div>`;
+    const va=vigActives();
+    h+=`<div class="global n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}${va.length?`<p class="vigalert">${warnIcon(15)}Vigilance${va.length>1?'s':''} avant devis : ${va.map(x=>x.t).join(' · ')}</p>`:''}</div></div>`;
   }else if(v==='brief'){
     const am=roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante')||(S.pdpRisks||[]).includes('amiante');
     h+=`<div class="dochead withepi"><div><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>
@@ -1547,6 +1593,13 @@ function buildDoc(v,withCfg){
 
   if(v==='devis') h+=`<div class="card deviscard"><h2><span class="num">${++n}</span>À intégrer au devis</h2><p class="intro">Les quantités viennent du plan quand l’élément y est tracé.</p>
     ${ev.devis.length?`<ul class="devis">${ev.devis.map(d=>`<li><span>${esc(d.txt)}</span><span>${esc(d.qty)}</span></li>`).join('')}</ul>`:'<p class="msg">Aucune ligne de sécurisation particulière.</p>'}</div>`;
+  if(v==='devis'){const va=vigActives();
+    h+=`<div class="card vigcard"><h2><span class="num">${++n}</span>Vigilances avant devis</h2>
+      <p class="intro noprint">Cochez ce qui concerne ce chantier : la vigilance s’affiche avec ce qu’il faut prévoir et chiffrer avant d’envoyer le devis.</p>
+      <div class="vigs">${VIGIL.map(x=>{const on=vigOn(x), au=x.auto(), sg=!on&&x.sug?x.sug():'';
+        return `<div class="vig${on?' on':''}"><label class="vq"><input type="checkbox" data-vig="${x.id}"${on?' checked':''}${au?' disabled':''}>${x.q}${au?'<i class="sugg">repéré sur le plan</i>':sg?`<i class="sugg">${esc(sg)} : à vérifier</i>`:''}</label>
+          <div class="vd">${warnIcon(18)}<div><b>${x.t}</b><ul>${x.d.map(l=>`<li>${l}</li>`).join('')}</ul></div></div></div>`;}).join('')}</div>
+      ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques).</p>'}</div>`;}
 
   if(v==='pdp'){
     const opts=PDP_OPTS.filter(o=>pr.includes(o.id));
@@ -1596,6 +1649,7 @@ function summaryText(){
   S.roofs.forEach(r=>L.push(`${r.name} : ${r.area?fmtN(r.area)+' m² à plat, ':''}${surfPente(r)!==null?'pente '+r.pente+'° → '+fmtN(surfPente(r))+' m² en pente, ':''}${matLabel(r)}, permis ${(perLabel[r.periode]||'non renseigné').toLowerCase()}${isFragile(r)?', TOIT FRAGILE':''}`));
   L.push(''); ev.items.forEach(i=>{L.push(`[${NIV_TXT[i.lvl]}] ${i.k==='T'?'':i.k+' · '}${i.n}${i.labels.length?' : '+i.labels.join(' ; '):''}`); i.r.forEach(r=>L.push('   ! '+r));});
   if(ev.devis.length){L.push('','À INTÉGRER AU DEVIS'); ev.devis.forEach(d=>L.push('- '+d.txt+(d.qty?' ('+d.qty+')':'')));}
+  const va=vigActives(); if(va.length){L.push('','VIGILANCES AVANT DEVIS'); va.forEach(x=>{L.push('- '+x.t); x.d.forEach(l=>L.push('   · '+l));});}
   const p=S.objs.filter(o=>o.t==='poste'); if(p.length){L.push('','POSTES DE TRAVAIL'); p.forEach((o,i)=>L.push(`${i+1}. ${posteTxt(o)||'—'}`));}
   return L.join('\n');
 }
@@ -1612,7 +1666,9 @@ function doPrint(all){
   window.print();
   pushSync({plan:true});   // après l'impression : plan composé et résumé envoyés dans le dossier Drive (si la sauvegarde en ligne est active)
 }
-$('#s4').addEventListener('change',e=>{const id=e.target.dataset.pr; if(!id) return; const l=S.pdpRisks=(S.pdpRisks||[]).filter(x=>x!==id); if(e.target.checked) l.push(id);
+$('#s4').addEventListener('change',e=>{
+  if(e.target.dataset.vig){S.vig=Object.assign({},S.vig,{[e.target.dataset.vig]:e.target.checked}); const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save(); return;}
+  const id=e.target.dataset.pr; if(!id) return; const l=S.pdpRisks=(S.pdpRisks||[]).filter(x=>x!==id); if(e.target.checked) l.push(id);
   const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save();});
 $('#s4').addEventListener('click',async e=>{
   const vb=e.target.closest('[data-view]'); if(vb){S.view=vb.dataset.view; renderSynth(); save(); return;}
