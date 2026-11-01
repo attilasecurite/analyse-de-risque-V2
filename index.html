@@ -30,6 +30,13 @@ button{cursor:pointer}
 .band h1{margin:0;font:900 20px/1.2 var(--titre);letter-spacing:.2px}
 .band h1 small{display:block;font:400 13px/1.3 var(--texte);opacity:.9;margin-top:2px}
 .bandact{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.92)} .who button{font-size:12px;padding:4px 9px}
+.gate{position:fixed;inset:0;z-index:3000;background:rgba(27,27,27,.6);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
+.gatebox{background:#fff;max-width:440px;width:100%;border-radius:10px;border-left:6px solid var(--rouge);padding:24px 24px 20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.gatebox h2{margin:0;font:900 24px/1.2 var(--titre);color:var(--rouge-fonce)} .gatebox p{margin:0;line-height:1.45}
+.gstep{display:flex;flex-direction:column;gap:8px} .gstep .btn{align-self:flex-start;margin-top:4px} .gl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--encre-2);margin-top:4px}
+#gCode{font-size:22px;letter-spacing:4px;max-width:180px} .glinks{font-size:14px;color:var(--encre-2)} .lnk{background:none;border:0;padding:0;color:var(--rouge-fonce);text-decoration:underline;cursor:pointer;font:inherit}
+.gatebox .msg{color:var(--rouge-fonce);font-size:14px}
 .sync{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(255,255,255,.92)}
 .sync .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);flex:none}
 .sync.on .dot{background:#7ED321} .sync.wait .dot{background:#FFD24A} .sync.err .dot{background:#2b2b2b}
@@ -56,7 +63,7 @@ section.ecran{display:flex;flex-direction:column;gap:18px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .field>label,.flabel{font-weight:700;font-size:14px}
 .help{margin:0;color:var(--encre-2);font-size:14px}
-input[type=text],input[type=number],select,textarea{width:100%;border:1.5px solid var(--trait);border-radius:6px;background:#fff;padding:9px 10px;min-height:42px}
+input[type=text],input[type=number],input[type=email],select,textarea{width:100%;border:1.5px solid var(--trait);border-radius:6px;background:#fff;padding:9px 10px;min-height:42px}
 textarea{min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;box-shadow:0 0 0 3px var(--rouge-pale)}
 
@@ -368,9 +375,20 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 <header class="band"><div class="in">
   <h1><span class="po">ATTILA · </span><span class="so">Analyse de risque toiture</span><span class="po" id="printName">Analyse de risque toiture</span><small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
   <div class="bandact"><span class="sync" id="syncState" hidden><span class="dot"></span><span id="syncTxt"></span></span>
-    <button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button></div>
+    <button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button>
+    <span class="who" id="who" hidden><span id="whoName"></span><button type="button" id="btnLogout" title="Déconnecter cet appareil">Déconnexion</button></span></div>
 </div></header>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="gate noprint" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gateT"><div class="gatebox">
+  <p class="eyebrow">ATTILA</p><h2 id="gateT">Analyse de risque toiture</h2>
+  <div id="gateMail" class="gstep"><p>Outil réservé aux équipes ATTILA. Saisissez votre adresse e-mail professionnelle : vous allez recevoir un code de connexion.</p>
+    <label class="gl" for="gEmail">Adresse e-mail</label><input type="email" id="gEmail" autocomplete="email" placeholder="prenom.nom@attila.fr">
+    <button type="button" class="btn pri" id="gSend">Recevoir mon code</button></div>
+  <div id="gateCode" class="gstep" hidden><p>Un code à 6 chiffres vient d’être envoyé à <b id="gTo"></b>. Il est valable 10 minutes. Pensez à regarder les courriers indésirables.</p>
+    <label class="gl" for="gCode">Code reçu</label><input type="text" id="gCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456">
+    <button type="button" class="btn pri" id="gCheck">Valider</button>
+    <p class="glinks"><button type="button" class="lnk" id="gResend">Renvoyer un code</button> · <button type="button" class="lnk" id="gChange">Changer d’adresse</button></p></div>
+  <p class="msg" id="gateMsg" role="alert"></p></div></div>
 
 <nav class="steps" aria-label="Étapes"><div class="in">
   <button type="button" data-go="1"><i>1</i><span>Chantier et toits</span></button>
@@ -729,11 +747,59 @@ const API_URL='https://script.google.com/macros/s/AKfycbzgypmrK90dUcqQDq1qt0lCGr
 const API=new URLSearchParams(location.search).get('api')||API_URL;
 const syncOn=()=>!!API;
 let syncT=null, syncing=false, dirty=false, lastSync=0, imgSent='', booted=false;
+/* ---------- Connexion par code reçu par e-mail ----------
+   Le script Google indique si la connexion est demandée (action « config ») et quelles adresses sont acceptées.
+   Une fois le code validé, l'appareil garde un jeton signé (60 jours) joint à chaque enregistrement.
+   Hors réseau, un appareil déjà reconnu continue de fonctionner normalement. */
+const SES_KEY='attila_ar_session', AUTHCFG_KEY='attila_ar_authcfg', PUBLIC_ACTIONS=['config','agences','demande_code','valide_code'];
+let SES=null, authCfg=null, gEmailVal='', suiteFaite=false;
+function sesLoad(){try{const x=JSON.parse(localStorage.getItem(SES_KEY)||'null'); if(x&&x.jeton&&x.exp>Date.now()) return x;}catch(e){} return null;}
+function sesSave(x){SES=x; try{localStorage.setItem(SES_KEY,JSON.stringify(x));}catch(e){}}
+function sesClear(){SES=null; try{localStorage.removeItem(SES_KEY);}catch(e){}}
+const authOn=()=>!!(authCfg&&authCfg.codeEmail);
+function showWho(email){$('#who').hidden=!email; $('#whoName').textContent=email||'';}
+function gateOpen(msg){$('#gate').hidden=false; $('#gateMail').hidden=false; $('#gateCode').hidden=true; $('#gateMsg').textContent=msg||'';
+  const d=(authCfg&&authCfg.domaines||[])[0]; if(d) $('#gEmail').placeholder='prenom.nom@'+d; setTimeout(()=>$('#gEmail').focus(),50);}
+const authErr=m=>({adresse:'Cette adresse n’est pas acceptée : utilisez votre adresse professionnelle ATTILA.',trop:'Trop de demandes de code pour cette adresse : réessayez dans une heure.',
+  quota:'Envoi de codes momentanément indisponible : réessayez demain ou prévenez la direction QHSE.',code_faux:'Code incorrect : vérifiez le dernier e-mail reçu.',
+  code_expire:'Ce code a expiré ou a été trop souvent mal saisi : demandez-en un nouveau.'}[m]||'Envoi impossible : vérifiez le réseau.');
+async function authInit(){
+  if(!syncOn()) return true;
+  try{const c=await api({action:'config'}); authCfg={codeEmail:!!c.codeEmail,domaines:c.domaines||[]}; try{localStorage.setItem(AUTHCFG_KEY,JSON.stringify(authCfg));}catch(e){}}
+  catch(e){try{authCfg=JSON.parse(localStorage.getItem(AUTHCFG_KEY)||'null');}catch(x){authCfg=null;}}   // hors réseau : dernière configuration connue
+  if(!authOn()) return true;
+  SES=sesLoad(); if(SES){showWho(SES.email); return true;}
+  gateOpen(navigator.onLine?'':'Première connexion sur cet appareil : il faut du réseau pour recevoir le code.'); return false;}
+function nomDepuisEmail(e){return e.split('@')[0].split(/[._-]+/).filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');}
+async function gSend(){const e=$('#gEmail').value.trim().toLowerCase(), doms=(authCfg&&authCfg.domaines)||[]; $('#gateMsg').textContent='';
+  if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(e)){$('#gateMsg').textContent='Adresse e-mail incomplète.'; return;}
+  if(doms.length&&!doms.includes(e.split('@')[1])){$('#gateMsg').textContent='Seules les adresses '+doms.map(d=>'@'+d).join(', ')+' sont acceptées.'; return;}
+  $('#gSend').disabled=true;
+  try{await api({action:'demande_code',email:e}); gEmailVal=e; $('#gTo').textContent=e; $('#gateMail').hidden=true; $('#gateCode').hidden=false; $('#gCode').value=''; setTimeout(()=>$('#gCode').focus(),50);}
+  catch(x){$('#gateMsg').textContent=authErr(x.message);} finally{$('#gSend').disabled=false;}}
+async function gCheck(){const c=$('#gCode').value.replace(/\D/g,''); $('#gateMsg').textContent='';
+  if(c.length!==6){$('#gateMsg').textContent='Le code fait 6 chiffres.'; return;}
+  $('#gCheck').disabled=true;
+  try{const r=await api({action:'valide_code',email:gEmailVal,code:c,appareil:navigator.userAgent});
+    sesSave({jeton:r.jeton,email:r.email,exp:r.exp}); $('#gate').hidden=true; showWho(r.email);
+    if(!S.redacteur){S.redacteur=nomDepuisEmail(r.email); const f=$('#redacteur'); if(f) f.value=S.redacteur; save();}   // chargé de clientèle prérempli
+    toast('Appareil reconnu pour '+r.email); suiteConnexion(); queueSync();}
+  catch(x){$('#gateMsg').textContent=authErr(x.message);} finally{$('#gCheck').disabled=false;}}
+$('#gSend').onclick=gSend; $('#gEmail').addEventListener('keydown',e=>{if(e.key==='Enter') gSend();});
+$('#gCheck').onclick=gCheck; $('#gCode').addEventListener('keydown',e=>{if(e.key==='Enter') gCheck();});
+$('#gResend').onclick=()=>{$('#gEmail').value=gEmailVal; gSend();};
+$('#gChange').onclick=()=>gateOpen();
+$('#btnLogout').onclick=()=>{sesClear(); showWho(''); gateOpen();};
 function toast(t){const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2800);}
 function setSync(cls,txt){const e=$('#syncState'); if(!e) return; e.hidden=!syncOn(); e.className='sync '+cls; $('#syncTxt').textContent=txt;}
 function queueSync(){if(!syncOn()||!booted) return; dirty=true; setSync('wait','Modifications en attente'); clearTimeout(syncT); syncT=setTimeout(pushSync,2500);}
-async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
-  if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(j.ok===false) throw new Error(j.error||'refus du serveur'); return j;}
+async function api(body){
+  if(authOn()&&!PUBLIC_ACTIONS.includes(body.action)){if(!SES) throw new Error('session'); body.jeton=SES.jeton;}   // appareil reconnu
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json();
+  if(j.ok===false){if(j.error==='session'&&!PUBLIC_ACTIONS.includes(body.action)){sesClear(); showWho(''); if($('#gate').hidden) gateOpen('Votre connexion a expiré : demandez un nouveau code. Votre travail reste enregistré sur cet appareil.');}
+    throw new Error(j.error||'refus du serveur');}
+  return j;}
 const imgKey=()=>S.frozen&&S.frozen.src?S.did+'|'+S.frozen.src.length+'|'+S.frozen.src.slice(-48):'';
 function metaOf(){const ev=evaluate(), sp=S.roofs.map(surfPente);
   return {agence:S.agence, redacteur:S.redacteur, client:S.client, adresse:S.adresse, travaux:S.travaux,
@@ -756,11 +822,11 @@ async function pushSync(opt){
     if(opt&&opt.plan){body.plan=await planJpeg(); body.resume=summaryText();}
     await api(body); if(body.capture) imgSent=k;
     lastSync=Date.now(); setSync('on','Enregistré '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})); return true;}
-  catch(e){setSync('err','Hors ligne — gardé sur l’appareil'); dirty=true; return false;}
+  catch(e){setSync('err',e.message==='session'?'Connexion requise — gardé sur l’appareil':'Hors ligne — gardé sur l’appareil'); dirty=true; return false;}
   finally{syncing=false;}}
-function logEv(ev,detail){if(!syncOn()) return;
+function logEv(ev,detail){if(!syncOn()||(authOn()&&!SES)) return;
   try{fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true,
-    body:JSON.stringify({action:'log',ev,id:S.did,agence:S.agence,redacteur:S.redacteur,client:S.client,etape:S.step,detail:detail||''})}).catch(()=>{});}catch(e){}}
+    body:JSON.stringify({action:'log',ev,id:S.did,agence:S.agence,redacteur:S.redacteur,client:S.client,etape:S.step,detail:detail||'',jeton:SES?SES.jeton:''})}).catch(()=>{});}catch(e){}}
 /* QR code du plan de prévention : l'équipe le scanne sur le chantier et retrouve ce document sur son téléphone */
 let CONSULT=false;   // ouvert depuis un QR code : consultation du document
 const docLink=v=>appLink()+'&doc='+v;
@@ -1739,14 +1805,20 @@ $('#s4').addEventListener('click',async e=>{
    ===================================================================================== */
 window.addEventListener('resize',()=>{if(S.step===2) renderPlanAll();});
 initMap(); renderRoofs(); go(S.step||1);
-booted=true;
-if(syncOn()){$('#btnLink').hidden=false; setSync('','Sauvegarde en ligne active');
+function suiteConnexion(){if(suiteFaite) return; suiteFaite=true;   // reprise par lien, QR code et suivi d'usage, une fois l'appareil reconnu
   const repris=sessionStorage.getItem('ar_repris'), nouv=sessionStorage.getItem('ar_nouvelle'); sessionStorage.removeItem('ar_repris'); sessionStorage.removeItem('ar_nouvelle');
   const P=new URLSearchParams(location.search), docP=P.get('doc');
   const ouvrirDoc=()=>{if(docP&&VIEWS.some(x=>x[0]===docP)&&P.get('id')===S.did){CONSULT=true; S.view=docP; go(4); logEv('qr_'+docP); const c=$('.consult'); if(c) window.scrollTo(0,c.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-8);}};   // QR code scanné sur le chantier
   if(repris){imgSent=imgKey(); toast('Analyse reprise'); logEv('reprise'); setSync('on','Analyse reprise'); ouvrirDoc();}
-  else restoreFromLink().then(r=>{if(!r){logEv(nouv?'nouvelle_analyse':'ouverture'); ouvrirDoc();}});
-  api({action:'agences'}).then(j=>{if(j.agences&&j.agences.length) fillAgences(j.agences);}).catch(()=>{});}
+  else restoreFromLink().then(r=>{if(!r){logEv(nouv?'nouvelle_analyse':'ouverture'); ouvrirDoc();}});}
+(async()=>{
+  const reconnu=await authInit();
+  booted=true;
+  if(!syncOn()) return;
+  $('#btnLink').hidden=false; setSync('','Sauvegarde en ligne active');
+  api({action:'agences'}).then(j=>{if(j.agences&&j.agences.length) fillAgences(j.agences);}).catch(()=>{});
+  if(reconnu) suiteConnexion(); else setSync('err','Connexion requise');
+})();
 </script>
 </body>
 </html>
