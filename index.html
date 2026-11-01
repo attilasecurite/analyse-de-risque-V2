@@ -762,7 +762,7 @@ function gateOpen(msg){$('#gate').hidden=false; $('#gateMail').hidden=false; $('
   const d=(authCfg&&authCfg.domaines||[])[0]; if(d) $('#gEmail').placeholder='prenom.nom@'+d; setTimeout(()=>$('#gEmail').focus(),50);}
 const authErr=m=>({adresse:'Cette adresse n’est pas acceptée : utilisez votre adresse professionnelle ATTILA.',trop:'Trop de demandes de code pour cette adresse : réessayez dans une heure.',
   quota:'Envoi de codes momentanément indisponible : réessayez demain ou prévenez la direction QHSE.',code_faux:'Code incorrect : vérifiez le dernier e-mail reçu.',
-  code_expire:'Ce code a expiré ou a été trop souvent mal saisi : demandez-en un nouveau.'}[m]||'Envoi impossible : vérifiez le réseau.');
+  code_expire:'Ce code a expiré ou a été trop souvent mal saisi : demandez-en un nouveau.'}[m]||(/fetch|network|load failed/i.test(m)?'Pas de réseau : réessayez dans un instant.':/token|json|unexpected/i.test(m)?'Le script Google ne répond pas correctement : vérifiez son déploiement et ses autorisations.':'Erreur du script Google : '+m));
 async function authInit(){
   if(!syncOn()) return true;
   try{const c=await api({action:'config'}); authCfg={codeEmail:!!c.codeEmail,domaines:c.domaines||[]}; try{localStorage.setItem(AUTHCFG_KEY,JSON.stringify(authCfg));}catch(e){}}
