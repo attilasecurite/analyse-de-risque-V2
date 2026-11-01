@@ -118,7 +118,7 @@ let authCfg=null, gEmailVal='';
 function sesLoad(){try{const x=JSON.parse(localStorage.getItem(SES_KEY)||'null'); if(x&&x.jeton&&x.exp>Date.now()) return x;}catch(e){} return null;}
 function sesClear(){try{localStorage.removeItem(SES_KEY);}catch(e){}}
 const authOn=()=>!!(authCfg&&authCfg.codeEmail);
-const authErr=m=>({adresse:'Cette adresse n’est pas acceptée : utilisez votre adresse professionnelle ATTILA.',trop:'Trop de demandes de code : réessayez dans une heure.',quota:'Envoi de codes momentanément indisponible.',code_faux:'Code incorrect.',code_expire:'Code expiré : demandez-en un nouveau.'}[m]||'Envoi impossible : vérifiez le réseau.');
+const authErr=m=>({adresse:'Cette adresse n’est pas acceptée : utilisez votre adresse professionnelle ATTILA.',trop:'Trop de demandes de code : réessayez dans une heure.',quota:'Envoi de codes momentanément indisponible.',code_faux:'Code incorrect.',code_expire:'Code expiré : demandez-en un nouveau.'}[m]||(/fetch|network|load failed/i.test(m)?'Pas de réseau : réessayez dans un instant.':/token|json|unexpected/i.test(m)?'Le script Google ne répond pas correctement : vérifiez son déploiement et ses autorisations.':'Erreur du script Google : '+m));
 function connexion(msg){const d=(authCfg&&authCfg.domaines||[])[0]||'attila.fr';
   $('#state').innerHTML=`<div class="hint ko gate"><b>Tableau de bord réservé aux équipes ATTILA.</b><span>${msg||'Saisissez votre adresse e-mail professionnelle : vous allez recevoir un code de connexion.'}</span>
     <div id="gStep1" class="gate"><input type="email" id="gEmail" placeholder="prenom.nom@${esc(d)}" autocomplete="email"><button type="button" class="line" id="gSend">Recevoir mon code</button></div>
