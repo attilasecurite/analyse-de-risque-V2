@@ -42,7 +42,9 @@ button{cursor:pointer}
 .sync.on .dot{background:#7ED321} .sync.wait .dot{background:#FFD24A} .sync.err .dot{background:#2b2b2b}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--encre);color:#fff;padding:10px 16px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;z-index:3000;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.band button,.band a.bandbtn{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px;text-decoration:none;line-height:1.45}
+.band button{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px}
+.band a.dashbtn{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--rouge-fonce);border:1px solid #fff;border-radius:6px;padding:6px 13px;font-size:14px;font-weight:700;text-decoration:none;line-height:1.45;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.band a.dashbtn:hover{background:var(--rouge-pale)} .band a.dashbtn svg{width:16px;height:16px;flex:none}
 
 .steps{position:sticky;top:0;z-index:900;background:var(--carte);border-bottom:1px solid var(--trait)}
 .steps .in{max-width:1080px;margin:0 auto;padding:8px 16px;display:flex;gap:6px;align-items:center;overflow-x:auto}
@@ -408,7 +410,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 <header class="band"><div class="in">
   <h1><span class="po">ATTILA · </span><span class="so">Analyse de risque toiture</span><span class="po" id="printName">Analyse de risque toiture</span><small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
   <div class="bandact"><span class="sync" id="syncState" hidden><span class="dot"></span><span id="syncTxt"></span></span>
-    <a class="bandbtn" id="btnDash" hidden target="_blank" rel="noopener">Tableau de bord</a><button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button>
+    <a class="dashbtn" id="btnDash" hidden target="_blank" rel="noopener" title="Analyses de votre agence : filtres par chargé de clientèle, client et période"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5" fill="currentColor"/><rect x="13" y="3" width="8" height="6" rx="1.5" fill="currentColor"/><rect x="13" y="11" width="8" height="10" rx="1.5" fill="currentColor"/><rect x="3" y="15" width="8" height="6" rx="1.5" fill="currentColor"/></svg><span>Tableau de bord</span></a><button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button>
     <span class="who" id="who" hidden><span id="whoName"></span><button type="button" id="btnLogout" title="Déconnecter cet appareil">Déconnexion</button></span></div>
 </div></header>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -2066,6 +2068,8 @@ $('#s4').addEventListener('click',async e=>{
    ===================================================================================== */
 window.addEventListener('resize',()=>{if(S.step===2) renderPlanAll();});
 initMap(); renderRoofs(); go(S.step||1);
+if(syncOn()){const db=$('#btnDash'), ap=new URLSearchParams(location.search).get('api');   // lien vers le tableau de bord de l'agence (même dossier que l'outil)
+  db.href=new URL('reporting.html',location.href).href+(ap?'?api='+encodeURIComponent(ap)+'&app='+encodeURIComponent(location.origin+location.pathname):''); db.hidden=false;}
 function suiteConnexion(){if(suiteFaite) return; suiteFaite=true;   // reprise par lien, QR code et suivi d'usage, une fois l'appareil reconnu
   const repris=sessionStorage.getItem('ar_repris'), nouv=sessionStorage.getItem('ar_nouvelle'); sessionStorage.removeItem('ar_repris'); sessionStorage.removeItem('ar_nouvelle');
   const P=new URLSearchParams(location.search), docP=P.get('doc');
@@ -2077,7 +2081,6 @@ function suiteConnexion(){if(suiteFaite) return; suiteFaite=true;   // reprise p
   booted=true;
   if(!syncOn()) return;
   $('#btnLink').hidden=false; setSync('','Sauvegarde en ligne active');
-  const db=$('#btnDash'), ap=new URLSearchParams(location.search).get('api'); db.href=new URL('reporting.html',location.href).href+(ap?'?api='+encodeURIComponent(ap)+'&app='+encodeURIComponent(location.origin+location.pathname):''); db.hidden=false;
   api({action:'agences'}).then(j=>{if(j.agences&&j.agences.length) fillAgences(j.agences);}).catch(()=>{});
   if(reconnu) suiteConnexion(); else setSync('err','Connexion requise');
 })();
