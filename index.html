@@ -42,7 +42,7 @@ button{cursor:pointer}
 .sync.on .dot{background:#7ED321} .sync.wait .dot{background:#FFD24A} .sync.err .dot{background:#2b2b2b}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--encre);color:#fff;padding:10px 16px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;z-index:3000;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.band button{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px}
+.band button,.band a.bandbtn{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;padding:6px 12px;font-size:14px;text-decoration:none;line-height:1.45}
 
 .steps{position:sticky;top:0;z-index:900;background:var(--carte);border-bottom:1px solid var(--trait)}
 .steps .in{max-width:1080px;margin:0 auto;padding:8px 16px;display:flex;gap:6px;align-items:center;overflow-x:auto}
@@ -63,6 +63,8 @@ section.ecran{display:flex;flex-direction:column;gap:18px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .field>label,.flabel{font-weight:700;font-size:14px}
 .help{margin:0;color:var(--encre-2);font-size:14px}
+.req{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--rouge-fonce);background:var(--rouge-pale);border-radius:3px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+.field.manque select{border-color:var(--rouge);box-shadow:0 0 0 3px var(--rouge-pale)} .fmsg{margin:0;color:var(--rouge-fonce);font-size:14px;font-weight:600}
 input[type=text],input[type=number],input[type=email],select,textarea{width:100%;border:1.5px solid var(--trait);border-radius:6px;background:#fff;padding:9px 10px;min-height:42px}
 textarea{min-height:70px;resize:vertical}
 input:focus,select:focus,textarea:focus{border-color:var(--rouge);outline:none;box-shadow:0 0 0 3px var(--rouge-pale)}
@@ -214,7 +216,7 @@ details.multi .val.vide{color:var(--encre-2)}
 .global{border-radius:8px;padding:18px;background:var(--p);border:2px solid var(--c);display:flex;gap:16px;align-items:center}
 .global .rond{flex:none;width:54px;height:54px;border-radius:50%;background:var(--c);box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
 .global h2{margin:0;font:900 22px/1.2 var(--titre)}
-.global p{margin:4px 0 0}
+.global p{margin:4px 0 0} .global .gtxt{flex:1 1 auto;min-width:0} .global .qrbox{margin-left:auto}
 .meta{display:flex;flex-wrap:wrap;gap:4px 24px;font-size:15px;margin:0}
 .meta div{min-width:0} .meta dt{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--encre-2);font-weight:700} .meta dd{margin:0;font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:15px}
@@ -406,7 +408,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 <header class="band"><div class="in">
   <h1><span class="po">ATTILA · </span><span class="so">Analyse de risque toiture</span><span class="po" id="printName">Analyse de risque toiture</span><small>ATTILA · du repérage du toit au feu vert, orange ou rouge pour le devis</small></h1>
   <div class="bandact"><span class="sync" id="syncState" hidden><span class="dot"></span><span id="syncTxt"></span></span>
-    <button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button>
+    <a class="bandbtn" id="btnDash" hidden target="_blank" rel="noopener">Tableau de bord</a><button type="button" id="btnLink" hidden>Lien de reprise</button><button type="button" id="btnNew">Nouvelle analyse</button>
     <span class="who" id="who" hidden><span id="whoName"></span><button type="button" id="btnLogout" title="Déconnecter cet appareil">Déconnexion</button></span></div>
 </div></header>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -455,9 +457,10 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     <h2><span class="num">1</span>Chantier</h2>
     <p class="intro">Tapez l’adresse : la vue aérienne se place dessus.</p>
     <div class="grid2">
-      <div class="field"><label for="client">Client</label><input type="text" id="client" autocomplete="off" placeholder="Nom du client ou du site"></div>
+      <div class="field" id="agField"><label for="agence">Agence ATTILA <span class="req">obligatoire</span></label><select id="agence" required aria-required="true" aria-describedby="agMsg"><option value="">— Sélectionner —</option></select>
+        <p class="fmsg" id="agMsg" role="alert" hidden>Choisissez votre agence pour continuer : l’analyse sera rattachée au tableau de bord de l’agence.</p></div>
       <div class="field"><label for="redacteur">Chargé de clientèle</label><input type="text" id="redacteur" autocomplete="off" placeholder="Votre nom"></div>
-      <div class="field"><label for="agence">Agence ATTILA</label><select id="agence"><option value="">— Sélectionner —</option></select></div>
+      <div class="field"><label for="client">Client</label><input type="text" id="client" autocomplete="off" placeholder="Nom du client ou du site"></div>
       <div class="field ac" style="grid-column:1/-1"><label for="adresse">Adresse du chantier</label>
         <input type="text" id="adresse" autocomplete="off" placeholder="N°, rue, ville" role="combobox" aria-expanded="false" aria-controls="acList">
         <ul id="acList" hidden></ul>
@@ -850,7 +853,8 @@ function metaOf(){const ev=evaluate(), sp=S.roofs.map(surfPente);
     lat:S.ll?S.ll[0]:'', lng:S.ll?S.ll[1]:'', etape:S.step, feu:NIV_TXT[ev.global],
     nbToits:S.roofs.length, surfacePlat:S.roofs.reduce((t,r)=>t+(+r.area||0),0), surfacePente:sp.every(x=>x!==null)?sp.reduce((t,x)=>t+x,0):'',
     amiante:(roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante'))?'oui':'non',
-    nbElements:S.objs.length, lignesDevis:ev.devis.length, imprime:S.printed||{}};}
+    nbElements:S.objs.length, lignesDevis:ev.devis.length, imprime:S.printed||{},
+    pdpSigne:S.sig&&S.sig.eu&&S.sig.ee?new Date(Math.max(S.sig.eu.at,S.sig.ee.at)).toISOString():''};}
 /* Plan composé (photo + dessins) en JPEG, pour le dossier Drive */
 function planJpeg(){return new Promise(res=>{const F=S.frozen; if(!F) return res(''); try{
   const c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
@@ -1022,7 +1026,9 @@ function feu(){const g=evaluate().global, el=$('#feu'); el.className='feu n'+g; 
 /* =====================================================================================
    4. NAVIGATION
    ===================================================================================== */
+let agAttente=0;   // étape demandée avant le choix de l'agence : on y va dès que l'agence est choisie
 function go(n){
+  const bloque=+n>1&&!S.agence&&!CONSULT; if(bloque){agAttente=+n; n=1;}
   S.step=+n; document.body.dataset.step=S.step; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
   $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
   if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
@@ -1032,7 +1038,10 @@ function go(n){
   if(S.step===2&&S.frozen&&window.innerWidth>=700) window.scrollTo(0,$('#planWrap').getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-10);   // la palette vient se placer sous le menu
   else window.scrollTo(0,0);
   save();
+  if(bloque) exigeAgence();
 }
+function exigeAgence(){$('#agField').classList.add('manque'); $('#agMsg').hidden=false;
+  const f=$('#agField'); window.scrollTo(0,Math.max(0,f.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-16)); $('#agence').focus({preventScroll:true});}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go);});
 $('#btnNew').onclick=()=>{$('#newConfirm').hidden=false; window.scrollTo(0,0);};
 $('#newNo').onclick=()=>$('#newConfirm').hidden=true;
@@ -1048,7 +1057,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&dirty) pus
 /* =====================================================================================
    5. ÉCRAN 1 — adresse, carte, toits
    ===================================================================================== */
-fillAgences(AGENCES); $('#agence').onchange=e=>{S.agence=e.target.value; save();};
+fillAgences(AGENCES); $('#agence').onchange=e=>{S.agence=e.target.value; save();
+  if(S.agence){$('#agField').classList.remove('manque'); $('#agMsg').hidden=true; if(agAttente){const n=agAttente; agAttente=0; go(n);}}};
 ['client','redacteur','travaux'].forEach(id=>{$('#'+id).value=S[id]||''; $('#'+id).oninput=e=>{S[id]=e.target.value; save();};});
 const adr=$('#adresse'), acList=$('#acList'); adr.value=S.adresse;
 let acT, acSeq=0;
@@ -1715,7 +1725,7 @@ function buildDoc(v,withCfg){
       2:['Analyse incomplète',`${nb} rubrique${nb>1?'s':''} à compléter avant de pouvoir conclure.`],
       3:['Rouge — ne pas envoyer le devis en l’état',`${rg} point${rg>1?'s':''} bloquant${rg>1?'s':''} à lever, ou à soumettre au service QHSE.`]}[g];
     const va=vigActives();
-    h+=`<div class="global n${g}"><span class="rond"></span><div><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}${va.length?`<p class="vigalert">${warnIcon(15)}Vigilance${va.length>1?'s':''} avant devis : ${va.map(x=>x.t).join(' · ')}</p>`:''}</div></div>`;
+    h+=`<div class="global n${g}"><span class="rond"></span><div class="gtxt"><p class="eyebrow">Aide au chiffrage devis</p><h2>${head[0]}</h2><p>${head[1]}</p>${meta}${va.length?`<p class="vigalert">${warnIcon(15)}Vigilance${va.length>1?'s':''} avant devis : ${va.map(x=>x.t).join(' · ')}</p>`:''}</div>${qrOn()?`<div class="qrbox">${qrSvg(docLink('devis'))}<span>À scanner : cette analyse sur votre téléphone</span></div>`:''}</div>`;
   }else if(v==='brief'){
     const am=roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante')||(S.pdpRisks||[]).includes('amiante');
     h+=`<div class="dochead withepi"><div><h2>Briefing équipes / TTA</h2><p>Analyse de risque et plan d’installation à présenter à l’équipe avant le démarrage.</p>${meta}</div>
@@ -1724,8 +1734,8 @@ function buildDoc(v,withCfg){
     if(withCfg) h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
       <div class="cfglist">${PDP_OPTS.map(o=>`<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)?'checked':''}><span>${o.t}${o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`).join('')}
         <label class="check"><input type="checkbox" data-pr="autre" id="pr_autre" ${pr.includes('autre')?'checked':''}><span>Autre risque (fiche vierge à compléter à la main)</span></label></div></div>`;
-    h+=`<div class="dochead${qrOn()?' withqr':''}"><div><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
-      <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'<i class="penline"></i>'}</dd></div></dl></div>${qrOn()?`<div class="qrbox">${qrSvg(docLink('pdp'))}<span>À scanner sur le chantier : ce plan de prévention sur votre téléphone</span></div>`:''}</div>`;
+    h+=`<div class="dochead"><div><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
+      <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'<i class="penline"></i>'}</dd></div></dl></div></div>`;
     h+=`<div class="retrait"><h2>Droit de retrait — la sécurité d’abord, toujours</h2>
       <p>Chaque collaborateur ATTILA a le droit de <b>se retirer immédiatement</b> de toute situation de travail qu’il estime dangereuse : conditions météo dégradées (chaleur, vent, pluie, orage), toiture ou point fragile, ou toute autre condition dangereuse constatée sur le site. Il se met en sécurité, <b>prévient sa hiérarchie et le client</b>, et les travaux ne reprennent qu’une fois la situation traitée. Aucune sanction ni retenue ne peut être appliquée pour l’exercice légitime de ce droit.</p>
       <small>Droit d’alerte et de retrait — articles L. 4131-1 et suivants du Code du travail. Mention permanente, applicable à tous les risques ci-dessous.</small></div>`;
@@ -1993,7 +2003,7 @@ function renderSynth(){
   if(S.frozen){selId=null; line=null; renderPlanAll();}
   let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
     <div class="quickprint noprint">${v==='pdp'&&!CONSULT?'<button type="button" class="btn sm" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les 3 documents</button></div>`;
-  if(CONSULT) h+=`<div class="consult noprint"><span><b>Consultation sur le chantier.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><span class="row">${v==='pdp'?'<button type="button" class="btn sm pri" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></span></div>`;
+  if(CONSULT) h+=`<div class="consult noprint"><span><b>Ouvert depuis le QR code.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><span class="row">${v==='pdp'?'<button type="button" class="btn sm pri" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></span></div>`;
   h+=`<div class="pdoc" data-v="${v}">${buildDoc(v,!CONSULT)}</div>`;
   h+=`<div class="row end noprint"><button type="button" class="btn" data-go="3">Retour à l’analyse</button><div class="row">
     <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn" data-print="all">Imprimer les 3 documents</button><button type="button" class="btn pri" id="btnPrint" data-print="one">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:'Imprimer le plan de prévention'}[v]}</button></div></div>`;
@@ -2067,6 +2077,7 @@ function suiteConnexion(){if(suiteFaite) return; suiteFaite=true;   // reprise p
   booted=true;
   if(!syncOn()) return;
   $('#btnLink').hidden=false; setSync('','Sauvegarde en ligne active');
+  const db=$('#btnDash'), ap=new URLSearchParams(location.search).get('api'); db.href=new URL('reporting.html',location.href).href+(ap?'?api='+encodeURIComponent(ap)+'&app='+encodeURIComponent(location.origin+location.pathname):''); db.hidden=false;
   api({action:'agences'}).then(j=>{if(j.agences&&j.agences.length) fillAgences(j.agences);}).catch(()=>{});
   if(reconnu) suiteConnexion(); else setSync('err','Connexion requise');
 })();
