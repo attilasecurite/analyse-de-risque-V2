@@ -330,7 +330,17 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .sbox{border:1.5px solid var(--encre);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .sbox .zone{flex:1;min-height:90px}
 .sbox td{height:36px}
-.po{display:none}
+.po{display:none} .pronly{display:none}
+/* risques mis à jour sur chantier */
+.majtab{width:100%;border-collapse:collapse;margin:6px 0 2px;font-size:14.5px} .majtab th{text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--encre-2);padding:4px 8px;border-bottom:1.5px solid var(--trait)}
+.majtab td{padding:6px 8px;border-bottom:1px solid var(--trait);vertical-align:top} .majtab td.qd{font-size:12.5px;color:var(--encre-2);white-space:nowrap} .majtab td.ac{width:1%;white-space:nowrap}
+.majadd{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px 10px;align-items:end;margin-top:8px;padding:10px 12px;background:#fff8d6;border:1.5px solid #e0b100;border-radius:8px}
+.majadd .field>label{font-size:13px} .majadd .btn{min-height:42px} .majadd .msg{grid-column:1/-1;margin:0;color:var(--rouge-fonce);font-size:14px}
+.majadd .mh{grid-column:1/-1;margin:0;font-size:13.5px;color:var(--encre-2)}
+@media (max-width:700px){.majadd{grid-template-columns:1fr} .majadd .btn{width:100%}
+  .majtab thead{display:none} .majtab tr{display:block;border-bottom:1px solid var(--trait);padding:6px 0} .majtab td{display:block;border:0;padding:2px 0}
+  .majtab td[data-l]::before{content:attr(data-l) " : ";font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--encre-2)} .majtab td.ac{width:auto;padding-top:4px}}
+.sigglob{padding:9px 12px;border-radius:6px;background:var(--gris-pale);margin-top:10px}
 @media (max-width:700px){.signs{grid-template-columns:1fr}}
 @page{size:A4 landscape;margin:8mm 10mm}
 @media print{
@@ -359,6 +369,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .art{font-size:7.5pt} .insp{gap:2mm;break-inside:avoid} .pengrid{gap:2mm 8mm}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
   .mrow{gap:2mm} .mrow em{font-size:7.5pt} .mrow i{height:5.5mm;border-bottom-color:#777}
+  .pronly{display:block} .majtab{font-size:8pt;margin:1mm 0 0} .majtab th{font-size:6.5pt;padding:.5mm 1.5mm} .majtab td{padding:.8mm 1.5mm} .majtab td.qd{font-size:7pt}
   .ticks{font-size:8.5pt;gap:1mm 6mm;margin:1mm 0 0} .ticks span::before{width:3mm;height:3mm;border-width:1px}
   .urg{gap:2mm;margin-top:1.5mm} .urg span{font-size:7.5pt;padding:.3mm 2mm} .urg b{font-size:9pt}
   .rlist{gap:2mm;margin-top:1.5mm} .rlist{display:grid;grid-template-columns:1fr 1fr;align-items:start} .rcard{padding:2mm 3mm;border-left-width:1.2mm;border-radius:1.5mm}
@@ -415,7 +426,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   <div class="sigfields">
     <div class="field"><label for="sgNom">Nom et prénom</label><input type="text" id="sgNom" autocomplete="name"></div>
     <div class="field"><label for="sgFct">Fonction</label><input type="text" id="sgFct" autocomplete="organization-title"></div>
-    <div class="field wide"><label for="sgMail">E-mail <span class="lbl2">— le plan de prévention signé y sera envoyé en PDF</span></label><input type="email" id="sgMail" autocomplete="email" inputmode="email" placeholder="prenom.nom@entreprise.fr"></div>
+    <div class="field wide"><label for="sgMail">E-mail <span class="lbl2">— le plan de prévention y sera envoyé en PDF une fois signé par les deux parties</span></label><input type="email" id="sgMail" autocomplete="email" inputmode="email" placeholder="prenom.nom@entreprise.fr"></div>
   </div>
   <div class="sigpad" id="sgPad"><i></i><span>Signez ici, au doigt ou au stylet</span><canvas id="sgCv"></canvas></div>
   <p class="msg" id="sgMsg" role="alert"></p>
@@ -1767,12 +1778,11 @@ function buildDoc(v,withCfg){
       <div class="pengrid"><div class="pen"><span>Point de rassemblement</span>${ticks(['Parking','Entrée principale','Portail','Cour'])}${lines(1)}</div>
         <div class="pen"><span>Accès secours / adresse à communiquer au 15-18-112</span><b class="pre">${esc(S.adresse)||''}</b>${lines(S.adresse?0:1)}</div></div>
       <div class="pen"><span>Consignes particulières du site</span>${ticks(['Badge obligatoire','Accueil sécurité','Permis de travail','Sanitaires mis à dispo','Vitesse limitée','Consignation requise'])}${lines(1)}</div>
-      <div class="pen modif"><span>Risque ou mesure de protection modifié suite à une modification des conditions d’intervention</span>
-        <div class="mrow"><em>Risque</em><i></i></div><div class="mrow"><em>Mesure de prévention prévue</em><i></i></div></div>
+      ${majBlock()}
       <p class="secours"><b>Secours ATTILA :</b> ${SECOURS}</p></div>`;
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2>
-      <p class="intro">Sur papier après impression, ou directement sur l’écran du téléphone ou de la tablette : le signataire reçoit alors le plan de prévention signé en PDF par e-mail, vous en copie.</p>
-      <div class="signs two">${sigBox('eu')}${sigBox('ee')}</div></div>`;
+      <p class="intro">Sur papier après impression, ou directement sur l’écran du téléphone ou de la tablette : dès que les deux parties ont signé, le plan de prévention signé part en PDF par e-mail aux deux signataires, vous en copie.</p>
+      <div class="signs two">${sigBox('eu')}${sigBox('ee')}</div>${sigEtat()}</div>`;
   }else if(v==='brief'){   // l'aide au chiffrage n'a pas de signatures : elles sont au briefing
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Signatures</h2><div class="signs">
       <div class="sbox"><b>Signature du RA / CC</b><span>Nom : ${esc(S.redacteur)}</span><span>Date :</span><div class="zone"></div></div>
@@ -1783,22 +1793,32 @@ function buildDoc(v,withCfg){
 }
 /* =====================================================================================
    8 bis. SIGNATURE DU PLAN DE PRÉVENTION SUR L'ÉCRAN
-   Le signataire saisit son nom, sa fonction et son e-mail, puis signe au doigt ou au stylet.
-   Le plan de prévention complet (tel qu'imprimé, plan et signatures compris) est mis en PDF sur l'appareil,
-   puis le script Google l'envoie par e-mail au signataire, le chargé de clientèle connecté en copie.
+   Chaque signataire saisit son nom, sa fonction et son e-mail, puis signe au doigt ou au stylet.
+   Quand les deux parties ont signé, le plan de prévention complet (tel qu'imprimé, plan et signatures compris)
+   est mis en PDF sur l'appareil, puis le script Google l'envoie en un seul e-mail aux deux signataires,
+   le chargé de clientèle connecté en copie. Pas d'envoi d'un plan de prévention signé par une seule partie.
    ===================================================================================== */
-const SIG_ROLES={eu:'Entreprise utilisatrice',ee:'Entreprise extérieure — ATTILA'};
-let sigK=null, sigBusy='';
+const SIG_ROLES={eu:'Entreprise utilisatrice',ee:'Entreprise extérieure — ATTILA'}, SIG_AUTRE={eu:'l’entreprise utilisatrice',ee:'ATTILA'};
+let sigK=null, sigBusy=false;
 const quandTxt=t=>{const d=new Date(t); return d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});};
+const sigDeux=()=>!!(S.sig&&S.sig.eu&&S.sig.ee);
 function sigBox(k){const s=(S.sig||{})[k], t=SIG_ROLES[k];
   if(!s) return `<div class="sbox"><b>${t}</b><div class="pen"><span>Nom, prénom, fonction</span>${k==='ee'&&S.redacteur?`<b class="pre">${esc(S.redacteur)}</b>`:lines(1)}</div><div class="zone"><span>Signature</span></div>
     <button type="button" class="btn sm noprint sigbtn" data-sign="${k}">Signer sur l’écran</button></div>`;
-  const e=s.envoi||{}, a=(e.to||[]).map(esc).join(' et ');
-  const etat=sigBusy===k?'<span class="wt">Préparation et envoi du PDF…</span>':e.ok?`<span class="ok">✓ PDF envoyé à ${a}</span>`:e.err?`<span class="ko">PDF non envoyé : ${esc(e.err)}</span>`:e.sans?'<span class="wt">Signature enregistrée — aucune adresse e-mail, pas d’envoi</span>':'';
   return `<div class="sbox signed"><b>${t}</b><div class="pen"><span>Nom, prénom, fonction</span><b class="pre">${[s.nom,s.fonction].filter(Boolean).map(esc).join(' — ')}</b></div>
     <div class="zone"><img class="sigimg" src="${s.img}" alt="Signature de ${esc(s.nom)}"></div>
     <p class="sigmeta">Signé électroniquement le ${quandTxt(s.at)}${s.email?' · '+esc(s.email):''}</p>
-    <div class="sigstate noprint">${etat}${sigBusy?'':`<button type="button" class="btn sm" data-resend="${k}">${e.err?'Renvoyer':'Renvoyer le PDF'}</button><button type="button" class="btn sm" data-unsign="${k}">Effacer la signature</button>`}</div></div>`;}
+    ${sigBusy?'':`<div class="sigstate noprint"><button type="button" class="btn sm" data-unsign="${k}">Effacer la signature</button></div>`}</div>`;}
+function sigEtat(){const g=S.sig||{}, e=S.sigEnvoi||{}, n=(g.eu?1:0)+(g.ee?1:0); if(!n) return '';
+  let t;
+  if(n===1){const manque=g.eu?'ee':'eu'; t=`<span class="wt">En attente de la signature de ${SIG_AUTRE[manque]}. Le plan de prévention signé partira par e-mail aux deux signataires dès la seconde signature.</span>`;}
+  else if(sigBusy) t='<span class="wt">Signé par les deux parties — préparation et envoi du PDF…</span>';
+  else if(e.ok){const apres=(S.majRisques||[]).some(r=>r.at>e.at);
+    t=`<span class="ok">✓ Signé par les deux parties — PDF envoyé le ${quandTxt(e.at)} à ${(e.to||[]).map(esc).join(', ')}</span>`+(apres?'<span class="ko">Risque ajouté depuis l’envoi.</span><button type="button" class="btn sm pri" data-resend="1">Renvoyer le PDF à jour</button>':'<button type="button" class="btn sm" data-resend="1">Renvoyer le PDF</button>');}
+  else if(e.err) t=`<span class="ko">Signé par les deux parties — PDF non envoyé : ${esc(e.err)}</span><button type="button" class="btn sm pri" data-resend="1">Renvoyer</button>`;
+  else if(e.sans) t='<span class="wt">Signé par les deux parties — aucune adresse e-mail, pas d’envoi.</span>';
+  else t='<span class="wt">Signé par les deux parties.</span><button type="button" class="btn sm pri" data-resend="1">Envoyer le PDF aux signataires</button>';
+  return `<div class="sigstate sigglob noprint">${t}</div>`;}
 function redessiner(){const y=window.scrollY; renderSynth(); window.scrollTo(0,y);}
 function busy(t){$('#busy').hidden=!t; $('#busyTxt').textContent=t||'';}
 
@@ -1836,7 +1856,8 @@ $('#sgOk').onclick=()=>{const nom=$('#sgNom').value.trim(), fonction=$('#sgFct')
   if(!nom) return sigMsg('Indiquez le nom et le prénom du signataire.','#sgNom');
   if(email&&!/^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/i.test(email)) return sigMsg('Adresse e-mail incomplète.','#sgMail');
   const img=padImage(); if(!img) return sigMsg('Signez dans le cadre, au doigt ou au stylet.');
-  const k=sigK; S.sig=Object.assign({},S.sig,{[k]:{nom,fonction,email,img,at:Date.now()}}); sigClose(); save(); logEv('pdp_signature',k); redessiner(); envoyerPdp(k);};
+  const k=sigK; S.sig=Object.assign({},S.sig,{[k]:{nom,fonction,email,img,at:Date.now()}}); S.sigEnvoi=null; sigClose(); save(); logEv('pdp_signature',k); redessiner();
+  if(sigDeux()) envoyerPdp(); else toast('Signature enregistrée — en attente de la signature de '+SIG_AUTRE[k==='eu'?'ee':'eu']);};
 
 /* ---------- l'envoi ---------- */
 const sigErr=m=>({quota:'quota d’e-mails du jour atteint, renvoyez demain',session:'connexion expirée, reconnectez-vous puis renvoyez',adresse_signataire:'adresse e-mail du signataire refusée',
@@ -1844,15 +1865,34 @@ const sigErr=m=>({quota:'quota d’e-mails du jour atteint, renvoyez demain',ses
   ||(/fetch|network|load failed|HTTP|internet/i.test(m)?'pas de réseau, renvoyez dès que possible':m));
 function pdfNom(){const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   return ['Plan de prévention signé',S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');}
-async function envoyerPdp(k){const s=(S.sig||{})[k]; if(!s||sigBusy) return;
-  const dest=[...new Set([s.email,SES&&SES.email].filter(Boolean))];
-  if(!syncOn()||!dest.length){s.envoi={sans:1}; save(); redessiner(); toast('Signature enregistrée'); return;}
-  sigBusy=k; s.envoi=null; redessiner(); busy('Préparation du PDF du plan de prévention…');
+async function envoyerPdp(){if(!sigDeux()||sigBusy) return;   // un seul e-mail, aux deux signataires
+  const sg=['eu','ee'].map(k=>S.sig[k]), dest=[...new Set([...sg.map(x=>x.email),SES&&SES.email].filter(Boolean))];
+  if(!syncOn()||!dest.length){S.sigEnvoi={sans:1}; save(); redessiner(); toast('Plan de prévention signé par les deux parties'); return;}
+  sigBusy=true; S.sigEnvoi=null; redessiner(); busy('Préparation du PDF du plan de prévention…');
   try{const pdf=await pdpPdf(busy); busy('Envoi par e-mail…');
-    const r=await api({action:'signature',id:S.did,role:k,nom:s.nom,fonction:s.fonction||'',email:s.email||'',quand:quandTxt(s.at),client:S.client,adresse:S.adresse,agence:S.agence,redacteur:S.redacteur,fichier:pdfNom(),pages:pdf.pages,pdf:pdf.b64});
-    s.envoi={ok:1,at:Date.now(),to:r.envoye||dest}; toast('Plan de prévention signé envoyé à '+s.envoi.to.join(' et '));}
-  catch(e){s.envoi={err:sigErr(String(e&&e.message||e))}; toast('PDF non envoyé : '+s.envoi.err);}
-  finally{sigBusy=''; busy(''); save(); redessiner();}}
+    const r=await api({action:'signature',id:S.did,signataires:['eu','ee'].map(k=>({role:k,nom:S.sig[k].nom,fonction:S.sig[k].fonction||'',email:S.sig[k].email||'',quand:quandTxt(S.sig[k].at)})),
+      client:S.client,adresse:S.adresse,agence:S.agence,redacteur:S.redacteur,fichier:pdfNom(),pages:pdf.pages,pdf:pdf.b64});
+    S.sigEnvoi={ok:1,at:Date.now(),to:r.envoye||dest}; toast('Plan de prévention signé envoyé à '+S.sigEnvoi.to.join(', '));}
+  catch(e){S.sigEnvoi={err:sigErr(String(e&&e.message||e))}; toast('PDF non envoyé : '+S.sigEnvoi.err);}
+  finally{sigBusy=false; busy(''); save(); redessiner();}}
+
+/* ---------- risques mis à jour sur chantier ----------
+   Sur le téléphone (QR code du plan de prévention) ou à l'écran : un risque apparu ou modifié et la mesure de prévention,
+   ajoutés au plan de prévention avec la date et l'auteur. À l'impression, des lignes vides restent pour la main. */
+function majBlock(){const L=S.majRisques||[];
+  return `<div class="pen modif" id="majBloc"><span>Risques mis à jour sur chantier — modification des conditions d’intervention</span>
+    ${L.length?`<table class="majtab"><thead><tr><th>Risque</th><th>Mesure de prévention</th><th>Ajouté le</th><th class="noprint"></th></tr></thead><tbody>
+      ${L.map((r,i)=>`<tr><td data-l="Risque"><b>${esc(r.risque)}</b></td><td data-l="Mesure">${esc(r.mesure)}</td><td class="qd">${quandTxt(r.at)}${r.par?' · '+esc(r.par):''}</td><td class="ac noprint"><button type="button" class="btn sm" data-majdel="${i}">Retirer</button></td></tr>`).join('')}</tbody></table>`:''}
+    <div class="pronly"><div class="mrow"><em>Risque</em><i></i></div><div class="mrow"><em>Mesure de prévention prévue</em><i></i></div></div>
+    <div class="majadd noprint"><p class="mh">Nouveau risque sur le chantier ? Notez-le ici avec la mesure prise : il s’ajoute au plan de prévention.</p>
+      <div class="field"><label for="majR">Risque</label><input type="text" id="majR" enterkeyhint="next" autocomplete="off" placeholder="Ex. : vent fort, câble électrique découvert"></div>
+      <div class="field"><label for="majM">Mesure de prévention</label><input type="text" id="majM" enterkeyhint="done" autocomplete="off" placeholder="Ex. : arrêt du travail en hauteur, zone balisée"></div>
+      <button type="button" class="btn pri" data-majadd="1">Ajouter</button><p class="msg" id="majMsg" role="alert"></p></div></div>`;}
+function majAjout(){const r=$('#majR'), m=$('#majM'); if(!r||!m) return; const risque=r.value.trim(), mesure=m.value.trim();
+  if(!risque){$('#majMsg').textContent='Décrivez le risque.'; r.focus(); return;}
+  if(!mesure){$('#majMsg').textContent='Indiquez la mesure de prévention prise ou prévue.'; m.focus(); return;}
+  S.majRisques=[...(S.majRisques||[]),{risque,mesure,at:Date.now(),par:SES?nomDepuisEmail(SES.email):(S.redacteur||'')}];
+  save(); logEv('pdp_risque_maj',risque.slice(0,80)); redessiner(); toast('Risque ajouté au plan de prévention');}
 
 /* ---------- le PDF, tel qu'imprimé ----------
    Le document est mis en page dans un cadre invisible avec les règles d'impression (A4 paysage), découpé en pages
@@ -1952,8 +1992,8 @@ function renderSynth(){
   document.body.dataset.lt=S.legTable?'1':'0'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
   if(S.frozen){selId=null; line=null; renderPlanAll();}
   let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
-    <div class="quickprint noprint"><button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les 3 documents</button></div>`;
-  if(CONSULT) h+=`<div class="consult noprint"><span><b>Consultation sur le chantier.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></div>`;
+    <div class="quickprint noprint">${v==='pdp'&&!CONSULT?'<button type="button" class="btn sm" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les 3 documents</button></div>`;
+  if(CONSULT) h+=`<div class="consult noprint"><span><b>Consultation sur le chantier.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><span class="row">${v==='pdp'?'<button type="button" class="btn sm pri" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></span></div>`;
   h+=`<div class="pdoc" data-v="${v}">${buildDoc(v,!CONSULT)}</div>`;
   h+=`<div class="row end noprint"><button type="button" class="btn" data-go="3">Retour à l’analyse</button><div class="row">
     <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn" data-print="all">Imprimer les 3 documents</button><button type="button" class="btn pri" id="btnPrint" data-print="one">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:'Imprimer le plan de prévention'}[v]}</button></div></div>`;
@@ -1987,14 +2027,22 @@ $('#s4').addEventListener('change',e=>{
   if(e.target.dataset.vig){S.vig=Object.assign({},S.vig,{[e.target.dataset.vig]:e.target.checked}); const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save(); return;}
   const id=e.target.dataset.pr; if(!id) return; const l=S.pdpRisks=(S.pdpRisks||[]).filter(x=>x!==id); if(e.target.checked) l.push(id);
   const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save();});
+$('#s4').addEventListener('keydown',e=>{if(e.key!=='Enter') return;   // Entrée : risque → mesure → ajout
+  if(e.target.id==='majR'){e.preventDefault(); $('#majM').focus();} else if(e.target.id==='majM'){e.preventDefault(); majAjout();}});
+$('#s4').addEventListener('input',e=>{if((e.target.id==='majR'||e.target.id==='majM')&&$('#majMsg')) $('#majMsg').textContent='';});
 $('#s4').addEventListener('click',async e=>{
   const vb=e.target.closest('[data-view]'); if(vb){S.view=vb.dataset.view; renderSynth(); save(); return;}
   const pb=e.target.closest('[data-print]'); if(pb){doPrint(pb.dataset.print==='all'); return;}
   if(e.target.id==='btnConsultOff'){CONSULT=false; renderSynth(); return;}
   const sg=e.target.closest('[data-sign]'); if(sg){sigOpen(sg.dataset.sign); return;}
-  const rs=e.target.closest('[data-resend]'); if(rs){envoyerPdp(rs.dataset.resend); return;}
+  const rs=e.target.closest('[data-resend]'); if(rs){envoyerPdp(); return;}
+  if(e.target.closest('[data-majadd]')){majAjout(); return;}
+  if(e.target.closest('[data-gomaj]')){const b=$('#majBloc'); if(b){window.scrollTo(0,b.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-12); setTimeout(()=>$('#majR').focus(),350);} return;}
+  const md=e.target.closest('[data-majdel]'); if(md){   // deux appuis pour retirer
+    if(md.dataset.arme){S.majRisques=(S.majRisques||[]).filter((x,i)=>i!==+md.dataset.majdel); save(); redessiner(); return;}
+    md.dataset.arme='1'; md.textContent='Confirmer'; md.classList.add('pri'); setTimeout(()=>{if(md.isConnected){delete md.dataset.arme; md.textContent='Retirer'; md.classList.remove('pri');}},4000); return;}
   const us=e.target.closest('[data-unsign]'); if(us){   // deux appuis pour effacer
-    if(us.dataset.arme){const k=us.dataset.unsign; if(S.sig) delete S.sig[k]; save(); logEv('pdp_signature_effacee',k); redessiner(); return;}
+    if(us.dataset.arme){const k=us.dataset.unsign; if(S.sig) delete S.sig[k]; S.sigEnvoi=null; save(); logEv('pdp_signature_effacee',k); redessiner(); return;}
     us.dataset.arme='1'; us.textContent='Confirmer l’effacement'; us.classList.add('pri'); setTimeout(()=>{if(us.isConnected){delete us.dataset.arme; us.textContent='Effacer la signature'; us.classList.remove('pri');}},4000); return;}
   if(e.target.id==='btnCopy'){try{await navigator.clipboard.writeText(summaryText()); $('#copyMsg').textContent='Résumé copié.';}catch(err){$('#copyMsg').textContent='Copie impossible ici : utilisez Imprimer / PDF.';}}
   if(e.target.id==='btnPng'){const F=S.frozen, c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
