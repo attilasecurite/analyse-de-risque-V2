@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Analyse de risque toiture — suivi réseau</title>
+<title>Analyse de risque toiture — tableau de bord</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
@@ -13,10 +13,11 @@
 :root{--red:#C0392B;--ink:#1E2328;--mute:#5E6770;--line:#D5DADF;--bg:#ECEFF1;--card:#fff;--ok:#38761D;--warn:#E69138;--ko:#CC0000}
 *{box-sizing:border-box}
 body{margin:0;font-family:Barlow,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+[hidden]{display:none!important}
 header{background:var(--red);color:#fff;padding:14px 16px}
-header div{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-family:"Barlow Condensed",sans-serif;font-size:22px;margin:0;flex:1;line-height:1.15}
-h1 small{display:block;font-family:Barlow,sans-serif;font-weight:500;font-size:13px;opacity:.85}
+header>div{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-family:"Barlow Condensed",sans-serif;font-size:22px;margin:0;flex:1 1 260px;line-height:1.15}
+h1 small{display:block;font-family:Barlow,sans-serif;font-weight:600;font-size:14px;opacity:.92}
 main{max-width:1200px;margin:0 auto;padding:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px;min-width:0}
 h2{font-family:"Barlow Condensed",sans-serif;font-size:20px;margin:0 0 12px}
@@ -24,7 +25,7 @@ h2{font-family:"Barlow Condensed",sans-serif;font-size:20px;margin:0 0 12px}
 .kpi{background:#F4F6F7;border-radius:10px;padding:14px;border-left:5px solid var(--red)}
 .kpi b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
 .kpi span{font-size:13px;color:var(--mute)}
-.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;margin-bottom:14px}
 .two .card{margin-bottom:0}
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
@@ -34,19 +35,25 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 a{color:#1565C0}
 .bar{height:9px;background:#E3E7EA;border-radius:5px;overflow:hidden;min-width:60px}
 .bar div{height:100%;background:var(--red)}
-input,select,button{font:inherit;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+input,select,button{font:inherit;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-width:0}
 button{background:var(--red);color:#fff;border:0;font-weight:700;cursor:pointer}
-button.line{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #1565C0;outline-offset:2px}
+button.line,a.line{background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:9px 11px;font-weight:700;text-decoration:none;font-size:16px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,tr[tabindex]:focus-visible{outline:3px solid #1565C0;outline-offset:2px}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.tools input{flex:1 1 220px;min-width:0}
+.tools input{flex:1 1 220px}
 .tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:12px;background:#EEF0F2;color:var(--mute);white-space:nowrap;display:inline-block;margin:1px 0}
-.tag.v{background:#EDF5EA;color:var(--ok)} .tag.o{background:#FDF4EA;color:#B26A1D} .tag.r{background:#FBEAEA;color:var(--ko)}
-.hint{font-size:14px;padding:10px 12px;border-radius:8px;background:#F4F6F7;border-left:4px solid #1565C0;margin-bottom:12px}
+.tag.v{background:#EDF5EA;color:var(--ok)} .tag.o{background:#FDF4EA;color:#B26A1D} .tag.r{background:#FBEAEA;color:var(--ko)} .tag.s{background:#E8F0FB;color:#1565C0}
+.hint{font-size:15px;padding:12px 14px;border-radius:8px;background:#fff;border-left:4px solid #1565C0;margin-bottom:12px;line-height:1.45}
 .hint.ko{border-left-color:var(--ko);background:#FBEAEA}
 .who{display:flex;align-items:center;gap:8px;font-size:14px}
-.gate{max-width:460px;display:flex;flex-direction:column;gap:8px} .gate input{font:inherit;font-size:16px;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px}
+.gate{max-width:460px;display:flex;flex-direction:column;gap:8px} .gate input{font-size:16px}
 .gate #gCode{font-size:22px;letter-spacing:4px;max-width:180px} .gate button{align-self:flex-start} .gate .err{color:var(--ko);font-size:14px;min-height:18px}
+/* filtres */
+.filtres{border-top:5px solid var(--red)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px;align-items:end}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0} .f>span{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mute)}
+.f select{width:100%} .f .seule{font-family:"Barlow Condensed",sans-serif;font-size:22px;line-height:1.2;padding:6px 0}
+.perim{margin:10px 0 0;font-size:14px;color:var(--mute)} .perim button{padding:4px 10px;font-size:14px;margin-left:6px}
 .mois{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:10px}
 .mois div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-size:11px;color:var(--mute);min-width:0}
 .mois i{display:block;width:100%;background:var(--red);border-radius:4px 4px 0 0;min-height:2px}
@@ -56,55 +63,71 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:8px}
 .leg i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:1.5px solid #fff;box-shadow:0 0 0 1px #9aa}
 .leaflet-popup-content{font-family:Barlow,sans-serif;font-size:14px;line-height:1.35}
-@media (max-width:500px){.two{grid-template-columns:1fr}}
+tr.clic{cursor:pointer} tr.clic:hover td{background:#F7F9FA} tr.sel td{background:#FBEAEA}
+@media (max-width:500px){.two{grid-template-columns:1fr} #carte{height:300px}}
 </style>
 </head>
 <body>
 <header><div>
-  <h1>Analyse de risque toiture<small>Suivi d’usage du réseau ATTILA</small></h1>
+  <h1>Analyse de risque toiture<small id="sous">Tableau de bord</small></h1>
+  <a class="line" id="lienOutil" target="_blank" rel="noopener">Ouvrir l’outil</a>
   <button class="line" id="btnRefresh" type="button">Actualiser</button>
   <button class="line" id="btnCsv" type="button">Export CSV</button>
   <span class="who" id="who" hidden><span id="whoName"></span><button class="line" id="btnLogout" type="button">Déconnexion</button></span>
 </div></header>
 <main>
   <div id="state"></div>
-
-  <div class="card"><h2>Vue d’ensemble</h2><div class="kpis" id="kpis"></div></div>
-
-  <div class="two">
-    <div class="card"><h2>Analyses par mois</h2><div class="mois" id="mois"></div>
-      <p class="src">Barre claire : analyses imprimées (aide au chiffrage, briefing ou plan de prévention). Barre foncée : analyses non imprimées.</p></div>
-    <div class="card"><h2>Où : chantiers analysés</h2><div id="carte"></div>
-      <div class="leg"><span><i style="background:#38761D"></i>Vert</span><span><i style="background:#E69138"></i>Orange</span><span><i style="background:#CC0000"></i>Rouge</span><span><i style="background:#8A939B"></i>À compléter</span></div></div>
-  </div>
-  <div style="height:14px"></div>
-
-  <div class="card"><h2>Usage par agence</h2>
-    <div class="wrap"><table id="tAgences"><thead><tr>
-      <th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th>Taux</th>
-      <th class="n">Utilisateurs</th><th class="n">Rouges</th><th class="n">Amiante</th><th>Dernière activité</th>
-    </tr></thead><tbody></tbody></table></div></div>
-
-  <div class="card"><h2>Qui : chargés de clientèle</h2>
-    <div class="wrap"><table id="tRed"><thead><tr>
-      <th>Chargé de clientèle</th><th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th>Dernière activité</th>
-    </tr></thead><tbody></tbody></table></div></div>
-
-  <div class="card"><h2>Répertoire des analyses</h2>
-    <div class="tools">
-      <input id="q" placeholder="Rechercher : agence, client, adresse, chargé de clientèle…" aria-label="Rechercher">
-      <select id="filtre" aria-label="Filtrer">
-        <option value="">Toutes les analyses</option>
-        <option value="imp">Imprimées</option>
-        <option value="nonimp">Non imprimées</option>
-        <option value="rouge">Feu rouge</option>
-        <option value="amiante">Avec amiante</option>
-      </select>
+  <div id="dash" hidden>
+    <div class="card filtres">
+      <div class="fgrid">
+        <label class="f"><span>Agence</span><select id="fAgence"></select><b class="seule" id="agSeule" hidden></b></label>
+        <label class="f"><span>Chargé de clientèle, RA, gérant</span><select id="fQui"></select></label>
+        <label class="f"><span>Client</span><select id="fClient"></select></label>
+        <label class="f"><span>Période</span><select id="fPeriode">
+          <option value="">Depuis le début</option><option value="30">30 derniers jours</option><option value="90">3 derniers mois</option><option value="365">12 derniers mois</option></select></label>
+      </div>
+      <p class="perim" id="perim"></p>
     </div>
-    <div class="wrap"><table id="tAna"><thead><tr>
-      <th>Mise à jour</th><th>Agence</th><th>Client / adresse</th><th>Chargé</th><th>Feu</th><th>Imprimé</th><th>Ouvrir</th>
-    </tr></thead><tbody></tbody></table></div>
-    <p class="src">« Reprendre » rouvre l’analyse dans l’outil, à l’étape où elle a été laissée. « Dossier » ouvre son dossier sur le Drive (données, vue aérienne, plan, résumé). « Plan » ouvre directement le plan dessiné.</p></div>
+
+    <div class="card"><h2>Vue d’ensemble</h2><div class="kpis" id="kpis"></div></div>
+
+    <div class="two">
+      <div class="card"><h2>Analyses par mois</h2><div class="mois" id="mois"></div>
+        <p class="src">Barre claire : analyses imprimées (aide au chiffrage, briefing ou plan de prévention). Barre foncée : analyses non imprimées.</p></div>
+      <div class="card"><h2>Où : chantiers analysés</h2><div id="carte"></div>
+        <div class="leg"><span><i style="background:#38761D"></i>Vert</span><span><i style="background:#E69138"></i>Orange</span><span><i style="background:#CC0000"></i>Rouge</span><span><i style="background:#8A939B"></i>À compléter</span></div></div>
+    </div>
+
+    <div class="card" id="cAgences"><h2>Par agence</h2>
+      <div class="wrap"><table id="tAgences"><thead><tr>
+        <th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th>Taux</th>
+        <th class="n">Personnes</th><th class="n">PdP signés</th><th class="n">Rouges</th><th class="n">Amiante</th><th>Dernière activité</th>
+      </tr></thead><tbody></tbody></table></div>
+      <p class="src">Cliquez sur une agence pour n’afficher qu’elle.</p></div>
+
+    <div class="card"><h2>Par chargé de clientèle, RA, gérant</h2>
+      <div class="wrap"><table id="tRed"><thead><tr>
+        <th>Personne</th><th>Agence</th><th class="n">Analyses</th><th class="n">Imprimées</th><th class="n">PdP signés</th><th class="n">Rouges</th><th>Dernière activité</th>
+      </tr></thead><tbody></tbody></table></div>
+      <p class="src">Cliquez sur une personne pour n’afficher que ses analyses ; cliquez de nouveau pour revenir à toute l’équipe.</p></div>
+
+    <div class="card"><h2 id="tRep">Répertoire des analyses</h2>
+      <div class="tools">
+        <input id="q" placeholder="Rechercher : client, adresse, travaux, chargé…" aria-label="Rechercher dans les analyses">
+        <select id="filtre" aria-label="Filtrer par état">
+          <option value="">Toutes les analyses</option>
+          <option value="imp">Imprimées</option>
+          <option value="nonimp">Non imprimées</option>
+          <option value="signe">Plan de prévention signé</option>
+          <option value="rouge">Feu rouge</option>
+          <option value="amiante">Avec amiante</option>
+        </select>
+      </div>
+      <div class="wrap"><table id="tAna"><thead><tr>
+        <th>Mise à jour</th><th class="colAg">Agence</th><th>Client / adresse</th><th>Chargé</th><th>Feu</th><th>Documents</th><th>Ouvrir</th>
+      </tr></thead><tbody></tbody></table></div>
+      <p class="src" id="noteLiens">« Reprendre » rouvre l’analyse dans l’outil, à l’étape où elle a été laissée. « Plan de prévention » l’ouvre directement sur le plan de prévention.</p></div>
+  </div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -112,15 +135,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* URL du déploiement Apps Script (/exec) — la même que dans index.html */
 const API_URL='https://script.google.com/macros/s/AKfycbzgypmrK90dUcqQDq1qt0lCGrP4M6G2InzO8eQWwco9afQ-tBervpVW3UHJViYIIviCeg/exec';
 const API=new URLSearchParams(location.search).get('api')||API_URL;
-/* Connexion par code reçu par e-mail : même appareil reconnu que dans l'outil (même adresse de site) */
-const SES_KEY='attila_ar_session', PUBLIC_ACTIONS=['config','agences','demande_code','valide_code'];
+/* Connexion par code reçu par e-mail : même appareil reconnu que dans l'outil (même adresse de site).
+   Le script Google décide du périmètre : la direction QHSE voit tout le réseau, chacun des autres voit
+   les agences pour lesquelles il a enregistré des analyses (et celles de l'onglet ACCES du Sheet). */
+const SES_KEY='attila_ar_session', PUBLIC_ACTIONS=['config','agences','demande_code','valide_code'], PREF_KEY='attila_ar_dash';
 let authCfg=null, gEmailVal='';
 function sesLoad(){try{const x=JSON.parse(localStorage.getItem(SES_KEY)||'null'); if(x&&x.jeton&&x.exp>Date.now()) return x;}catch(e){} return null;}
 function sesClear(){try{localStorage.removeItem(SES_KEY);}catch(e){}}
 const authOn=()=>!!(authCfg&&authCfg.codeEmail);
 const authErr=m=>({adresse:'Cette adresse n’est pas acceptée : utilisez votre adresse professionnelle ATTILA.',trop:'Trop de demandes de code : réessayez dans une heure.',quota:'Envoi de codes momentanément indisponible.',code_faux:'Code incorrect.',code_expire:'Code expiré : demandez-en un nouveau.'}[m]||(/fetch|network|load failed/i.test(m)?'Pas de réseau : réessayez dans un instant.':/token|json|unexpected/i.test(m)?'Le script Google ne répond pas correctement : vérifiez son déploiement et ses autorisations.':'Erreur du script Google : '+m));
-function connexion(msg){const d=(authCfg&&authCfg.domaines||[])[0]||'attila.fr';
-  $('#state').innerHTML=`<div class="hint ko gate"><b>Tableau de bord réservé aux équipes ATTILA.</b><span>${msg||'Saisissez votre adresse e-mail professionnelle : vous allez recevoir un code de connexion.'}</span>
+function connexion(msg){const d=(authCfg&&authCfg.domaines||[])[0]||'attila.fr'; $('#dash').hidden=true;
+  $('#state').innerHTML=`<div class="hint ko gate"><b>Tableau de bord réservé aux équipes ATTILA.</b><span>${msg||'Saisissez votre adresse e-mail professionnelle : vous allez recevoir un code de connexion. Vous verrez ensuite les analyses de votre agence.'}</span>
     <div id="gStep1" class="gate"><input type="email" id="gEmail" placeholder="prenom.nom@${esc(d)}" autocomplete="email"><button type="button" class="line" id="gSend">Recevoir mon code</button></div>
     <div id="gStep2" class="gate" hidden><span>Code envoyé à <b id="gTo"></b> (valable 10 minutes).</span><input type="text" id="gCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456"><button type="button" class="line" id="gCheck">Valider</button></div>
     <span class="err" id="gErr"></span></div>`;
@@ -130,14 +155,18 @@ function connexion(msg){const d=(authCfg&&authCfg.domaines||[])[0]||'attila.fr';
     try{const r=await call({action:'valide_code',email:gEmailVal,code:$('#gCode').value.replace(/\D/g,''),appareil:navigator.userAgent}); localStorage.setItem(SES_KEY,JSON.stringify({jeton:r.jeton,email:r.email,exp:r.exp})); load();}
     catch(x){$('#gErr').textContent=authErr(x.message);}};}
 /* Adresse de l'outil, pour les liens de reprise */
-const APP=new URLSearchParams(location.search).get('app')||new URL('index.html',location.href).href;   // l'outil est dans le même dossier que ce tableau de bord (marche aussi sans « .html » dans l'adresse)
+const APP=new URLSearchParams(location.search).get('app')||new URL('index.html',location.href).href;   // l'outil est dans le même dossier que ce tableau de bord
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=d=>{if(!d)return '—';const x=new Date(d);return isNaN(x)?'—':x.toLocaleDateString('fr-FR')+' '+x.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
 const num=n=>(Number(n)||0).toLocaleString('fr-FR');
+const norm=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
 const FEU={Vert:['v','#38761D'],Orange:['o','#E69138'],Rouge:['r','#CC0000']};
-let ANA=[],STATS=null,carte=null,couche=null;
+let ANA=[],PERIM={admin:false,agences:[],email:''},OUV={},carte=null,couche=null;
+let pref={}; try{pref=JSON.parse(localStorage.getItem(PREF_KEY)||'{}')||{};}catch(e){pref={};}
+const garde=()=>{try{localStorage.setItem(PREF_KEY,JSON.stringify(pref));}catch(e){}};
+$('#lienOutil').href=APP;
 
 async function call(body){
   if(authOn()&&!PUBLIC_ACTIONS.includes(body.action)){const x=sesLoad(); if(!x) throw new Error('session'); body.jeton=x.jeton;}
@@ -152,91 +181,163 @@ async function load(){
   if(authOn()&&!x) return connexion();
   $('#state').innerHTML='<div class="hint">Chargement…</div>';
   try{
-    const [s,l]=await Promise.all([call({action:'stats'}),call({action:'list',limit:1000})]);
-    STATS=s;ANA=l.analyses||[];$('#state').innerHTML='';
-    kpis();mois();agences();redacteurs();liste();carteMaj();
+    const l=await call({action:'list',limit:5000});
+    ANA=l.analyses||[]; PERIM=l.perimetre||{admin:true,agences:[],email:x?x.email:''}; OUV=l.ouvertures30j||{};
+    $('#state').innerHTML='';
+    if(!PERIM.admin&&!PERIM.agences.length){$('#dash').hidden=true;
+      $('#sous').textContent='Tableau de bord de votre agence';
+      $('#state').innerHTML=`<div class="hint"><b>Aucune analyse enregistrée avec ${esc(PERIM.email||'votre adresse')} pour le moment.</b><br>
+        Le tableau de bord de votre agence s’affichera ici dès votre première analyse enregistrée dans l’outil (agence renseignée à l’étape 1).<br>
+        Gérant ou RA qui ne rédige pas d’analyse : demandez à la direction QHSE de vous rattacher à votre agence.</div>`; return;}
+    $('#dash').hidden=false; prepFiltres(); maj();
   }catch(e){
+    $('#dash').hidden=true;
     if(e.message==='session'){sesClear(); $('#who').hidden=true; return connexion('Votre connexion a expiré : demandez un nouveau code.');}
-    if(e.message==='acces'){$('#state').innerHTML='<div class="hint ko"><b>Accès réservé :</b> votre adresse n’est pas autorisée à consulter ce tableau de bord. Demandez l’accès à la direction QHSE.</div>'; return;}
     $('#state').innerHTML=`<div class="hint ko"><b>Lecture impossible :</b> ${esc(e.message)}. Vérifiez que le script est déployé en « accès : tout le monde ».</div>`}
 }
-function kpis(){
-  const t=STATS.totaux;
-  $('#kpis').innerHTML=[
-    ['Analyses',t.analyses],['Imprimées',t.imprimees],['Agences utilisatrices',t.agences],['Chargés de clientèle',t.utilisateurs],
-    ['Ouvertures sur 30 jours',t.ouvertures30j],['Aides au chiffrage',t.devis],['Briefings équipes',t.briefings],['Plans de prévention',t.pdp],
-    ['Feux rouges',t.rouges],['Chantiers avec amiante',t.amiante]
-  ].map(([k,v])=>`<div class="kpi"><b>${num(v)}</b><span>${k}</span></div>`).join('');
+
+/* ---------- personnes et clients : regroupés par adresse e-mail (ou par nom pour les anciennes analyses) ---------- */
+const cleQui=a=>norm(a.compte)||('nom:'+norm(a.redacteur||'(non renseigné)'));
+function noms(rows,cle,lib){const m=new Map(); rows.forEach(a=>{const k=cle(a), o=m.get(k)||{k,n:0,lib:'',d:''}; o.n++; if(String(a.maj_le)>=o.d){o.d=String(a.maj_le); o.lib=lib(a);} m.set(k,o);}); return [...m.values()].sort((x,y)=>x.lib.localeCompare(y.lib,'fr'));}
+const libQui=a=>(a.redacteur&&a.redacteur.trim())||a.compte||'(non renseigné)';
+const libClient=a=>(a.client&&a.client.trim())||'(sans client)';
+
+/* ---------- filtres ---------- */
+function agencesDispo(){return PERIM.admin?[...new Set(ANA.map(a=>(a.agence||'').trim()).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'fr')):PERIM.agences;}
+function prepFiltres(){
+  const ags=agencesDispo(), url=new URLSearchParams(location.search).get('agence'), sel=$('#fAgence');
+  const trouve=v=>v==null?undefined:v===''?(ags.length>1?'':undefined):ags.find(x=>norm(x)===norm(v));   // agence demandée dans l'adresse, sinon la dernière choisie
+  sel.innerHTML=(ags.length>1?`<option value="">${PERIM.admin?'Tout le réseau':'Toutes mes agences'} (${ags.length})</option>`:'')+ags.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  sel.value=[trouve(url),trouve(pref.agence)].find(v=>v!==undefined)??(ags.length>1?'':ags[0]||'');
+  sel.hidden=ags.length<2; $('#agSeule').hidden=ags.length>1; $('#agSeule').textContent=ags[0]||'';
+  remplirQuiClient();
 }
-function mois(){
-  const m=STATS.parMois.slice(-12),max=Math.max(1,...m.map(x=>x.analyses));
-  $('#mois').innerHTML=m.length?m.map(x=>`<div title="${x.mois} : ${x.analyses} analyse(s), dont ${x.imprimees} imprimée(s)">
-    <i style="height:${(x.analyses-x.imprimees)/max*110}px"></i><i class="b" style="height:${x.imprimees/max*110}px"></i>
-    <span>${x.mois.slice(5)}/${x.mois.slice(2,4)}</span></div>`).join('')
-    :'<p class="src">Aucune analyse enregistrée pour le moment.</p>';
+const parAgence=()=>{const v=$('#fAgence').value; return v?ANA.filter(a=>norm(a.agence)===norm(v)):ANA;};
+const parPeriode=rows=>{const j=+$('#fPeriode').value; if(!j) return rows; const d=new Date(Date.now()-j*864e5).toISOString(); return rows.filter(a=>String(a.maj_le||a.cree_le)>=d);};
+function remplirQuiClient(){
+  const base=parPeriode(parAgence()), q=$('#fQui'), c=$('#fClient'), vq=q.value||'', vc=c.value||'';
+  const moi=norm(PERIM.email), pers=noms(base,cleQui,libQui), cl=noms(base,a=>norm(a.client)||'(sans client)',libClient);
+  const mesN=moi?base.filter(a=>norm(a.compte)===moi).length:0;
+  q.innerHTML=`<option value="">Toute l’équipe (${pers.length})</option>`+(mesN?`<option value="${esc(moi)}">Mes analyses (${mesN})</option>`:'')
+    +pers.filter(p=>p.k!==moi).map(p=>`<option value="${esc(p.k)}">${esc(p.lib)} (${p.n})</option>`).join('');
+  c.innerHTML=`<option value="">Tous les clients (${cl.length})</option>`+cl.map(p=>`<option value="${esc(p.k)}">${esc(p.lib)} (${p.n})</option>`).join('');
+  q.value=[...q.options].some(o=>o.value===vq)?vq:''; c.value=[...c.options].some(o=>o.value===vc)?vc:'';
 }
-function agences(){
-  const r=STATS.parAgence;
-  $('#tAgences tbody').innerHTML=r.length?r.map(a=>`<tr>
-    <td>${esc(a.agence)}</td><td class="n">${a.analyses}</td><td class="n">${a.imprimees}</td>
-    <td><div class="bar" title="${a.analyses?Math.round(a.imprimees/a.analyses*100):0} % imprimées"><div style="width:${a.analyses?a.imprimees/a.analyses*100:0}%"></div></div></td>
-    <td class="n">${a.redacteurs}</td><td class="n">${a.rouges}</td><td class="n">${a.amiante}</td><td>${fmt(a.dernier)}</td></tr>`).join('')
-    :'<tr><td colspan="8" class="src">Aucune donnée.</td></tr>';
-}
-function redacteurs(){
-  const r=STATS.parRedacteur;
-  $('#tRed tbody').innerHTML=r.length?r.map(a=>`<tr><td>${esc(a.redacteur)}</td><td>${esc(a.agence)||'—'}</td>
-    <td class="n">${a.analyses}</td><td class="n">${a.imprimees}</td><td>${fmt(a.dernier)}</td></tr>`).join('')
-    :'<tr><td colspan="5" class="src">Aucune donnée.</td></tr>';
+function selection(){   // agence, période, personne et client
+  const vq=$('#fQui').value, vc=$('#fClient').value;
+  return parPeriode(parAgence()).filter(a=>(!vq||cleQui(a)===vq)&&(!vc||(norm(a.client)||'(sans client)')===vc));
 }
 const imprimes=a=>[a.imprime_devis&&'Chiffrage',a.imprime_brief&&'Briefing',a.imprime_pdp&&'PdP'].filter(Boolean);
-const liens=a=>`<a href="${APP}?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener">Reprendre</a>${a.dossier?` · <a href="${esc(a.dossier)}" target="_blank" rel="noopener">Dossier</a>`:''}${a.plan?` · <a href="${esc(a.plan)}" target="_blank" rel="noopener">Plan</a>`:''}`;
 function filtrees(){
-  const q=$('#q').value.toLowerCase().trim(),f=$('#filtre').value;
-  return ANA.filter(a=>{
-    const txt=[a.agence,a.client,a.adresse,a.redacteur,a.travaux].join(' ').toLowerCase();
-    if(q&&!txt.includes(q))return false;
-    if(f==='imp'&&!imprimes(a).length)return false;
-    if(f==='nonimp'&&imprimes(a).length)return false;
-    if(f==='rouge'&&a.feu!=='Rouge')return false;
-    if(f==='amiante'&&a.amiante!=='oui')return false;
-    return true;
-  });
+  const q=norm($('#q').value), f=$('#filtre').value;
+  return selection().filter(a=>{
+    if(q&&!norm([a.agence,a.client,a.adresse,a.redacteur,a.compte,a.travaux].join(' ')).includes(q)) return false;
+    if(f==='imp'&&!imprimes(a).length) return false;
+    if(f==='nonimp'&&imprimes(a).length) return false;
+    if(f==='signe'&&!a.pdp_signe) return false;
+    if(f==='rouge'&&a.feu!=='Rouge') return false;
+    if(f==='amiante'&&a.amiante!=='oui') return false;
+    return true;});
 }
+
+/* ---------- affichage ---------- */
+function maj(){
+  const ag=$('#fAgence').value, ags=agencesDispo(), rows=selection(), vq=$('#fQui'), vc=$('#fClient');
+  const lieu=ag?'agence '+ag:(PERIM.admin?'réseau ATTILA':ags.length>1?'agences '+ags.join(', '):'agence '+(ags[0]||''));
+  $('#sous').textContent='Tableau de bord · '+lieu; document.title='Tableau de bord — '+lieu;
+  const bits=[vq.value?vq.options[vq.selectedIndex].text.replace(/ \(\d+\)$/,''):'',vc.value?'client '+vc.options[vc.selectedIndex].text.replace(/ \(\d+\)$/,''):'',$('#fPeriode').value?$('#fPeriode').options[$('#fPeriode').selectedIndex].text.toLowerCase():''].filter(Boolean);
+  $('#perim').innerHTML=(PERIM.admin?'Vous voyez tout le réseau (direction QHSE). ':`Vous voyez les analyses ${ags.length>1?'de vos agences':'de votre agence'}. `)
+    +(bits.length?`Filtre : <b>${esc(bits.join(' · '))}</b><button type="button" class="line" id="raz">Tout afficher</button>`:'');
+  const r=$('#raz'); if(r) r.onclick=()=>{vq.value=''; vc.value=''; $('#fPeriode').value=''; remplirQuiClient(); maj();};
+  kpis(rows); mois(rows); tabAgences(); tabPersonnes(); liste();
+}
+function kpis(rows){
+  const ag=$('#fAgence').value, ouv=Object.entries(OUV).filter(([k])=>!ag||norm(k)===norm(ag)).reduce((t,[,n])=>t+n,0);
+  const perso=!!($('#fQui').value||$('#fClient').value);
+  const k=[['Analyses',rows.length],['Imprimées',rows.filter(a=>imprimes(a).length).length],['Plans de prévention signés',rows.filter(a=>a.pdp_signe).length],
+    ['Chargés, RA, gérants',new Set(rows.map(cleQui)).size],['Aides au chiffrage',rows.filter(a=>a.imprime_devis).length],['Briefings équipes',rows.filter(a=>a.imprime_brief).length],
+    ['Plans de prévention imprimés',rows.filter(a=>a.imprime_pdp).length],['Feux rouges',rows.filter(a=>a.feu==='Rouge').length],['Chantiers avec amiante',rows.filter(a=>a.amiante==='oui').length]];
+  if(!perso) k.splice(4,0,['Ouvertures de l’outil sur 30 jours',ouv]);
+  if(PERIM.admin&&!ag) k.splice(3,0,['Agences utilisatrices',new Set(rows.map(a=>norm(a.agence)).filter(Boolean)).size]);
+  $('#kpis').innerHTML=k.map(([t,v])=>`<div class="kpi"><b>${num(v)}</b><span>${t}</span></div>`).join('');
+}
+function mois(rows){
+  const m={}; rows.forEach(a=>{const k=String(a.cree_le||a.maj_le).slice(0,7); if(!/^\d{4}-\d\d$/.test(k)) return; const x=m[k]||(m[k]={mois:k,analyses:0,imprimees:0}); x.analyses++; if(imprimes(a).length) x.imprimees++;});
+  const l=Object.values(m).sort((a,b)=>a.mois.localeCompare(b.mois)).slice(-12), max=Math.max(1,...l.map(x=>x.analyses));
+  $('#mois').innerHTML=l.length?l.map(x=>`<div title="${x.mois} : ${x.analyses} analyse(s), dont ${x.imprimees} imprimée(s)">
+    <i style="height:${(x.analyses-x.imprimees)/max*110}px"></i><i class="b" style="height:${x.imprimees/max*110}px"></i>
+    <span>${x.mois.slice(5)}/${x.mois.slice(2,4)}</span></div>`).join('')
+    :'<p class="src">Aucune analyse sur cette sélection.</p>';
+}
+function stats(rows,cle,lib){const m=new Map(); rows.forEach(a=>{const k=cle(a), o=m.get(k)||{k,lib:'',agences:new Set(),n:0,imp:0,sig:0,rouges:0,am:0,pers:new Set(),d:''};
+  o.n++; if(imprimes(a).length) o.imp++; if(a.pdp_signe) o.sig++; if(a.feu==='Rouge') o.rouges++; if(a.amiante==='oui') o.am++; if(a.agence) o.agences.add(a.agence); o.pers.add(cleQui(a));
+  if(String(a.maj_le)>=o.d){o.d=String(a.maj_le); o.lib=lib(a);} m.set(k,o);}); return [...m.values()];}
+function tabAgences(){
+  const show=!$('#fAgence').value&&agencesDispo().length>1; $('#cAgences').hidden=!show; if(!show) return;
+  const r=stats(parPeriode(ANA).filter(a=>{const vq=$('#fQui').value, vc=$('#fClient').value; return (!vq||cleQui(a)===vq)&&(!vc||(norm(a.client)||'(sans client)')===vc);}),a=>norm(a.agence)||'(agence non renseignée)',a=>(a.agence||'').trim()||'(agence non renseignée)').sort((a,b)=>b.n-a.n);
+  $('#tAgences tbody').innerHTML=r.length?r.map(a=>`<tr class="clic" tabindex="0" data-ag="${esc(a.lib)}">
+    <td>${esc(a.lib)}</td><td class="n">${a.n}</td><td class="n">${a.imp}</td>
+    <td><div class="bar" title="${a.n?Math.round(a.imp/a.n*100):0} % imprimées"><div style="width:${a.n?a.imp/a.n*100:0}%"></div></div></td>
+    <td class="n">${a.pers.size}</td><td class="n">${a.sig}</td><td class="n">${a.rouges}</td><td class="n">${a.am}</td><td>${fmt(a.d)}</td></tr>`).join('')
+    :'<tr><td colspan="9" class="src">Aucune donnée.</td></tr>';
+}
+function tabPersonnes(){
+  const vq=$('#fQui').value, vc=$('#fClient').value;
+  const r=stats(parPeriode(parAgence()).filter(a=>!vc||(norm(a.client)||'(sans client)')===vc),cleQui,libQui).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+  $('#tRed tbody').innerHTML=r.length?r.map(a=>`<tr class="clic${a.k===vq?' sel':''}" tabindex="0" data-qui="${esc(a.k)}"><td>${esc(a.lib)}${a.k.includes('@')&&a.lib!==a.k?`<br><span class="src">${esc(a.k)}</span>`:''}</td><td>${esc([...a.agences].join(', '))||'—'}</td>
+    <td class="n">${a.n}</td><td class="n">${a.imp}</td><td class="n">${a.sig}</td><td class="n">${a.rouges}</td><td>${fmt(a.d)}</td></tr>`).join('')
+    :'<tr><td colspan="7" class="src">Aucune donnée.</td></tr>';
+}
+const liens=a=>`<a href="${APP}?id=${encodeURIComponent(a.id)}" target="_blank" rel="noopener">Reprendre</a> · <a href="${APP}?id=${encodeURIComponent(a.id)}&doc=pdp" target="_blank" rel="noopener">Plan de prévention</a>`
+  +(a.dossier?` · <a href="${esc(a.dossier)}" target="_blank" rel="noopener">Dossier</a>`:'')+(a.plan?` · <a href="${esc(a.plan)}" target="_blank" rel="noopener">Plan</a>`:'');
 function liste(){
-  const rows=filtrees();
-  $('#tAna tbody').innerHTML=rows.length?rows.map(a=>{const fe=FEU[a.feu];const im=imprimes(a);
-    return `<tr><td>${fmt(a.maj_le)}</td><td>${esc(a.agence)||'—'}</td>
-      <td>${esc(a.client)||'—'}${a.adresse?'<br><span class="src">'+esc(a.adresse)+'</span>':''}${a.travaux?'<br><span class="src">'+esc(a.travaux)+'</span>':''}</td>
+  const rows=filtrees(), uneAg=!!$('#fAgence').value||agencesDispo().length<2;
+  document.querySelectorAll('.colAg').forEach(e=>e.hidden=uneAg);
+  $('#tRep').textContent='Répertoire des analyses ('+rows.length+')';
+  $('#noteLiens').textContent='« Reprendre » rouvre l’analyse dans l’outil, à l’étape où elle a été laissée. « Plan de prévention » l’ouvre directement sur le plan de prévention.'+(PERIM.admin?' « Dossier » et « Plan » ouvrent le Drive de la direction QHSE.':'');
+  $('#tAna tbody').innerHTML=rows.length?rows.map(a=>{const fe=FEU[a.feu], im=imprimes(a);
+    return `<tr><td>${fmt(a.maj_le)}</td>${uneAg?'':`<td>${esc(a.agence)||'—'}</td>`}
+      <td><b>${esc(a.client)||'—'}</b>${a.adresse?'<br><span class="src">'+esc(a.adresse)+'</span>':''}${a.travaux?'<br><span class="src">'+esc(a.travaux)+'</span>':''}</td>
       <td>${esc(a.redacteur)||esc(a.compte)||'—'}</td>
       <td><span class="tag ${fe?fe[0]:''}">${esc(a.feu)||'À compléter'}</span>${a.amiante==='oui'?' <span class="tag r">Amiante</span>':''}</td>
-      <td>${im.length?im.map(x=>`<span class="tag v">${x}</span>`).join(' '):`<span class="tag">étape ${esc(a.etape)||1}/4</span>`}</td>
+      <td>${a.pdp_signe?'<span class="tag s">PdP signé</span> ':''}${im.length?im.map(x=>`<span class="tag v">${x}</span>`).join(' '):(a.pdp_signe?'':`<span class="tag">étape ${esc(a.etape)||1}/4</span>`)}</td>
       <td>${liens(a)}</td></tr>`}).join('')
-    :'<tr><td colspan="7" class="src">Aucune analyse ne correspond.</td></tr>';
-  carteMaj();
+    :`<tr><td colspan="${uneAg?6:7}" class="src">Aucune analyse ne correspond.</td></tr>`;
+  carteMaj(rows);
 }
-function carteMaj(){
+function carteMaj(rows){
   if(typeof L==='undefined'){$('#carte').innerHTML='<p class="src" style="padding:12px">Carte indisponible (pas de connexion).</p>';return}
   if(!carte){carte=L.map('carte').setView([46.6,2.4],5);
     L.tileLayer('https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',{maxZoom:18,attribution:'© IGN'}).addTo(carte);}
   if(couche)carte.removeLayer(couche);couche=L.layerGroup().addTo(carte);
   const pts=[];
-  filtrees().forEach(a=>{const lat=parseFloat(a.lat),lng=parseFloat(a.lng);if(!isFinite(lat)||!isFinite(lng)||(!lat&&!lng))return;
+  rows.forEach(a=>{const lat=parseFloat(a.lat),lng=parseFloat(a.lng);if(!isFinite(lat)||!isFinite(lng)||(!lat&&!lng))return;
     const c=(FEU[a.feu]||[0,'#8A939B'])[1];pts.push([lat,lng]);
     L.circleMarker([lat,lng],{radius:7,color:'#fff',weight:2,fillColor:c,fillOpacity:.95}).addTo(couche)
       .bindPopup(`<b>${esc(a.client)||'Sans client'}</b><br>${esc(a.adresse)}<br>${esc(a.agence)||'—'} · ${esc(a.redacteur)||'—'}<br>${fmt(a.maj_le)}<br>${liens(a)}`);});
   if(pts.length)carte.fitBounds(pts,{padding:[30,30],maxZoom:12,animate:false});
 }
+
+/* ---------- événements ---------- */
+$('#fAgence').addEventListener('change',()=>{pref.agence=$('#fAgence').value; garde(); remplirQuiClient(); maj();});
+$('#fPeriode').addEventListener('change',()=>{remplirQuiClient(); maj();});
+$('#fQui').addEventListener('change',maj);
+$('#fClient').addEventListener('change',maj);
 $('#q').addEventListener('input',liste);
 $('#filtre').addEventListener('change',liste);
+function choisirLigne(tr){if(!tr) return;
+  if(tr.dataset.ag!=null){const s=$('#fAgence'); s.value=[...s.options].find(o=>norm(o.value)===norm(tr.dataset.ag))?.value??s.value; pref.agence=s.value; garde(); remplirQuiClient(); maj(); window.scrollTo({top:0,behavior:'smooth'}); return;}
+  if(tr.dataset.qui!=null){const s=$('#fQui'); s.value=s.value===tr.dataset.qui?'':tr.dataset.qui; maj();}}
+['#tAgences','#tRed'].forEach(id=>{$(id).addEventListener('click',e=>choisirLigne(e.target.closest('tr.clic')));
+  $(id).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); choisirLigne(e.target.closest('tr.clic'));}});});
 $('#btnRefresh').onclick=load;
 $('#btnLogout').onclick=()=>{sesClear(); $('#who').hidden=true; load();};
 $('#btnCsv').onclick=()=>{
-  if(!ANA.length)return;
-  const cols=['maj_le','cree_le','agence','redacteur','compte','client','adresse','travaux','lat','lng','etape','feu','amiante','nb_toits','surface_plat','surface_pente','nb_elements','lignes_devis','imprime_devis','imprime_brief','imprime_pdp','dossier','plan'];
-  const csv=[cols.join(';'),...ANA.map(d=>cols.map(c=>`"${String(d[c]??'').replace(/"/g,'""')}"`).join(';'))].join('\n');
+  const rows=filtrees(); if(!rows.length)return;
+  const cols=['maj_le','cree_le','agence','redacteur','compte','client','adresse','travaux','lat','lng','etape','feu','amiante','nb_toits','surface_plat','surface_pente','nb_elements','lignes_devis','imprime_devis','imprime_brief','imprime_pdp','pdp_signe'].concat(PERIM.admin?['dossier','plan']:[]);
+  const csv=[cols.join(';'),...rows.map(d=>cols.map(c=>`"${String(d[c]??'').replace(/"/g,'""')}"`).join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download='analyses_risque_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();
+  const ag=$('#fAgence').value; a.download='analyses_risque_'+(ag?ag.replace(/[^\w-]+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove();
 };
 load();
 </script>
