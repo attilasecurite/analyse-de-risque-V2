@@ -267,6 +267,7 @@ tr.tot td{border-top:2px solid var(--trait)}
 .pen>span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--encre-2)}
 .pen>i{display:block;height:30px;border-bottom:1px solid #9a918d}
 .pen>b.pre{font-weight:600;padding:6px 0 4px;border-bottom:1px solid #9a918d}
+.mrow{display:flex;align-items:flex-end;gap:10px} .mrow em{font-style:normal;font-size:13.5px;color:var(--encre-2);white-space:nowrap} .mrow i{flex:1;height:26px;border-bottom:1px solid #9a918d}
 .ticks{display:flex;flex-wrap:wrap;gap:6px 20px;margin:6px 0 2px;font-size:14.5px}
 .ticks span::before{content:"";display:inline-block;width:13px;height:13px;border:1.5px solid var(--encre);border-radius:2px;margin-right:7px;vertical-align:-2px}
 .urg{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px} .urg span{border:1.5px solid var(--rouge);color:var(--rouge-fonce);border-radius:4px;padding:2px 9px;font-size:13px}
@@ -340,6 +341,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .retrait{padding:2mm 3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid} .retrait h2{font-size:10pt;margin-bottom:1mm} .retrait p{font-size:8.5pt} .retrait small{font-size:7pt;margin-top:1mm}
   .art{font-size:7.5pt} .insp{gap:2mm;break-inside:avoid} .pengrid{gap:2mm 8mm}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
+  .mrow{gap:2mm} .mrow em{font-size:7.5pt} .mrow i{height:5.5mm;border-bottom-color:#777}
   .ticks{font-size:8.5pt;gap:1mm 6mm;margin:1mm 0 0} .ticks span::before{width:3mm;height:3mm;border-width:1px}
   .urg{gap:2mm;margin-top:1.5mm} .urg span{font-size:7.5pt;padding:.3mm 2mm} .urg b{font-size:9pt}
   .rlist{gap:2mm;margin-top:1.5mm} .rlist{display:grid;grid-template-columns:1fr 1fr;align-items:start} .rcard{padding:2mm 3mm;border-left-width:1.2mm;border-radius:1.5mm}
@@ -1734,6 +1736,8 @@ function buildDoc(v,withCfg){
       <div class="pengrid"><div class="pen"><span>Point de rassemblement</span>${ticks(['Parking','Entrée principale','Portail','Cour'])}${lines(1)}</div>
         <div class="pen"><span>Accès secours / adresse à communiquer au 15-18-112</span><b class="pre">${esc(S.adresse)||''}</b>${lines(S.adresse?0:1)}</div></div>
       <div class="pen"><span>Consignes particulières du site</span>${ticks(['Badge obligatoire','Accueil sécurité','Permis de travail','Sanitaires mis à dispo','Vitesse limitée','Consignation requise'])}${lines(1)}</div>
+      <div class="pen modif"><span>Risque ou mesure de protection modifié suite à une modification des conditions d’intervention</span>
+        <div class="mrow"><em>Risque</em><i></i></div><div class="mrow"><em>Mesure de prévention prévue</em><i></i></div></div>
       <p class="secours"><b>Secours ATTILA :</b> ${SECOURS}</p></div>`;
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2><div class="signs two">
       <div class="sbox"><b>Entreprise utilisatrice</b><div class="pen"><span>Nom, prénom, fonction</span>${lines(1)}</div><div class="zone"><span>Signature</span></div></div>
