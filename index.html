@@ -296,6 +296,23 @@ tr.tot td{border-top:2px solid var(--trait)}
 h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .signs.two{grid-template-columns:1fr 1fr}
 .sbox .zone>span{font-size:12px;color:var(--encre-2)}
+/* signature à l'écran du plan de prévention */
+.sbox .zone img.sigimg{display:block;max-width:100%;max-height:96px;object-fit:contain;object-position:left center}
+.sigmeta{margin:0;font-size:12.5px;color:var(--encre-2)}
+.sigbtn{align-self:flex-start}
+.sigstate{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13.5px;margin-top:2px}
+.sigstate .ok{color:#1d7a3a;font-weight:600} .sigstate .ko{color:var(--rouge-fonce);font-weight:600} .sigstate .wt{color:var(--encre-2)}
+.gatebox.sigbox{max-width:660px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;gap:12px}
+.sigfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px} .sigfields .wide{grid-column:1/-1}
+.lbl2{font-weight:400;color:var(--encre-2)}
+.sigpad{position:relative;height:clamp(150px,34vh,260px);border:1.5px dashed var(--encre-2);border-radius:8px;background:#fff;touch-action:none;user-select:none;-webkit-user-select:none;flex:none}
+.sigpad canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.sigpad i{position:absolute;left:7%;right:7%;bottom:26%;border-bottom:1.5px solid #ddd5d1;pointer-events:none}
+.sigpad span{position:absolute;left:7%;bottom:calc(26% + 6px);font-size:14px;color:#a79d99;pointer-events:none} .sigpad.ink span{display:none}
+.sigacts{display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:space-between;align-items:center} .sigacts div{display:flex;gap:8px;flex-wrap:wrap}
+.busy{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:3100;background:var(--encre);color:#fff;padding:11px 18px;border-radius:8px;font-size:15px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100% - 32px)}
+.busy i{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:tourne .8s linear infinite;flex:none}
+@keyframes tourne{to{transform:rotate(360deg)}}
 @media (max-width:560px){.rrows{grid-template-columns:1fr;gap:2px}}
 #printAll,.docband{display:none} .planpage{display:contents}
 .pdoc{display:flex;flex-direction:column;gap:18px}
@@ -367,6 +384,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .cgrp h4{font-size:6.5pt;margin-bottom:.8mm} .cgrp ul{gap:.6mm} .cgrp li{font-size:8.2pt;gap:1.5mm;line-height:1.2} .cgrp li i{width:3mm;height:3mm;border-width:1px;margin-top:.2mm}
   .signcard,.deviscard,.keep{break-inside:avoid} .card>h2,h3.sub{break-after:avoid} .signs{grid-template-columns:1fr 1.7fr;gap:4mm;margin-top:1.5mm}
   .sbox{padding:2mm 2.5mm;gap:1mm;border-width:1px;border-radius:1.5mm;font-size:8.5pt} .sbox .zone{min-height:20mm} .sbox td{height:7.5mm;border-bottom:1px solid #999}
+  .sbox .zone img.sigimg{max-height:18mm} .sigmeta{font-size:6.5pt}
 }
 @media (prefers-reduced-motion:no-preference){.btn,.tool,.seg button{transition:background .12s,border-color .12s}}
 </style>
@@ -391,6 +409,19 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     <button type="button" class="btn pri" id="gCheck">Valider</button>
     <p class="glinks"><button type="button" class="lnk" id="gResend">Renvoyer un code</button> · <button type="button" class="lnk" id="gChange">Changer d’adresse</button></p></div>
   <p class="msg" id="gateMsg" role="alert"></p></div></div>
+<div class="gate noprint" id="sigModal" hidden role="dialog" aria-modal="true" aria-labelledby="sigT"><div class="gatebox sigbox">
+  <p class="eyebrow" id="sigRole">Plan de prévention</p><h2 id="sigT">Signature</h2>
+  <p>En signant, je reconnais avoir pris connaissance de ce plan de prévention et l’accepter.</p>
+  <div class="sigfields">
+    <div class="field"><label for="sgNom">Nom et prénom</label><input type="text" id="sgNom" autocomplete="name"></div>
+    <div class="field"><label for="sgFct">Fonction</label><input type="text" id="sgFct" autocomplete="organization-title"></div>
+    <div class="field wide"><label for="sgMail">E-mail <span class="lbl2">— le plan de prévention signé y sera envoyé en PDF</span></label><input type="email" id="sgMail" autocomplete="email" inputmode="email" placeholder="prenom.nom@entreprise.fr"></div>
+  </div>
+  <div class="sigpad" id="sgPad"><i></i><span>Signez ici, au doigt ou au stylet</span><canvas id="sgCv"></canvas></div>
+  <p class="msg" id="sgMsg" role="alert"></p>
+  <div class="sigacts"><button type="button" class="lnk" id="sgClear">Recommencer le tracé</button><div><button type="button" class="btn" id="sgCancel">Annuler</button><button type="button" class="btn pri" id="sgOk">Valider la signature</button></div></div>
+</div></div>
+<div class="busy noprint" id="busy" hidden role="status" aria-live="polite"><i></i><span id="busyTxt"></span></div>
 
 <nav class="steps" aria-label="Étapes"><div class="in">
   <button type="button" data-go="1"><i>1</i><span>Chantier et toits</span></button>
@@ -1739,10 +1770,9 @@ function buildDoc(v,withCfg){
       <div class="pen modif"><span>Risque ou mesure de protection modifié suite à une modification des conditions d’intervention</span>
         <div class="mrow"><em>Risque</em><i></i></div><div class="mrow"><em>Mesure de prévention prévue</em><i></i></div></div>
       <p class="secours"><b>Secours ATTILA :</b> ${SECOURS}</p></div>`;
-    h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2><div class="signs two">
-      <div class="sbox"><b>Entreprise utilisatrice</b><div class="pen"><span>Nom, prénom, fonction</span>${lines(1)}</div><div class="zone"><span>Signature</span></div></div>
-      <div class="sbox"><b>Entreprise extérieure — ATTILA</b><div class="pen"><span>Nom, prénom, fonction</span>${S.redacteur?`<b class="pre">${esc(S.redacteur)}</b>`:lines(1)}</div><div class="zone"><span>Signature</span></div></div>
-    </div></div>`;
+    h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2>
+      <p class="intro">Sur papier après impression, ou directement sur l’écran du téléphone ou de la tablette : le signataire reçoit alors le plan de prévention signé en PDF par e-mail, vous en copie.</p>
+      <div class="signs two">${sigBox('eu')}${sigBox('ee')}</div></div>`;
   }else if(v==='brief'){   // l'aide au chiffrage n'a pas de signatures : elles sont au briefing
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Signatures</h2><div class="signs">
       <div class="sbox"><b>Signature du RA / CC</b><span>Nom : ${esc(S.redacteur)}</span><span>Date :</span><div class="zone"></div></div>
@@ -1751,6 +1781,170 @@ function buildDoc(v,withCfg){
   }
   return h;
 }
+/* =====================================================================================
+   8 bis. SIGNATURE DU PLAN DE PRÉVENTION SUR L'ÉCRAN
+   Le signataire saisit son nom, sa fonction et son e-mail, puis signe au doigt ou au stylet.
+   Le plan de prévention complet (tel qu'imprimé, plan et signatures compris) est mis en PDF sur l'appareil,
+   puis le script Google l'envoie par e-mail au signataire, le chargé de clientèle connecté en copie.
+   ===================================================================================== */
+const SIG_ROLES={eu:'Entreprise utilisatrice',ee:'Entreprise extérieure — ATTILA'};
+let sigK=null, sigBusy='';
+const quandTxt=t=>{const d=new Date(t); return d.toLocaleDateString('fr-FR')+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});};
+function sigBox(k){const s=(S.sig||{})[k], t=SIG_ROLES[k];
+  if(!s) return `<div class="sbox"><b>${t}</b><div class="pen"><span>Nom, prénom, fonction</span>${k==='ee'&&S.redacteur?`<b class="pre">${esc(S.redacteur)}</b>`:lines(1)}</div><div class="zone"><span>Signature</span></div>
+    <button type="button" class="btn sm noprint sigbtn" data-sign="${k}">Signer sur l’écran</button></div>`;
+  const e=s.envoi||{}, a=(e.to||[]).map(esc).join(' et ');
+  const etat=sigBusy===k?'<span class="wt">Préparation et envoi du PDF…</span>':e.ok?`<span class="ok">✓ PDF envoyé à ${a}</span>`:e.err?`<span class="ko">PDF non envoyé : ${esc(e.err)}</span>`:e.sans?'<span class="wt">Signature enregistrée — aucune adresse e-mail, pas d’envoi</span>':'';
+  return `<div class="sbox signed"><b>${t}</b><div class="pen"><span>Nom, prénom, fonction</span><b class="pre">${[s.nom,s.fonction].filter(Boolean).map(esc).join(' — ')}</b></div>
+    <div class="zone"><img class="sigimg" src="${s.img}" alt="Signature de ${esc(s.nom)}"></div>
+    <p class="sigmeta">Signé électroniquement le ${quandTxt(s.at)}${s.email?' · '+esc(s.email):''}</p>
+    <div class="sigstate noprint">${etat}${sigBusy?'':`<button type="button" class="btn sm" data-resend="${k}">${e.err?'Renvoyer':'Renvoyer le PDF'}</button><button type="button" class="btn sm" data-unsign="${k}">Effacer la signature</button>`}</div></div>`;}
+function redessiner(){const y=window.scrollY; renderSynth(); window.scrollTo(0,y);}
+function busy(t){$('#busy').hidden=!t; $('#busyTxt').textContent=t||'';}
+
+/* ---------- le tracé ---------- */
+const pad={cv:null,x:null,dpr:1,lw:0,lh:0,down:false,last:null,mid:null,box:null};
+function padReset(){const cv=$('#sgCv'), r=cv.getBoundingClientRect(), dpr=Math.min(3,Math.max(1,window.devicePixelRatio||1));
+  pad.lw=Math.max(1,r.width); pad.lh=Math.max(1,r.height); cv.width=Math.round(pad.lw*dpr); cv.height=Math.round(pad.lh*dpr);
+  const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.lineCap='round'; x.lineJoin='round'; x.strokeStyle=x.fillStyle='#14245c'; x.lineWidth=2.6;
+  Object.assign(pad,{cv,x,dpr,down:false,last:null,mid:null,box:null}); $('#sgPad').classList.remove('ink');}
+function padPt(e){const r=pad.cv.getBoundingClientRect(); return [(e.clientX-r.left)*pad.lw/r.width,(e.clientY-r.top)*pad.lh/r.height];}   // le tracé suit le doigt même si le cadre change de taille
+function padGrow(p){const b=pad.box||(pad.box=[p[0],p[1],p[0],p[1]]); b[0]=Math.min(b[0],p[0]); b[1]=Math.min(b[1],p[1]); b[2]=Math.max(b[2],p[0]); b[3]=Math.max(b[3],p[1]);}
+$('#sgCv').addEventListener('pointerdown',e=>{e.preventDefault(); const a=document.activeElement; if(a&&a!==document.body&&a.blur) a.blur();   // ferme le clavier
+  $('#sgMsg').textContent=''; try{pad.cv.setPointerCapture(e.pointerId);}catch(x){} pad.down=true; const p=padPt(e); pad.last=pad.mid=p; padGrow(p);
+  pad.x.beginPath(); pad.x.arc(p[0],p[1],pad.x.lineWidth/2,0,Math.PI*2); pad.x.fill(); $('#sgPad').classList.add('ink');});
+$('#sgCv').addEventListener('pointermove',e=>{if(!pad.down) return; e.preventDefault();
+  const evs=(e.getCoalescedEvents&&e.getCoalescedEvents())||[]; for(const ev of (evs.length?evs:[e])){const p=padPt(ev), l=pad.last, m=[(l[0]+p[0])/2,(l[1]+p[1])/2];
+    pad.x.beginPath(); pad.x.moveTo(pad.mid[0],pad.mid[1]); pad.x.quadraticCurveTo(l[0],l[1],m[0],m[1]); pad.x.stroke(); pad.last=p; pad.mid=m; padGrow(p);}});
+const padUp=()=>{if(!pad.down) return; pad.down=false; pad.x.beginPath(); pad.x.moveTo(pad.mid[0],pad.mid[1]); pad.x.lineTo(pad.last[0],pad.last[1]); pad.x.stroke();};
+['pointerup','pointercancel','lostpointercapture'].forEach(t=>$('#sgCv').addEventListener(t,padUp));
+function padImage(){const b=pad.box; if(!b||(b[2]-b[0]<20&&b[3]-b[1]<20)) return '';   // signature recadrée, fond transparent
+  const m=6, d=pad.dpr, sx=Math.max(0,Math.floor((b[0]-m)*d)), sy=Math.max(0,Math.floor((b[1]-m)*d)), sw=Math.min(pad.cv.width-sx,Math.ceil((b[2]-b[0]+2*m)*d)), sh=Math.min(pad.cv.height-sy,Math.ceil((b[3]-b[1]+2*m)*d));
+  const k=Math.min(1,720/sw,240/sh), o=document.createElement('canvas'); o.width=Math.max(1,Math.round(sw*k)); o.height=Math.max(1,Math.round(sh*k));
+  const ox=o.getContext('2d'); ox.imageSmoothingQuality='high'; ox.drawImage(pad.cv,sx,sy,sw,sh,0,0,o.width,o.height); return o.toDataURL('image/png');}
+
+/* ---------- la fenêtre ---------- */
+function sigOpen(k){sigK=k; const s=(S.sig||{})[k]||{};
+  $('#sigRole').textContent='Plan de prévention · '+SIG_ROLES[k];
+  $('#sgNom').value=s.nom||(k==='ee'?S.redacteur:'')||''; $('#sgFct').value=s.fonction||''; $('#sgMail').value=s.email||(k==='ee'&&SES?SES.email:'')||'';
+  $('#sgMsg').textContent=''; $('#sigModal').hidden=false; requestAnimationFrame(padReset);}
+function sigClose(){$('#sigModal').hidden=true; sigK=null;}
+function sigMsg(t,f){$('#sgMsg').textContent=t; if(f) $(f).focus();}
+$('#sgClear').onclick=padReset; $('#sgCancel').onclick=sigClose;
+$('#sigModal').addEventListener('keydown',e=>{if(e.key==='Escape') sigClose();});
+$('#sgOk').onclick=()=>{const nom=$('#sgNom').value.trim(), fonction=$('#sgFct').value.trim(), email=$('#sgMail').value.trim().toLowerCase();
+  if(!nom) return sigMsg('Indiquez le nom et le prénom du signataire.','#sgNom');
+  if(email&&!/^[^\s@<>"',;]+@[^\s@<>"',;]+\.[a-z]{2,}$/i.test(email)) return sigMsg('Adresse e-mail incomplète.','#sgMail');
+  const img=padImage(); if(!img) return sigMsg('Signez dans le cadre, au doigt ou au stylet.');
+  const k=sigK; S.sig=Object.assign({},S.sig,{[k]:{nom,fonction,email,img,at:Date.now()}}); sigClose(); save(); logEv('pdp_signature',k); redessiner(); envoyerPdp(k);};
+
+/* ---------- l'envoi ---------- */
+const sigErr=m=>({quota:'quota d’e-mails du jour atteint, renvoyez demain',session:'connexion expirée, reconnectez-vous puis renvoyez',adresse_signataire:'adresse e-mail du signataire refusée',
+  pdf:'PDF trop volumineux','module PDF':'pas de réseau pour préparer le PDF',destinataire:'aucune adresse e-mail','action inconnue':'le script Google doit être mis à jour (nouvelle version à déployer)'}[m]
+  ||(/fetch|network|load failed|HTTP|internet/i.test(m)?'pas de réseau, renvoyez dès que possible':m));
+function pdfNom(){const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return ['Plan de prévention signé',S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');}
+async function envoyerPdp(k){const s=(S.sig||{})[k]; if(!s||sigBusy) return;
+  const dest=[...new Set([s.email,SES&&SES.email].filter(Boolean))];
+  if(!syncOn()||!dest.length){s.envoi={sans:1}; save(); redessiner(); toast('Signature enregistrée'); return;}
+  sigBusy=k; s.envoi=null; redessiner(); busy('Préparation du PDF du plan de prévention…');
+  try{const pdf=await pdpPdf(busy); busy('Envoi par e-mail…');
+    const r=await api({action:'signature',id:S.did,role:k,nom:s.nom,fonction:s.fonction||'',email:s.email||'',quand:quandTxt(s.at),client:S.client,adresse:S.adresse,agence:S.agence,redacteur:S.redacteur,fichier:pdfNom(),pages:pdf.pages,pdf:pdf.b64});
+    s.envoi={ok:1,at:Date.now(),to:r.envoye||dest}; toast('Plan de prévention signé envoyé à '+s.envoi.to.join(' et '));}
+  catch(e){s.envoi={err:sigErr(String(e&&e.message||e))}; toast('PDF non envoyé : '+s.envoi.err);}
+  finally{sigBusy=''; busy(''); save(); redessiner();}}
+
+/* ---------- le PDF, tel qu'imprimé ----------
+   Le document est mis en page dans un cadre invisible avec les règles d'impression (A4 paysage), découpé en pages
+   sans couper un bloc, photographié page par page (html2canvas, chargé à la première signature) puis assemblé en PDF. */
+const H2C_URL='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+let h2cP=null;
+function h2cLoad(){if(window.html2canvas) return Promise.resolve();
+  return h2cP||(h2cP=new Promise((ok,ko)=>{const sc=document.createElement('script'); sc.src=H2C_URL; sc.onload=()=>ok(); sc.onerror=()=>{h2cP=null; sc.remove(); ko(new Error('module PDF'));}; document.head.appendChild(sc);}));}
+function cssImpression(){let o='';   // règles d'écran puis règles « print », dans l'ordre de la feuille
+  for(const sh of document.styleSheets){if(!sh.ownerNode||sh.ownerNode.tagName!=='STYLE') continue; let rs; try{rs=sh.cssRules;}catch(e){continue;}
+    for(const r of rs){if(r.type===4){const m=r.media.mediaText; if(/\bprint\b/.test(m)) for(const x of r.cssRules) o+=x.cssText+'\n'; else if(!/\bscreen\b/.test(m)) o+=r.cssText+'\n';}
+      else if(r.type!==6) o+=r.cssText+'\n';}}
+  return o;}
+const REF_RX=/(?:href="#|url\(#|url\("#|url\(&quot;#)([\w-]+)/g;
+function defsLocales(doc){   // chaque SVG devient autonome pour html2canvas, qui le dessine séparément
+  const NS='http://www.w3.org/2000/svg', trouve=id=>doc.getElementById(id)||document.getElementById(id);
+  doc.querySelectorAll('use').forEach(u=>{   // <use> d'un symbole → <svg> imbriqué (html2canvas déforme les <use> dimensionnés)
+    const id=(u.getAttribute('href')||u.getAttribute('xlink:href')||'').replace(/^#/,''), sym=id&&trouve(id); if(!sym||sym.localName!=='symbol') return;
+    const n=doc.createElementNS(NS,'svg'); ['x','y'].forEach(k=>{if(u.hasAttribute(k)) n.setAttribute(k,u.getAttribute(k));});
+    const w=u.getAttribute('width')||'100%', h=u.getAttribute('height')||'100%', px=v=>/%$/.test(v)?v:v+'px';
+    n.setAttribute('width',w); n.setAttribute('height',h); n.style.width=px(w); n.style.height=px(h); n.style.maxHeight='none';   // sinon « .stage svg{width:100%} » l'agrandit
+    ['viewBox','preserveAspectRatio'].forEach(k=>{if(sym.hasAttribute(k)) n.setAttribute(k,sym.getAttribute(k));});
+    [...sym.childNodes].forEach(c=>n.appendChild(doc.importNode(c,true)));
+    let el=n; if(u.hasAttribute('transform')){el=doc.createElementNS(NS,'g'); el.setAttribute('transform',u.getAttribute('transform')); el.appendChild(n);}
+    u.replaceWith(el);});
+  doc.querySelectorAll('svg').forEach(sv=>{if(sv.parentElement&&sv.parentElement.closest('svg')) return;   // dégradés, découpes, symboles restants
+    const file=[...sv.outerHTML.matchAll(REF_RX)].map(m=>m[1]); if(!file.length) return;
+    const defs=doc.createElementNS(NS,'defs'), vus=new Set();
+    while(file.length){const id=file.shift(); if(vus.has(id)) continue; vus.add(id); if(sv.querySelector('[id="'+id+'"]')) continue;
+      const src=document.getElementById(id); if(!src) continue; const c=doc.importNode(src,true); defs.appendChild(c); for(const m of c.outerHTML.matchAll(REF_RX)) file.push(m[1]);}
+    if(defs.firstChild) sv.insertBefore(defs,sv.firstChild);});}
+function coupesPages(d,total,PH){   // coupures entre les blocs, comme à l'impression (sauts de page imposés, blocs insécables, titres gardés avec la suite)
+  const W=d.defaultView, at=[], forc=[], ATOM='p,h2,h3,h4,li,tr,dt,dd,img,svg,.pen,.ticks,.mrow,.urg,.epi,.sbox,.secours,.qrbox,.zone';
+  d.querySelectorAll('.pdoc *').forEach(el=>{
+    if(el.namespaceURI==='http://www.w3.org/2000/svg'&&el.localName!=='svg') return;
+    const cs=W.getComputedStyle(el); if(cs.display==='none'||cs.display==='contents') return;
+    const r=el.getBoundingClientRect(); if(r.height<1) return;
+    if(/avoid/.test(cs.breakInside)||el.matches(ATOM)||!el.firstElementChild) at.push([r.top,r.bottom]);
+    if(cs.breakBefore==='page') forc.push(r.top); if(cs.breakAfter==='page') forc.push(r.bottom);
+    if(/avoid/.test(cs.breakAfter)){let n=el.nextElementSibling; while(n&&n.getBoundingClientRect().height<1) n=n.nextElementSibling;
+      if(n){const q=n.getBoundingClientRect(); at.push([r.top,Math.min(q.bottom,q.top+60)]);}}});
+  const libre=y=>!at.some(([t,b])=>t<y-.5&&y+.5<b), cand=[...new Set(at.flat())].sort((a,b)=>a-b), cuts=[];
+  let pos=0;
+  while(pos<total-2&&cuts.length<40){const lim=pos+PH; let cut;
+    const f=forc.filter(y=>y>pos+4&&y<=lim+.5).sort((a,b)=>a-b)[0];
+    if(f!==undefined) cut=Math.min(f,total); else if(lim>=total) cut=total;
+    else{cut=lim; for(let i=cand.length-1;i>=0;i--){const y=cand[i]; if(y<=lim&&y>pos+PH*.25&&libre(y)){cut=y; break;}}}
+    cuts.push([pos,cut]);
+    const nxt=at.filter(a=>a[0]>=cut-.5).reduce((m,a)=>Math.min(m,a[0]),Infinity); pos=nxt<Infinity&&nxt-cut<40?Math.max(cut,nxt):cut;}   // haut de page : pas d'espace vide
+  return cuts.filter(([a,b])=>b-a>2);}
+async function pdpPdf(prog){
+  await h2cLoad();
+  const W=1047, PH=733;   // zone imprimable de l'A4 paysage (277 × 194 mm) à 96 px par pouce
+  const fr=document.createElement('iframe'); fr.setAttribute('aria-hidden','true'); fr.tabIndex=-1;
+  fr.style.cssText='position:fixed;left:-30000px;top:0;width:'+W+'px;height:'+PH+'px;border:0;pointer-events:none';
+  document.body.appendChild(fr);
+  try{const d=fr.contentDocument, f=document.querySelector('link[href*="fonts.googleapis"]');
+    d.open(); d.write('<!doctype html><html lang="fr"><head><meta charset="utf-8">'+(f?f.outerHTML:'')+'<style>'+cssImpression()+'</style></head><body><main><section class="ecran" id="s4"><div class="pdoc" data-v="pdp">'+buildDoc('pdp',false)+'</div></section></main></body></html>'); d.close();
+    fillStages(d.body); defsLocales(d);
+    const lk=d.querySelector('link[rel=stylesheet]'), att=ms=>new Promise(r=>setTimeout(r,ms));
+    if(lk) await Promise.race([new Promise(r=>{lk.onload=lk.onerror=r;}),att(3000)]);
+    void d.body.offsetHeight;
+    await Promise.race([Promise.all([d.fonts?d.fonts.ready:0,...[...d.images].map(i=>i.decode?i.decode().catch(()=>{}):0)]),att(5000)]);
+    const total=Math.ceil(d.documentElement.scrollHeight); fr.style.height=total+'px';
+    const cuts=coupesPages(d,total,PH), pages=[];
+    for(let i=0;i<cuts.length;i++){if(prog) prog('Préparation du PDF… page '+(i+1)+' sur '+cuts.length);
+      const [a,b]=cuts[i], h=Math.max(1,Math.round(b-a));
+      const cv=await html2canvas(d.body,{x:0,y:Math.round(a),width:W,height:h,windowWidth:W,windowHeight:total,scale:2,backgroundColor:'#ffffff',logging:false,useCORS:true,imageTimeout:8000});
+      pages.push({jpg:cv.toDataURL('image/jpeg',.82),w:cv.width,h:cv.height,hpx:h}); cv.width=cv.height=1;}
+    return pdfJpeg(pages,W);}
+  finally{fr.remove();}}
+const b64Octets=t=>{const s=atob(t), u=new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return u;};
+const octetsB64=u=>{let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s);};
+const pdfTxt=t=>'<FEFF'+[...t].map(c=>{const p=c.codePointAt(0); if(p<0x10000) return p.toString(16).padStart(4,'0'); const v=p-0x10000; return (0xD800+(v>>10)).toString(16)+(0xDC00+(v&0x3ff)).toString(16);}).join('').toUpperCase()+'>';
+function pdfJpeg(pages,W){   // PDF minimal : une image JPEG par page A4 paysage, marges de l'impression
+  const enc=new TextEncoder(), parts=[], off=[]; let n=0;
+  const put=x=>{const b=typeof x==='string'?enc.encode(x):x; parts.push(b); n+=b.length;};
+  const obj=(i,dict,stream)=>{off[i]=n; put(i+' 0 obj\n'+dict); if(stream){put('\nstream\n'); put(stream); put('\nendstream');} put('\nendobj\n');};
+  const PW=841.89, PHt=595.28, mx=28.35, my=22.68, k=(PW-2*mx)/W, info=3+pages.length*3, d=new Date(), z=x=>String(x).padStart(2,'0');
+  put('%PDF-1.4\n'); put(new Uint8Array([37,226,227,207,211,10]));
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Count '+pages.length+' /Kids ['+pages.map((p,i)=>(3+i*3)+' 0 R').join(' ')+'] >>');
+  pages.forEach((p,i)=>{const pg=3+i*3, h=p.hpx*k, c=enc.encode('q '+(PW-2*mx).toFixed(2)+' 0 0 '+h.toFixed(2)+' '+mx+' '+(PHt-my-h).toFixed(2)+' cm /Im'+i+' Do Q'), img=b64Octets(p.jpg.split(',')[1]);
+    obj(pg,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW+' '+PHt+'] /Resources << /XObject << /Im'+i+' '+(pg+2)+' 0 R >> >> /Contents '+(pg+1)+' 0 R >>');
+    obj(pg+1,'<< /Length '+c.length+' >>',c);
+    obj(pg+2,'<< /Type /XObject /Subtype /Image /Width '+p.w+' /Height '+p.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+img.length+' >>',img);});
+  obj(info,'<< /Title '+pdfTxt(pdfNom())+' /Author '+pdfTxt(S.redacteur||'ATTILA')+' /Producer (ATTILA - Analyse de risque toiture) /CreationDate (D:'+d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())+') >>');
+  const xref=n; let x='xref\n0 '+(info+1)+'\n0000000000 65535 f \n'; for(let i=1;i<=info;i++) x+=String(off[i]).padStart(10,'0')+' 00000 n \n';
+  put(x+'trailer\n<< /Size '+(info+1)+' /Root 1 0 R /Info '+info+' 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
+  const all=new Uint8Array(n); let o=0; for(const p of parts){all.set(p,o); o+=p.length;}
+  return {b64:octetsB64(all),taille:n,pages:pages.length};}
+
 function fillStages(root){if(!S.frozen) return;
   root.querySelectorAll('.synthStage').forEach(st=>{const c=svg.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); c.removeAttribute('style'); c.style.pointerEvents='none'; st.appendChild(c);});}
 function renderSynth(){
@@ -1797,6 +1991,11 @@ $('#s4').addEventListener('click',async e=>{
   const vb=e.target.closest('[data-view]'); if(vb){S.view=vb.dataset.view; renderSynth(); save(); return;}
   const pb=e.target.closest('[data-print]'); if(pb){doPrint(pb.dataset.print==='all'); return;}
   if(e.target.id==='btnConsultOff'){CONSULT=false; renderSynth(); return;}
+  const sg=e.target.closest('[data-sign]'); if(sg){sigOpen(sg.dataset.sign); return;}
+  const rs=e.target.closest('[data-resend]'); if(rs){envoyerPdp(rs.dataset.resend); return;}
+  const us=e.target.closest('[data-unsign]'); if(us){   // deux appuis pour effacer
+    if(us.dataset.arme){const k=us.dataset.unsign; if(S.sig) delete S.sig[k]; save(); logEv('pdp_signature_effacee',k); redessiner(); return;}
+    us.dataset.arme='1'; us.textContent='Confirmer l’effacement'; us.classList.add('pri'); setTimeout(()=>{if(us.isConnected){delete us.dataset.arme; us.textContent='Effacer la signature'; us.classList.remove('pri');}},4000); return;}
   if(e.target.id==='btnCopy'){try{await navigator.clipboard.writeText(summaryText()); $('#copyMsg').textContent='Résumé copié.';}catch(err){$('#copyMsg').textContent='Copie impossible ici : utilisez Imprimer / PDF.';}}
   if(e.target.id==='btnPng'){const F=S.frozen, c=svg.cloneNode(true); c.removeAttribute('style'); c.setAttribute('width',F.w); c.setAttribute('height',F.h);
     const im=new Image(); im.onload=()=>{const cv=document.createElement('canvas'); cv.width=F.w; cv.height=F.h; cv.getContext('2d').drawImage(im,0,0);
