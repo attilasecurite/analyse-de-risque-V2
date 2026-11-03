@@ -335,6 +335,33 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .sbox .zone{flex:1;min-height:90px}
 .sbox td{height:36px}
 .po{display:none} .pronly{display:none}
+/* permis de feu */
+.seg.views button.vfeu{border-color:#e0a800}
+.pfdoc{display:flex;flex-direction:column;gap:14px}
+.pfhead p{margin:4px 0 0;max-width:none} .pfhead .pfstop{color:var(--rouge-fonce);font-weight:700}
+.pfcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.pfbox{border:1.5px solid var(--encre);border-radius:6px;background:#fff;padding:0 12px 10px;min-width:0}
+.pfbox>h3{margin:0 -12px 8px;padding:5px 12px;background:var(--rouge);color:#fff;font:700 14px/1.3 var(--texte);letter-spacing:.06em;text-transform:uppercase;text-align:center;border-radius:4px 4px 0 0}
+.pfbox h4{margin:10px 0 4px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--rouge-fonce)} .pfbox h4 small{font-weight:400;text-transform:none;letter-spacing:0;color:var(--encre-2);font-style:italic}
+.pfr{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;align-items:end;padding:3px 0}
+.pfr>span{font-size:13px;color:var(--encre-2);align-self:start;padding-top:6px} .pfr>div{min-width:0}
+.pfr i{display:block;height:24px;border-bottom:1px solid #9a918d} .pfv{display:block;font-weight:600;padding:4px 0 2px;border-bottom:1px solid #9a918d}
+.pfr .ticks{margin:2px 0}
+.pfb{grid-template-columns:1fr} .pfb>span{font-weight:700;color:var(--encre);padding-top:4px}
+.pfl{margin:2px 0 0;padding-left:18px;font-size:14.5px} .pfl li{border-bottom:1px solid #d9d0cc;padding:2px 0}
+.pfin{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 16px}
+.pft{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px} .pft th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--encre-2);text-align:left;padding:4px 6px;border-bottom:1.5px solid var(--encre)}
+.pft td{border-bottom:1px solid #c9c0bc;padding:5px 6px;height:30px;vertical-align:top}
+.pfdates td:first-child{width:60px;color:var(--encre-2);font-size:13px} .pfdates td+td{border-left:1px solid #c9c0bc}
+.pfops td+td{border-left:1px solid #c9c0bc}
+.pfrisques{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:4px 18px;padding-top:8px}
+.pfcons{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.pfcons .pft th:not(:first-child),.pfcons .pft td:not(:first-child){width:44px;text-align:center}
+.pfcons .pft td{height:auto;font-size:13.5px}
+.cb{display:inline-block;width:14px;height:14px;border:1.5px solid var(--encre);border-radius:2px;vertical-align:-2px}
+.pfa{grid-template-columns:1fr} .pfa>span{font-style:italic}
+.pfp2{display:flex;flex-direction:column;gap:14px}
+.pfsign{margin-top:0} .pffoot{margin:0;font-size:12px;color:var(--encre-2);text-align:center}
 /* risques mis à jour sur chantier */
 .majtab{width:100%;border-collapse:collapse;margin:6px 0 2px;font-size:14.5px} .majtab th{text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--encre-2);padding:4px 8px;border-bottom:1.5px solid var(--trait)}
 .majtab td{padding:6px 8px;border-bottom:1px solid var(--trait);vertical-align:top} .majtab td.qd{font-size:12.5px;color:var(--encre-2);white-space:nowrap} .majtab td.ac{width:1%;white-space:nowrap}
@@ -373,6 +400,15 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .art{font-size:7.5pt} .insp{gap:2mm;break-inside:avoid} .pengrid{gap:2mm 8mm}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
   .mrow{gap:2mm} .mrow em{font-size:7.5pt} .mrow i{height:5.5mm;border-bottom-color:#777}
+  .pfdoc,.pfp2{display:flex;gap:2mm} .pfp2{break-before:page} .pfcols{gap:3mm;grid-template-columns:1fr 1fr} .pfhead{padding:1.5mm 3mm} .pfhead p{font-size:8pt;margin-top:.5mm}
+  .pfbox{border-width:1px;border-radius:1.5mm;padding:0 2.5mm 1.5mm;break-inside:avoid} .pfbox>h3{margin:0 -2.5mm 1mm;padding:.8mm 2.5mm;font-size:8pt;border-radius:1mm 1mm 0 0}
+  .pfbox h4{margin:1.5mm 0 .5mm;font-size:7pt} .pfr{grid-template-columns:30mm 1fr;gap:.5mm 2mm;padding:.3mm 0} .pfr>span{font-size:7.5pt;padding-top:1mm}
+  .pfr i{height:5.2mm;border-bottom-color:#777} .pfv{font-size:8.5pt;padding:.8mm 0 .3mm;border-bottom-color:#777} .pfb{grid-template-columns:1fr} .pfa{grid-template-columns:1fr}
+  .pfl{font-size:8pt;padding-left:4mm} .pfl li{padding:.3mm 0} .pfin{grid-template-columns:1fr 1fr;gap:.5mm 4mm}
+  .pft{font-size:8pt;margin-top:.5mm} .pft th{font-size:6.5pt;padding:.5mm 1.5mm;border-bottom-width:1px} .pft td{height:5.5mm;padding:.5mm 1.5mm} .pfdates td:first-child{width:12mm;font-size:7.5pt}
+  .pfrisques{grid-template-columns:1fr 1fr;gap:.5mm 6mm;padding-top:1.5mm} .pfcons{grid-template-columns:repeat(3,1fr);gap:4mm}
+  .pfcons .pft td{height:auto;font-size:7.8pt;line-height:1.25} .pfcons .pft th:not(:first-child),.pfcons .pft td:not(:first-child){width:9mm} .cb{width:3mm;height:3mm;border-width:1px}
+  .pfsign .sbox .zone{min-height:15mm} .pfp2{gap:2mm} .pfp2 .pfbox>h3{margin-bottom:.8mm} .pffoot{font-size:6.5pt;margin-top:-1mm}
   .pronly{display:block} .majtab{font-size:8pt;margin:1mm 0 0} .majtab th{font-size:6.5pt;padding:.5mm 1.5mm} .majtab td{padding:.8mm 1.5mm} .majtab td.qd{font-size:7pt}
   .ticks{font-size:8.5pt;gap:1mm 6mm;margin:1mm 0 0} .ticks span::before{width:3mm;height:3mm;border-width:1px}
   .urg{gap:2mm;margin-top:1.5mm} .urg span{font-size:7.5pt;padding:.3mm 2mm} .urg b{font-size:9pt}
@@ -617,7 +653,13 @@ const VIGIL=[
    d:['Le courant continu produit par les panneaux ne se coupe pas de jour.',
       'Mise en sécurité préalable par l’installateur ou le mainteneur (coordonnées à obtenir du client). Ne jamais marcher sur les panneaux : zone traitée comme un toit fragile.',
       'À chiffrer : intervention de l’installateur si nécessaire, cheminement et protections autour des panneaux.'],
-   auto:()=>S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&/photovolta|\bpv\b|panneaux? solaires?/i.test(o.label||''))}];
+   auto:()=>S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&/photovolta|\bpv\b|panneaux? solaires?/i.test(o.label||''))},
+  {id:'feu',t:'Travaux par point chaud : permis de feu',q:'Travaux par point chaud (souffleur à air chaud, soudure, meulage)',
+   d:['Permis de feu à établir avec le client avant le démarrage : il est joint automatiquement au plan de prévention, pré-rempli avec les informations du chantier (onglet « Permis de feu »).',
+      'Zéro flamme chez ATTILA : souffleur à air chaud ou soudure, jamais de chalumeau.'],
+   sug:()=>S.roofs.some(r=>r.mat==='terrasse')?'toiture terrasse (soudure de l’étanchéité)':'',
+   auto:()=>(S.pdpRisks||[]).includes('pointchaud'), autoTxt:'coché dans le plan de prévention'}];
+const permisFeu=()=>vigOn(VIGIL.find(x=>x.id==='feu'));
 const vigOn=x=>x.auto()||!!(S.vig&&S.vig[x.id]);
 const vigActives=()=>VIGIL.filter(vigOn);
 /* Briefing : « À prendre dans le camion », rempli automatiquement */
@@ -648,6 +690,7 @@ function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t
   const doc=[['Kit de sauvetage JAG et mode opératoire de secours','à vérifier']];
   if(S.vig&&S.vig.voirie) doc.push(['Autorisation de voirie','']);
   if(S.printed&&S.printed.pdp) doc.push(['Plan de prévention signé','']);
+  if(permisFeu()) doc.push(['Permis de feu signé avec le client',''],['Extincteur','à portée de main du poste']);
   if(amPossible()) doc.push(['Mode opératoire amiante','']);
   G.push(['Secours et documents',doc]);
   return G;}
@@ -1619,7 +1662,9 @@ $('#panel').addEventListener('click',e=>{const b=e.target.closest('#repliSeg but
 const matLabel=r=>{const m=MATS.flatMap(g=>g.o).find(o=>o[0]===r.mat); return m?(r.mat==='autre'&&r.matAutre?r.matAutre:m[1].replace('⚠ ','')):'—';};
 const perLabel={avant:'Avant le 1er juillet 1997',apres:'Après le 1er juillet 1997',nsp:'Inconnue'};
 /* Trois documents à imprimer à partir de la même analyse */
-const VIEWS=[['devis','Aide au chiffrage devis'],['brief','Briefing équipes / TTA'],['pdp','Plan de prévention']];
+const VIEWS=[['devis','Aide au chiffrage devis'],['brief','Briefing équipes / TTA'],['pdp','Plan de prévention'],['feu','Permis de feu']];
+const vuesActives=()=>VIEWS.filter(([k])=>k!=='feu'||permisFeu());
+const vueCourante=()=>{const v=S.view||'devis'; return v==='feu'&&!permisFeu()?'pdp':v;};
 const SECOURS='Un mode opératoire de secours est disponible dans le camion, avec le matériel associé (kit JAG).';
 const ENGAGEMENT='J’ai pris connaissance des modes de sécurisation à utiliser (collectif ou individuel). Je m’engage à porter mes EPI et à respecter les règles de sécurité en vigueur. Si un travail par point chaud est à effectuer, je m’engage à réaliser un permis feu avec le client, en prenant en considération les consignes particulières du site.';
 
@@ -1708,8 +1753,70 @@ const rcard=(o,fixe)=>`<article class="rcard"><header>${o.icon==='amiante'?amLog
 const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</div>`;
 const lines=n=>'<i></i>'.repeat(n);
 
+/* Permis de feu (modèle ATTILA d'après l'outil OPPBTP) : joint au plan de prévention quand des travaux par point chaud
+   sont prévus. Pré-rempli avec ce qui est déjà connu (client, adresse, chargé de clientèle, travaux, toits, vigilances),
+   le reste se complète avec le client. Deux pages A4 paysage. */
+const PF_AVANT=['<b>S’assurer</b> que le matériel utilisé est en parfait état.','<b>Éloigner, couvrir et protéger</b> les installations à l’aide de moyens appropriés.',
+  '<b>S’assurer</b> du dégazage complet des éléments, si les travaux sont effectués sur des volumes creux.','<b>S’assurer</b> que toutes les ouvertures, fissures, interstices sont couverts.',
+  '<b>S’assurer</b> que tout produit inflammable ou combustible soit largement éloigné du parcours des tuyaux et conduites à traiter.',
+  '<b>S’assurer</b> que des moyens d’alarme et de lutte contre l’incendie sont présents à proximité immédiate du poste de travail.',
+  '<b>S’assurer</b> que les dispositions nécessaires ont été prises pour éviter le déclenchement intempestif du système de détection ou d’extinction automatique.'];
+const PF_PENDANT=['<b>Surveiller</b> les projections incandescentes et leurs points de chute.','<b>Veiller</b> à ne poser les objets chauffés que sur des supports propres et supportant la chaleur.'];
+const PF_APRES=['<b>S’assurer</b> que le système de détection ou d’extinction automatique a bien été remis s’il a été neutralisé pour les besoins de l’intervention.',
+  '<b>Inspecter</b> le lieu de travail, les locaux adjacents et les environs pouvant être concernés par les projections d’étincelles ou les transferts de chaleur.',
+  '<b>Effectuer</b> des inspections rigoureuses pendant 2 heures après la cessation du travail.'];
+function permisDoc(){
+  const eu=(S.sig||{}).eu||{}, ee=(S.sig||{}).ee||{};
+  const v=(t,n)=>t?`<b class="pfv">${esc(t)}</b>`:'<i></i>'.repeat(n||1);   // valeur connue, sinon ligne à remplir
+  const row=(l,t,n)=>`<div class="pfr"><span>${l}</span><div>${v(t,n)}</div></div>`;
+  const nf=(a,b)=>[a,b].filter(Boolean).join(', ');
+  const toits=S.roofs.map(r=>r.name+(r.area?' ('+fmtN(r.area)+' m²)':'')).join(', ');
+  const struct=S.roofs.map(r=>`${r.name} : ${matLabel(r)}${isFragile(r)?', matériau fragile':''}${amianteFlag(r)&&r.rat!=='absent'?', amiante possible':''}`);
+  if(S.roofs.length) struct.push('Combustibilité de l’isolant et de l’étanchéité à vérifier avec le client.');
+  const env=[...vigActives().filter(x=>x.id!=='feu').map(x=>x.t),...S.objs.filter(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&o.label).map(o=>'Risque signalé sur le plan : '+o.label)];
+  const liste=(l,n)=>l.length?`<ul class="pfl">${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${'<i></i>'.repeat(n)}`:'<i></i>'.repeat(n+1);
+  const cons=(t,l)=>`<div class="pfcol"><table class="pft"><thead><tr><th>${t}</th><th>Fait</th><th>Sans objet</th></tr></thead><tbody>${l.map(x=>`<tr><td>${x}</td><td><span class="cb"></span></td><td><span class="cb"></span></td></tr>`).join('')}</tbody></table>
+    <div class="pfr pfa"><span>Autres prescriptions</span><div><i></i><i></i></div></div></div>`;
+  return `<div class="docband">ATTILA · Permis de feu</div>
+  <div class="pfdoc">
+  <div class="dochead pfhead"><div><p class="eyebrow">Travaux par points chauds — soudage, découpage, meulage…</p><h2>Permis de feu</h2>
+    <p>Ce document est rédigé à l’initiative de l’entreprise utilisatrice. Il recueille les informations nécessaires à la prévention des risques d’incendie et d’explosion occasionnés par point chaud (soudage, découpage, meulage…). Il est joint au plan de prévention.</p>
+    <p class="pfstop">L’opérateur doit être en possession de ce permis pour commencer ses travaux. Chez ATTILA, zéro flamme : souffleur à air chaud ou soudure, jamais de chalumeau.</p></div></div>
+  <div class="pfcols">
+    <section class="pfbox"><h3>Entreprise utilisatrice</h3>
+      ${row('Nom',S.client)}${row('Représenté par',eu.nom)}${row('Fonction',eu.fonction)}${row('Surveillant des travaux','')}${row('Fonction','')}
+      <h4>Consignes particulières <small>résultant du type d’exploitation de l’établissement</small></h4>
+      <div class="pfr"><span>Document(s) joint(s)</span><div>${ticks(['Consignes de sécurité incendie','Plan d’évacuation incendie'])}</div></div>
+      ${row('Autres (à préciser)','')}</section>
+    <section class="pfbox"><h3>Entreprise intervenante</h3>
+      <div class="pfin"><div><h4>Renseignements administratifs</h4>
+        ${row('Raison sociale','ATTILA'+(S.agence?' — agence '+S.agence:''))}${row('Adresse','',2)}${row('Tél.','')}${row('Email',ee.email||(SES&&SES.email)||'')}${row('Représentée par',nf(ee.nom||S.redacteur,ee.fonction))}</div>
+      <div><h4>Intervention</h4>${row('Localisation des travaux',[S.adresse,toits].filter(Boolean).join(' — '),2)}
+        <table class="pft pfdates"><thead><tr><th></th><th>Début des travaux</th><th>Fin des travaux</th></tr></thead><tbody><tr><td>Date</td><td></td><td></td></tr><tr><td>Heure</td><td></td><td></td></tr></tbody></table></div></div></section>
+  </div>
+  <section class="pfbox"><h3>Opérateurs</h3>
+    <table class="pft pfops"><thead><tr><th>Nom</th><th>Fonction</th><th>Habilitation</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(3)}</tbody></table>
+    ${row('Surveillant des travaux (nom)','')}</section>
+  <section class="pfbox pfrisques">
+    <div class="pfr pfb"><span>Description des travaux</span><div>${v([S.travaux,'travaux par point chaud au souffleur à air chaud ou par soudure'].filter(Boolean).join(' — '))}<i></i></div></div>
+    <div class="pfr pfb"><span>Risques identifiés liés à la structure</span><div>${liste(struct,1)}</div></div>
+    <div class="pfr pfb"><span>Risques identifiés liés à l’environnement</span><div>${liste(env,1)}</div></div>
+    <div class="pfr pfb"><span>Risques identifiés liés à l’activité du site</span><div><i></i><i></i></div></div></section>
+
+  <div class="pfp2">
+  <section class="pfbox"><h3>Consignes de sécurité</h3><div class="pfcons">${cons('Avant les travaux',PF_AVANT)}${cons('Pendant les travaux',PF_PENDANT)}${cons('Après les travaux',PF_APRES)}</div></section>
+  <section class="pfbox"><h3>Consignes en cas d’urgence</h3>
+    ${row('Emplacement des moyens d’alerte','')}${row('Moyens de première intervention','')}
+    <div class="pfr"><span>Numéro d’appel en cas d’urgence</span><div><div class="urg"><span><b>18</b>Pompiers</span><span><b>15</b>SAMU</span><span><b>112</b>Urgences UE</span></div><i></i></div></div></section>
+  <div class="signs two pfsign">
+    <div class="sbox"><b>Le représentant de l’entreprise utilisatrice</b>${row('Nom et fonction',nf(eu.nom,eu.fonction))}${row('Date','')}<div class="zone"><span>Signature</span></div></div>
+    <div class="sbox"><b>Le représentant de l’entreprise intervenante</b>${row('Nom et fonction',nf(ee.nom||S.redacteur,ee.fonction))}${row('Date','')}<div class="zone"><span>Signature</span></div></div></div>
+  <p class="pffoot">Permis de feu — document joint au plan de prévention · Modèle établi d’après l’outil OPPBTP</p>
+  </div></div>`;}
+
 /* Construit un des trois documents (devis, brief, pdp). withCfg : affiche les cases « risques particuliers » du plan de prévention */
 function buildDoc(v,withCfg){
+  if(v==='feu') return permisDoc();
   const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
   const date=new Date().toLocaleDateString('fr-FR');
@@ -1734,7 +1841,7 @@ function buildDoc(v,withCfg){
       <div class="epibox"><span class="eyebrow">EPI obligatoires sur ce chantier</span>${episBlock(am?[...EPI_BASE,...EPI_AMIANTE]:EPI_BASE,'mini')}</div></div>`;
   }else{
     if(withCfg) h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
-      <div class="cfglist">${PDP_OPTS.map(o=>`<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)?'checked':''}><span>${o.t}${o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`).join('')}
+      <div class="cfglist">${PDP_OPTS.map(o=>{const parFeu=o.id==='pointchaud'&&!!(S.vig&&S.vig.feu); return `<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)||parFeu?'checked':''}${parFeu?' disabled':''}><span>${o.t}${parFeu?' <em class="sugg">Permis de feu demandé dans l’aide au chiffrage</em>':o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`;}).join('')}
         <label class="check"><input type="checkbox" data-pr="autre" id="pr_autre" ${pr.includes('autre')?'checked':''}><span>Autre risque (fiche vierge à compléter à la main)</span></label></div></div>`;
     h+=`<div class="dochead"><div><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
       <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'<i class="penline"></i>'}</dd></div></dl></div></div>`;
@@ -1771,12 +1878,12 @@ function buildDoc(v,withCfg){
     h+=`<div class="card vigcard"><h2><span class="num">${++n}</span>Vigilances avant devis</h2>
       <p class="intro noprint">Cochez ce qui concerne ce chantier : la vigilance s’affiche avec ce qu’il faut prévoir et chiffrer avant d’envoyer le devis.</p>
       <div class="vigs">${VIGIL.map(x=>{const on=vigOn(x), au=x.auto(), sg=!on&&x.sug?x.sug():'';
-        return `<div class="vig${on?' on':''}"><label class="vq"><input type="checkbox" data-vig="${x.id}"${on?' checked':''}${au?' disabled':''}>${x.q}${au?'<i class="sugg">repéré sur le plan</i>':sg?`<i class="sugg">${esc(sg)} : à vérifier</i>`:''}</label>
+        return `<div class="vig${on?' on':''}"><label class="vq"><input type="checkbox" data-vig="${x.id}"${on?' checked':''}${au?' disabled':''}>${x.q}${au?`<i class="sugg">${x.autoTxt||'repéré sur le plan'}</i>`:sg?`<i class="sugg">${esc(sg)} : à vérifier</i>`:''}</label>
           <div class="vd">${warnIcon(18)}<div><b>${x.t}</b><ul>${x.d.map(l=>`<li>${l}</li>`).join('')}</ul></div></div></div>`;}).join('')}</div>
-      ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques).</p>'}</div>`;}
+      ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques, point chaud).</p>'}</div>`;}
 
   if(v==='pdp'){
-    const opts=PDP_OPTS.filter(o=>pr.includes(o.id));
+    const opts=PDP_OPTS.filter(o=>pr.includes(o.id)||(o.id==='pointchaud'&&permisFeu()));
     h+=`<div class="card"><h2><span class="num">${++n}</span>Phases d’activité dangereuses et risques de l’intervention ATTILA <small class="art">(art. R. 4512-8)</small></h2>
       <div class="rlist">${PDP_FIXES.map(o=>rcard(o,1)).join('')}</div>
       <h3 class="sub">Risques particuliers de ce chantier</h3>
@@ -1938,7 +2045,7 @@ function defsLocales(doc){   // chaque SVG devient autonome pour html2canvas, qu
     if(defs.firstChild) sv.insertBefore(defs,sv.firstChild);});}
 function coupesPages(d,total,PH){   // coupures entre les blocs, comme à l'impression (sauts de page imposés, blocs insécables, titres gardés avec la suite)
   const W=d.defaultView, at=[], forc=[], ATOM='p,h2,h3,h4,li,tr,dt,dd,img,svg,.pen,.ticks,.mrow,.urg,.epi,.sbox,.secours,.qrbox,.zone';
-  d.querySelectorAll('.pdoc *').forEach(el=>{
+  d.querySelectorAll('.pdoc, .pdoc *').forEach(el=>{
     if(el.namespaceURI==='http://www.w3.org/2000/svg'&&el.localName!=='svg') return;
     const cs=W.getComputedStyle(el); if(cs.display==='none'||cs.display==='contents') return;
     const r=el.getBoundingClientRect(); if(r.height<1) return;
@@ -1962,7 +2069,7 @@ async function pdpPdf(prog){
   fr.style.cssText='position:fixed;left:-30000px;top:0;width:'+W+'px;height:'+PH+'px;border:0;pointer-events:none';
   document.body.appendChild(fr);
   try{const d=fr.contentDocument, f=document.querySelector('link[href*="fonts.googleapis"]');
-    d.open(); d.write('<!doctype html><html lang="fr"><head><meta charset="utf-8">'+(f?f.outerHTML:'')+'<style>'+cssImpression()+'</style></head><body><main><section class="ecran" id="s4"><div class="pdoc" data-v="pdp">'+buildDoc('pdp',false)+'</div></section></main></body></html>'); d.close();
+    d.open(); d.write('<!doctype html><html lang="fr"><head><meta charset="utf-8">'+(f?f.outerHTML:'')+'<style>'+cssImpression()+'</style></head><body><main><section class="ecran" id="s4"><div class="pdoc" data-v="pdp">'+buildDoc('pdp',false)+'</div>'+(permisFeu()?'<div class="pdoc" data-v="feu">'+buildDoc('feu',false)+'</div>':'')+'</section></main></body></html>'); d.close();
     fillStages(d.body); defsLocales(d);
     const lk=d.querySelector('link[rel=stylesheet]'), att=ms=>new Promise(r=>setTimeout(r,ms));
     if(lk) await Promise.race([new Promise(r=>{lk.onload=lk.onerror=r;}),att(3000)]);
@@ -2000,15 +2107,15 @@ function pdfJpeg(pages,W){   // PDF minimal : une image JPEG par page A4 paysage
 function fillStages(root){if(!S.frozen) return;
   root.querySelectorAll('.synthStage').forEach(st=>{const c=svg.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); c.removeAttribute('style'); c.style.pointerEvents='none'; st.appendChild(c);});}
 function renderSynth(){
-  const v=S.view||'devis'; $('#feu').hidden=v!=='devis';
+  const v=S.view=vueCourante(); $('#feu').hidden=v!=='devis';
   document.body.dataset.lt=S.legTable?'1':'0'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
   if(S.frozen){selId=null; line=null; renderPlanAll();}
-  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${VIEWS.map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
-    <div class="quickprint noprint">${v==='pdp'&&!CONSULT?'<button type="button" class="btn sm" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les 3 documents</button></div>`;
+  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${vuesActives().map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}${k==='feu'?' vfeu':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
+    <div class="quickprint noprint">${v==='pdp'&&!CONSULT?'<button type="button" class="btn sm" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les ${vuesActives().length} documents</button></div>`;
   if(CONSULT) h+=`<div class="consult noprint"><span><b>Ouvert depuis le QR code.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><span class="row">${v==='pdp'?'<button type="button" class="btn sm pri" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></span></div>`;
   h+=`<div class="pdoc" data-v="${v}">${buildDoc(v,!CONSULT)}</div>`;
   h+=`<div class="row end noprint"><button type="button" class="btn" data-go="3">Retour à l’analyse</button><div class="row">
-    <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn" data-print="all">Imprimer les 3 documents</button><button type="button" class="btn pri" id="btnPrint" data-print="one">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:'Imprimer le plan de prévention'}[v]}</button></div></div>`;
+    <span class="msg" id="copyMsg"></span>${v==='devis'?'<button type="button" class="btn" id="btnCopy">Copier le résumé</button>':''}${S.frozen?'<button type="button" class="btn" id="btnPng">Télécharger le plan</button>':''}<button type="button" class="btn" data-print="all">Imprimer les ${vuesActives().length} documents</button><button type="button" class="btn pri" id="btnPrint" data-print="one">${{devis:'Imprimer l’aide au chiffrage',brief:'Imprimer le briefing',pdp:permisFeu()?'Imprimer le plan de prévention et le permis de feu':'Imprimer le plan de prévention',feu:'Imprimer le permis de feu'}[v]}</button></div></div>`;
   $('#s4').innerHTML=h; fillStages($('#s4'));
 }
 function a_epcWhy(){return S.an.epc.sel.includes('aucun')&&S.an.epcWhy.trim()?`<p class="msg just"><b>Collectif impossible, justification :</b> ${esc(S.an.epcWhy.trim())}</p>`:'';}
@@ -2027,10 +2134,11 @@ function finPrint(){document.body.classList.remove('printall'); $('#printAll').i
 function doPrint(all){
   finPrint();
   const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'), vv=S.view||'devis';
-  const nom=all?'Dossier chantier (chiffrage, briefing, plan de prévention)':{devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:'Plan de prévention'}[vv];
+  const avecFeu=!all&&vv==='pdp'&&permisFeu(), liste=all?vuesActives().map(x=>x[0]):avecFeu?['pdp','feu']:null;   // le permis de feu suit toujours le plan de prévention
+  const nom=all?'Dossier chantier (chiffrage, briefing, plan de prévention'+(permisFeu()?', permis de feu':'')+')':{devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:avecFeu?'Plan de prévention et permis de feu':'Plan de prévention',feu:'Permis de feu'}[vv];
   const t0=document.title; document.title=[nom,S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');
-  const now=new Date().toISOString(); S.printed=Object.assign({},S.printed,all?{devis:now,brief:now,pdp:now}:{[vv]:now}); save(); logEv(all?'impression_3_documents':'impression_'+vv);
-  if(all){const pa=$('#printAll'); pa.innerHTML=VIEWS.map(([k])=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false)}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}
+  const now=new Date().toISOString(); S.printed=Object.assign({},S.printed,Object.fromEntries((liste||[vv]).map(k=>[k,now]))); save(); logEv(all?'impression_tous_documents':'impression_'+vv+(avecFeu?'_permis_feu':''));
+  if(liste){const pa=$('#printAll'); pa.innerHTML=liste.map(k=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false)}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}
   window.addEventListener('afterprint',()=>{finPrint(); document.title=t0;},{once:true});
   window.print();
   pushSync({plan:true});   // après l'impression : plan composé et résumé envoyés dans le dossier Drive (si la sauvegarde en ligne est active)
