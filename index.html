@@ -680,7 +680,7 @@ function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t
   if(M.balisage) mat.push(['Cônes de balisage','× '+nb('balisage')]);
   if(M.heras_ch){const n=herasCount('heras_ch'); mat.push(['Barrières Heras',isNaN(n)?'panneaux à compter':n+' panneau'+(n>1?'x':'')+' avec plots et colliers']);}
   if(M.echelle) mat.push(['Échelle','× '+nb('echelle')]);
-  if(M.echaf) mat.push(['Échafaudage',lng('echaf')]);
+  if(M.echaf) mat.push(['Échafaudage déjà monté sur le chantier, le plus souvent par un sous-traitant (matériel MDS) :',echafTxt(M)+' — réception à vérifier avant d’y monter']);
   if(M.nacelle) mat.push(['Nacelle',nb('nacelle')>1?'× '+nb('nacelle'):'à acheminer']);
   if(M.levage) mat.push(['Grue / moyen de levage',nb('levage')>1?'× '+nb('levage'):'à prévoir']);
   if(pfActif()) mat.push(['Protections des points fragiles','grilles, capots ou sangles d’ancrage de lanterneau']);
@@ -707,7 +707,13 @@ const HERAS_LEN=3.5;   // panneau Heras : 3,50 m de long (2 m de haut) — sert 
 const UMD_DIM={3:[3,2],5:[4.3,2]};   // UMD en mètres (longueur × largeur) : 5 sas = modèle du marché 4,3 × 2 m ; 3 sas = estimation, à remplacer par votre matériel
 const SECU_LEN=3;   // longueur d'une Sécuriplac, en mètres : sert à compter les plaques à prévoir
 const L_NACELLE='Nacelle : journée(s) + conducteur autorisé (matériel Attila disponible jusqu’à 20 m, location au-delà)';
-const L_ECHAF='Échafaudage de pied (sous-traité) : montage, réception, démontage';
+const L_ECHAF='Échafaudage de pied, à installer ou à louer, le plus souvent monté par un sous-traitant : surface = longueur × (hauteur du bâtiment + 2 m). Montage, réception et démontage par des techniciens formés, sur matériel MDS (montage et démontage en sécurité)';
+const ECHAF_MARGE=2;   // l'échafaudage dépasse le bâtiment de 2 m, obligatoire
+function hautBat(){const h=S.roofs.map(r=>parseFloat(String(r.haut??'').replace(',','.'))).filter(x=>x>0); return h.length?Math.max(...h):null;}   // le plus haut des toits
+function echafTxt(M){const e=M.echaf, h=hautBat(), H=h?Math.ceil((h+ECHAF_MARGE)*2)/2:null, f=x=>String(Math.round(x*10)/10).replace('.',','), haut=H?`${f(H)} m de haut (${f(h)} m + 2 m)`:'hauteur à relever + 2 m';
+  if(!e) return 'longueur à métrer (non tracé sur le plan) × '+haut;
+  if(isNaN(e.len)) return e.n+' tracé(s), échelle inconnue : longueur à métrer × '+haut;
+  const L=up5(e.len); return H?`${L} ml × ${haut} = ${up5(L*H)} m²`:`${L} ml mesurés sur le plan × ${haut}`;}
 
 const OPT={
   acces:[
@@ -963,7 +969,7 @@ function measures(){
   if(m.ldv||m.ldv_ex) m.ldv_all={n:(m.ldv?m.ldv.n:0)+(m.ldv_ex?m.ldv_ex.n:0),len:(m.ldv?m.ldv.len:0)+(m.ldv_ex?m.ldv_ex.len:0)};
   return m;
 }
-function qtyTxt(t,M){const e=M[t]; if(!e) return 'non tracé sur le plan — métré à faire';
+function qtyTxt(t,M){if(t==='echaf') return echafTxt(M); const e=M[t]; if(!e) return 'non tracé sur le plan — métré à faire';
   if((TOOLS[t]||{k:'line'}).k==='line') return isNaN(e.len)?e.n+' tracé(s), échelle inconnue':Math.round(e.len)+' ml mesurés sur le plan';
   return e.n+(TOOLS[t].cone?' cône'+(e.n>1?'s':''):'')+' sur le plan';}
 const up5=x=>Math.ceil(x-1e-5);   // arrondi toujours au-dessus, dès que ça dépasse de plus de 0,00001
@@ -1250,7 +1256,8 @@ function renderRoofs(){
       <div class="field"><label for="pente_${r.id}">Pente du toit</label><select data-f="pente" id="pente_${r.id}"><option value="">— Sélectionner —</option>
         ${PENTES.map(p=>`<option value="${p[0]}" ${String(r.pente)===String(p[0])?'selected':''}>${p[0]}°${p[0]?'':' (toit plat)'}</option>`).join('')}</select></div>
       <div class="ramp" id="ramp_${r.id}">${rampHtml(r)}</div>
-      ${r.haut?`<span class="pre">Hauteur ≈ ${String(r.haut).replace('.',',')} m (BD TOPO, à vérifier)</span>`:''}
+      <div class="row"><label class="unit" for="haut_${r.id}"><b>Hauteur du bâtiment</b><input type="number" data-f="haut" id="haut_${r.id}" min="0" step="0.1" value="${esc(r.haut??'')}" placeholder="m">m</label>
+        <span class="pre">${r.haut&&!r.hautMain&&r.src!=='saisie'?'BD TOPO, à vérifier':'sert à dimensionner l’échafaudage (+ 2 m)'}</span></div>
       <div class="field"><label for="mat_${r.id}">Matériau</label><select data-f="mat" id="mat_${r.id}"><option value="">— Sélectionner —</option>
         ${MATS.map(g=>(g.g?`<optgroup label="${g.g}">`:'')+g.o.map(o=>`<option value="${o[0]}" ${r.mat===o[0]?'selected':''}>${o[1]}</option>`).join('')+(g.g?'</optgroup>':'')).join('')}</select>
         ${r.mat==='autre'?`<input type="text" data-f="matAutre" id="matA_${r.id}" placeholder="Précisez le matériau si vous le connaissez" value="${esc(r.matAutre)}">`:''}</div>
@@ -1267,7 +1274,7 @@ function renderRoofs(){
         <button type="button" data-v="nsp" class="${r.pfGrille==='nsp'?'on':''}">Je ne sais pas</button></div></div>${pf}`:''}</div>`;}).join('');
 }
 $('#roofs').addEventListener('input',e=>{const c=e.target.closest('.roof'), f=e.target.dataset.f; if(!c||!f||e.target.type==='checkbox'||e.target.tagName==='SELECT') return;
-  const r=S.roofs.find(x=>x.id===c.dataset.id); r[f]=e.target.value; if(f==='name') drawRoofsOnMap(); if(f==='area') $('#ramp_'+r.id).innerHTML=rampHtml(r); save();});
+  const r=S.roofs.find(x=>x.id===c.dataset.id); r[f]=e.target.value; if(f==='haut'){r.hautMain=true; const n=e.target.closest('.row').querySelector('.pre'); if(n) n.textContent='sert à dimensionner l’échafaudage (+ 2 m)';} if(f==='name') drawRoofsOnMap(); if(f==='area') $('#ramp_'+r.id).innerHTML=rampHtml(r); save();});
 $('#roofs').addEventListener('change',e=>{const c=e.target.closest('.roof'), f=e.target.dataset.f; if(!c||!f) return; const r=S.roofs.find(x=>x.id===c.dataset.id);
   if(e.target.type==='checkbox'){r[f]=e.target.checked; renderRoofs();} else if(e.target.tagName==='SELECT'){r[f]=e.target.value; renderRoofs();} save();});
 $('#roofs').addEventListener('click',e=>{const c=e.target.closest('.roof'); if(!c) return; const r=S.roofs.find(x=>x.id===c.dataset.id);
