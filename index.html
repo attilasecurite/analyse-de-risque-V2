@@ -642,7 +642,7 @@ const VIGIL=[
    d:['Autorisation à demander en mairie avant le chantier : permis de stationnement, ou permission de voirie si le matériel est ancré au sol. Délai variable selon la commune, de quelques jours à plusieurs semaines.',
       'À chiffrer : redevance d’occupation (surface × durée) et signalisation temporaire.',
       'Chaussée réduite : arrêté de circulation, panneaux, voire homme trafic, à chiffrer aussi.'],
-   sug:()=>{const l=[...new Set(S.objs.filter(o=>['camion','nacelle','balisage'].includes(o.t)).map(o=>TOOLS[o.t].p||TOOLS[o.t].n))]; return l.length?l.join(', ')+' sur le plan':'';},
+   sug:()=>{const l=[...new Set(S.objs.filter(o=>['camion','nacelle','balisage','heras_ch'].includes(o.t)).map(o=>TOOLS[o.t].p||TOOLS[o.t].n))]; return l.length?l.join(', ')+' sur le plan':'';},
    auto:()=>false},
   {id:'ligne',t:'Ligne électrique aérienne à proximité',q:'Ligne électrique aérienne proche (nacelle, grue, échelle, profilés longs)',
    d:['Distances minimales à tenir avec la nacelle, l’échelle, les profilés et les charges : 3 m sous 50 000 V, 5 m à partir de 50 000 V.',
@@ -659,7 +659,13 @@ const VIGIL=[
       'Zéro flamme chez ATTILA : souffleur à air chaud ou soudure, jamais de chalumeau.'],
    sug:()=>S.roofs.some(r=>r.mat==='terrasse')?'toiture terrasse (soudure de l’étanchéité)':'',
    auto:()=>(S.pdpRisks||[]).includes('pointchaud'), autoTxt:'coché dans le plan de prévention'}];
+VIGIL.splice(3,0,{id:'pfragiles',t:'Points fragiles non protégés',q:'Lanterneaux, plaques translucides ou trappes de désenfumage sans grille antichute',
+   d:['Un point fragile ne rend pas le toit fragile : pas de Sécuriplac obligatoire pour ces seuls points, mais un risque de chute au travers.',
+      'Si l’intervention se fait à proximité : grille ou capot antichute, sangle d’ancrage pour lanterneau, ou balisage à distance.',
+      'À repérer avec le client, à signaler à l’équipe (briefing) et dans le plan de prévention.'],
+   auto:()=>S.roofs.some(pointsNonProteges), autoTxt:'signalé sur un toit'});
 const permisFeu=()=>vigOn(VIGIL.find(x=>x.id==='feu'));
+const pfActif=()=>vigOn(VIGIL.find(x=>x.id==='pfragiles'));   // points fragiles non protégés : signalés sur un toit ou cochés dans l'aide au chiffrage
 const vigOn=x=>x.auto()||!!(S.vig&&S.vig[x.id]);
 const vigActives=()=>VIGIL.filter(vigOn);
 /* Briefing : « À prendre dans le camion », rempli automatiquement */
@@ -672,11 +678,13 @@ function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t
   if(M.gc) mat.push(['Garde-corps temporaires',lng('gc')]);
   if(M.secu){const n=secuCount(M); mat.push(['Sécuriplac',isNaN(n)?'plaques à compter':n+' plaque'+(n>1?'s':'')+' ('+up5(M.secu.len)+' m)']);}
   if(M.balisage) mat.push(['Cônes de balisage','× '+nb('balisage')]);
+  if(M.heras_ch){const n=herasCount('heras_ch'); mat.push(['Barrières Heras',isNaN(n)?'panneaux à compter':n+' panneau'+(n>1?'x':'')+' avec plots et colliers']);}
   if(M.echelle) mat.push(['Échelle','× '+nb('echelle')]);
   if(M.echaf) mat.push(['Échafaudage',lng('echaf')]);
   if(M.nacelle) mat.push(['Nacelle',nb('nacelle')>1?'× '+nb('nacelle'):'à acheminer']);
   if(M.levage) mat.push(['Grue / moyen de levage',nb('levage')>1?'× '+nb('levage'):'à prévoir']);
-  if(mat.length) G.push(['Matériel du plan',mat]);
+  if(pfActif()) mat.push(['Protections des points fragiles','grilles, capots ou sangles d’ancrage de lanterneau']);
+  if(mat.length) G.push(['Matériel',mat]);
   const am=[];
   if(M.heras){const n=herasCount(); am.push(['Barrières Heras',isNaN(n)?'panneaux à compter':n+' panneau'+(n>1?'x':'')]);}
   ['umd3','umd5'].forEach(t=>{if(M[t]) am.push([TOOLS[t].n,'× '+nb(t)]);});
@@ -767,6 +775,7 @@ const TOOLS={
   camion:{g:'Installation',n:'Camion',k:'veh',c:'#1f4e79',w:7,h:2.5},
   nacelle:{g:'Installation',n:'Nacelle (poste de travail)',p:'Nacelle',k:'veh',c:'#d35400',w:6.5,h:2.3,reach:10,lab:'Nacelle'},
   balisage:{g:'Installation',n:'Cône de balisage',p:'Cône',k:'pt',c:'#ef6c00',cone:1},
+  heras_ch:{g:'Installation',n:'Barrière Heras',p:'Heras',k:'line',c:'#37474f',sw:.9,dash:[.35,.55],short:'Heras',heras:1},   // balisage du chantier : même tracé et mêmes panneaux de 3,50 m que la barrière de la zone amiante
   echelle:{g:'Accès',n:'Échelle',k:'pt',c:'#0b7a75',code:'ÉCH'},
   echaf:{g:'Accès',n:'Échafaudage',k:'line',c:'#5d4037',sw:1.1,dash:[.5,.5],short:'Échaf.'},
   crino:{g:'Accès',n:'Crinoline',k:'pt',c:'#0b7a75',code:'CRI'},
@@ -783,7 +792,7 @@ const TOOLS={
   ldv:{g:'À créer',n:'Ligne de vie à créer',p:'Ligne de vie',k:'line',c:'#13a538',sw:.5,dash:[1.6,.8],short:'Ligne de vie à créer'},
   gc:{g:'À créer',n:'Garde-corps à créer',p:'Garde-corps',k:'line',c:'#13a538',sw:.7,short:'Garde-corps à créer'},
   secu:{g:'À créer',n:'Sécuriplac / plaque de répartition',p:'Sécuriplac',k:'line',c:'#d3d8dc',edge:'#4f575d',sw:.6,short:'Sécuriplac',plate:1},
-  heras:{g:'Amiante',n:'Barrière Heras',p:'Heras',k:'line',c:'#37474f',sw:.9,dash:[.35,.55],short:'Heras',heras:1},
+  heras:{g:'Amiante',n:'Barrière Heras (zone amiante)',p:'Heras',k:'line',c:'#37474f',sw:.9,dash:[.35,.55],short:'Heras',heras:1},
   zone_sale:{g:'Amiante',n:'Zone sale',p:'Zone sale',k:'line',c:'#d84315',sw:.45,area:1,short:'Zone sale'},
   zone_propre:{g:'Amiante',n:'Zone propre',p:'Zone propre',k:'line',c:'#1565c0',sw:.45,area:1,short:'Zone propre'},
   umd3:{g:'Amiante',n:'UMD 3 sas',p:'UMD 3 sas',k:'veh',c:'#455a64',w:UMD_DIM[3][0],h:UMD_DIM[3][1],umd:3,lab:'UMD 3 sas'},
@@ -960,8 +969,8 @@ function qtyTxt(t,M){const e=M[t]; if(!e) return 'non tracé sur le plan — mé
 const up5=x=>Math.ceil(x-1e-5);   // arrondi toujours au-dessus, dès que ça dépasse de plus de 0,00001
 function polyArea(p){let a=0; for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length]; a+=p[i][0]*q[1]-q[0]*p[i][1];} return Math.abs(a)/2;}
 function rawLen(o){let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]); if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]); return d;}
-function herasCount(){const k=mppEff(); if(!k) return NaN; return S.objs.filter(o=>o.t==='heras').reduce((n,o)=>n+Math.max(1,up5(rawLen(o)*k/HERAS_LEN)),0);}   // chaque tronçon compte ses panneaux
-function herasTxt(M){const n=herasCount(); return isNaN(n)?M.heras.n+' tracé(s), échelle inconnue : panneaux à compter':`${Math.round(M.heras.len)} m de barrière Heras, soit ${n} panneau${n>1?'x':''} de ${String(HERAS_LEN).replace('.',',')} m`;}
+function herasCount(t){t=t||'heras'; const k=mppEff(); if(!k) return NaN; return S.objs.filter(o=>o.t===t).reduce((n,o)=>n+Math.max(1,up5(rawLen(o)*k/HERAS_LEN)),0);}   // chaque tronçon compte ses panneaux
+function herasTxt(M,t){t=t||'heras'; const n=herasCount(t), z=t==='heras'?' (zone amiante)':''; return isNaN(n)?M[t].n+' tracé(s) de barrière Heras'+z+', échelle inconnue : panneaux à compter':`${Math.round(M[t].len)} m de barrière Heras${z}, soit ${n} panneau${n>1?'x':''} de ${String(HERAS_LEN).replace('.',',')} m`;}
 function secuCount(M){const e=M.secu; if(!e) return null; if(isNaN(e.len)) return NaN; return Math.max(1,up5(up5(e.len)/SECU_LEN));}
 function secuTxt(M){const n=secuCount(M); if(n===null) return ''; if(isNaN(n)) return M.secu.n+' tracé(s), échelle inconnue : plaques à compter';
   const L=up5(M.secu.len); return `${L} m de Sécuriplac, soit environ ${L} / ${SECU_LEN} = ${n} plaque${n>1?'s':''}`;}
@@ -974,7 +983,10 @@ function rampHtml(r){const p=penteOf(r), sp=surfPente(r);
   return `Surface adaptée à la pente : <b>${fmtN(sp)} m²</b>`;}
 /* Travail uniquement depuis la nacelle : on est attaché dans la nacelle, l'étape EPI ne s'applique pas */
 function nacelleSeule(){const e=S.an.epc.sel; return e.length===1&&e[0]==='nacelle';}
-function isFragile(r){return FRAGILE.has(r.mat)||!!r.translu;}
+function isFragile(r){return FRAGILE.has(r.mat);}   // toit fragile : le matériau lui-même (Sécuriplac ou filet en sous-face obligatoires)
+/* Points fragiles (lanterneaux, plaques translucides, trappes de désenfumage…) : ils ne rendent pas le toit fragile.
+   Protégés par une grille ou un capot antichute : rien à faire. Sinon : risque de chute au travers, à sécuriser si on travaille à proximité. */
+const pointsNonProteges=r=>!!r.translu&&r.pfGrille!=='oui';
 function amianteFlag(r){return r.periode==='avant'||r.periode==='nsp';}
 
 function evaluate(){
@@ -1014,6 +1026,12 @@ function evaluate(){
       if(!bcDone) up(T,O,n+' : toit fragile, à traiter aux étapes B et C');
       else if(fragileCouvert) up(T,O,n+' : toit fragile, protection prévue');
       else up(T,R,n+' : toit fragile sans platelage (Sécuriplac) ni filet en sous-face');
+    }
+    if(r.translu){
+      if(r.pfGrille==='oui') T.labels.push(n+' : points fragiles protégés par grilles ou capots antichute');
+      else if(!r.pfGrille) up(T,INC,n+' : points fragiles (lanterneaux, translucides, désenfumage) : protection par grille antichute à renseigner');
+      else{up(T,O,n+' : points fragiles '+(r.pfGrille==='non'?'non protégés':'sans grille confirmée')+' (lanterneaux, translucides, désenfumage) : à sécuriser si intervention à proximité');
+        add('Sécurisation des points fragiles ('+n+') : grilles ou capots antichute, sangles d’ancrage pour lanterneaux, balisage');}
     }
   });
 
@@ -1062,6 +1080,7 @@ function evaluate(){
     :{txt:secuTxt(M)+' à prévoir',qty:'tracé sur le plan'});}
   /* Amiante : barrières Heras et UMD tracées sur le plan, chiffrées */
   if(M.heras){D.push({txt:herasTxt(M)+' à prévoir (plots et colliers associés)',qty:'tracé sur le plan'}); up(T,O);}
+  if(M.heras_ch) D.push({txt:herasTxt(M,'heras_ch')+' à prévoir pour le balisage du chantier (plots et colliers associés)',qty:'tracé sur le plan'});
   [3,5].forEach(n=>{const e=M['umd'+n]; if(e){D.push({txt:`UMD ${n} sas : mise à disposition et installation sur site`,qty:e.n+' sur le plan'}); up(T,O);}});
   const items=[T,A,B,C,Dd,E];
   return {items,global:Math.max(...items.map(i=>i.lvl)),devis:D,M};
@@ -1222,6 +1241,8 @@ function renderRoofs(){
         ${r.rat==='autre'?`<input type="text" data-f="ratAutre" id="ratA_${r.id}" placeholder="Précisez" value="${esc(r.ratAutre)}">`:''}</div>`;
     }
     if(fr) alerts+=`<div class="alert o"><span><b>Toit fragile.</b> On ne prend jamais appui directement dessus : platelage Sécuriplac ou filet en sous-face.</span></div>`;
+    const pf=r.translu?(r.pfGrille==='oui'?`<div class="alert v"><span><b>Points fragiles protégés.</b> Grilles ou capots antichute en place : pas de sécurisation particulière. Vérifier sur place leur état et leur fixation.</span></div>`
+      :r.pfGrille?`<div class="alert o"><span><b>Points fragiles ${r.pfGrille==='non'?'non protégés':'à vérifier'}.</b> Risque de chute au travers. À sécuriser si l’intervention se fait à proximité : grille ou capot antichute, sangle d’ancrage pour lanterneau, ou balisage à distance. Ces points seuls ne rendent pas le toit fragile : pas de Sécuriplac obligatoire.</span></div>`:''):'';
     return `<div class="roof" data-id="${r.id}">
       <div class="top"><input type="text" data-f="name" id="name_${r.id}" value="${esc(r.name)}" aria-label="Nom du toit"><button type="button" class="btn del" data-del aria-label="Retirer ce toit">✕</button></div>
       <div class="row"><label class="unit" for="area_${r.id}"><b>Surface à plat</b><input type="number" data-f="area" id="area_${r.id}" min="0" step="1" value="${esc(r.area)}" placeholder="m²">m²</label>
@@ -1238,8 +1259,12 @@ function renderRoofs(){
         <button type="button" data-v="apres" class="${r.periode==='apres'?'on':''}">Après</button>
         <button type="button" data-v="nsp" class="${r.periode==='nsp'?'on':''}">Je ne sais pas</button></div>
         ${r.periodeAuto&&r.annee?`<span class="pre">Pré-rempli : la BD TOPO date le bâtiment de ${r.annee}. À confirmer.</span>`:''}</div>
-      <label class="check"><input type="checkbox" data-f="translu" id="tr_${r.id}" ${r.translu?'checked':''}><span>Lanterneaux ou plaques translucides sur ce toit</span></label>
-      ${alerts}</div>`;}).join('');
+      ${alerts}
+      <label class="check"><input type="checkbox" data-f="translu" id="tr_${r.id}" ${r.translu?'checked':''}><span>Points fragiles sur ce toit : lanterneaux, plaques translucides, trappes de désenfumage…</span></label>
+      ${r.translu?`<div class="field"><span class="flabel">Sont-ils protégés par une grille ou un capot antichute ?</span><div class="seg" data-f="pfGrille">
+        <button type="button" data-v="oui" class="${r.pfGrille==='oui'?'on':''}">Oui, tous</button>
+        <button type="button" data-v="non" class="${r.pfGrille==='non'?'on':''}">Non, ou pas tous</button>
+        <button type="button" data-v="nsp" class="${r.pfGrille==='nsp'?'on':''}">Je ne sais pas</button></div></div>${pf}`:''}</div>`;}).join('');
 }
 $('#roofs').addEventListener('input',e=>{const c=e.target.closest('.roof'), f=e.target.dataset.f; if(!c||!f||e.target.type==='checkbox'||e.target.tagName==='SELECT') return;
   const r=S.roofs.find(x=>x.id===c.dataset.id); r[f]=e.target.value; if(f==='name') drawRoofsOnMap(); if(f==='area') $('#ramp_'+r.id).innerHTML=rampHtml(r); save();});
@@ -1247,7 +1272,7 @@ $('#roofs').addEventListener('change',e=>{const c=e.target.closest('.roof'), f=e
   if(e.target.type==='checkbox'){r[f]=e.target.checked; renderRoofs();} else if(e.target.tagName==='SELECT'){r[f]=e.target.value; renderRoofs();} save();});
 $('#roofs').addEventListener('click',e=>{const c=e.target.closest('.roof'); if(!c) return; const r=S.roofs.find(x=>x.id===c.dataset.id);
   if(e.target.closest('[data-del]')) return removeRoof(r.id);
-  const b=e.target.closest('.seg button'); if(b){r.periode=b.dataset.v; r.periodeAuto=false; renderRoofs(); save();}});
+  const b=e.target.closest('.seg button'); if(b){const f=b.closest('.seg').dataset.f||'periode'; r[f]=b.dataset.v; if(f==='periode') r.periodeAuto=false; renderRoofs(); save();}});
 
 /* Figer la vue : on recompose les tuiles dans une image, les toits passent en pixels */
 const frzMsg=(t,err)=>{const m=$('#frzMsg'); m.textContent=t; m.className='msg'+(err?' err':'');};
@@ -1482,7 +1507,7 @@ function renderObjs(){
 function legItem(t,M){const T=TOOLS[t], e=M[t];
   if(T.warn){const l=S.objs.filter(o=>o.t===t), noms=[...new Set(l.map(o=>(o.label||'').trim()).filter(Boolean))], sans=l.filter(o=>!(o.label||'').trim()).length;   // risques : on liste leurs noms
     return (l.length>1?'Risques':'Risque')+' : '+[...noms,sans?sans+' non nommé'+(sans>1?'s':''):''].filter(Boolean).join(' · ');}
-  if(t==='secu') return secuTxt(M); if(t==='heras') return herasTxt(M);
+  if(t==='secu') return secuTxt(M); if(T.heras) return herasTxt(M,t);
   if(T.area) return T.n+' : '+(isNaN(e.area)||e.area==null?e.n+' zone(s)':fmtN(e.area)+' m²');
   return T.n+' : '+(T.k==='line'?(isNaN(e.len)?e.n+' tracé(s)':Math.round(e.len)+' m'):e.n);}
 function swatch(t){const T=TOOLS[t], c=T.c;
@@ -1514,7 +1539,7 @@ function legendBlock(){const M=measures();
       rows.push(`<tr><td><b class="tagref">${refs[o.id]}</b></td><td>${swatch(o.t)}</td><td>${nomR?'Risque : <b>'+esc(o.label)+'</b>':T.n}</td><td class="num">${mesureOf(o)}</td><td>${nomR?'':esc(o.label||'')}</td></tr>`); return;}
     (grp[o.t]=grp[o.t]||[]).push(o);});
   Object.entries(grp).forEach(([t,l])=>rows.push(`<tr><td>—</td><td>${swatch(t)}</td><td>${TOOLS[t].n}</td><td class="num">× ${l.length}</td><td></td></tr>`));
-  const tot=[]; if(M.secu) tot.push(secuTxt(M)); if(M.heras) tot.push(herasTxt(M));
+  const tot=[]; if(M.secu) tot.push(secuTxt(M)); if(M.heras_ch) tot.push(herasTxt(M,'heras_ch')); if(M.heras) tot.push(herasTxt(M));
   Object.keys(TOOLS).forEach(t=>{const T=TOOLS[t]; if(M[t]&&T.k==='line'&&!T.plate&&!T.heras&&!T.area&&M[t].n>1) tot.push(T.n+' : '+(isNaN(M[t].len)?'—':Math.round(M[t].len)+' m au total'));});
   if(!rows.length) return '<p class="msg">Le plan est vide.</p>';
   return `<div class="scroll"><table class="legtab"><thead><tr><th>Repère</th><th>Symbole</th><th>Élément</th><th>Longueur, surface ou quantité</th><th>Commentaire</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${tot.length?`<p class="legtot"><b>Totaux :</b> ${tot.map(esc).join(' · ')}</p>`:''}`;}
@@ -1609,7 +1634,8 @@ function planHint(types){const M=measures(), t=types.filter(x=>M[x]).map(x=>x===
 function renderAnalysis(){
   const a=S.an, st=STEPS.find(s=>s.k===S.sub); let h=`<h3><small>Étape ${st.k} · ${st.f}</small>${st.q}</h3>`;
   if(st.k==='A') h+=planHint(['echelle','echaf','crino','escalier','acces'])+multiHtml('acces','Moyen d’accès','Plusieurs choix possibles.');
-  if(st.k==='B') h+=(S.roofs.some(isFragile)?'<div class="alert o"><span><b>Toit fragile.</b> Le cheminement se fait sur platelage (Sécuriplac), jamais directement sur la couverture.</span></div>':'')+planHint(['secu'])+multiHtml('chemin','Cheminement','Plusieurs choix possibles.');
+  if(st.k==='B') h+=(S.roofs.some(isFragile)?'<div class="alert o"><span><b>Toit fragile.</b> Le cheminement se fait sur platelage (Sécuriplac), jamais directement sur la couverture.</span></div>':'')
+    +(S.roofs.some(pointsNonProteges)?'<div class="alert o"><span><b>Points fragiles non protégés.</b> Cheminement à distance des lanterneaux, plaques translucides et trappes de désenfumage, ou protection avant de passer à proximité (grille, capot, sangle d’ancrage pour lanterneau).</span></div>':'')+planHint(['secu'])+multiHtml('chemin','Cheminement','Plusieurs choix possibles.');
   if(st.k==='C') h+=planHint(['nacelle','gc_ex','ldv_ex','ancrage_ex','gc','ldv','ancrage','secu'])
     +`<span class="rang">1 · Protection collective, toujours en premier</span>`+multiHtml('epc','Protection collective au poste','Plusieurs modes peuvent se combiner.')
     +`<div class="field" id="whyBlock"><label for="epcWhy">Pourquoi le collectif est impossible ici</label><textarea id="epcWhy" placeholder="ex : intervention de moins d’une heure sur un point isolé, pose de garde-corps plus exposante que la tâche">${esc(a.epcWhy)}</textarea></div>`
@@ -1704,15 +1730,21 @@ const PDP_FIXES=[
 /* Risques présents sur certains chantiers seulement, cochés par le chargé de clientèle.
    PROPOSITION À VALIDER par le service QHSE : textes rédigés à partir de l'analyse, à corriger librement ici. */
 const roofsAm=()=>S.roofs.some(r=>amianteFlag(r)&&r.rat!=='absent');
+/* risques ajoutés d'office au plan de prévention (case cochée et verrouillée, avec la raison) */
+const prAuto=id=>id==='pointchaud'&&S.vig&&S.vig.feu?'Permis de feu demandé dans l’aide au chiffrage':id==='pointsfragiles'&&pfActif()?(S.roofs.some(pointsNonProteges)?'Points fragiles non protégés signalés sur un toit':'Points fragiles signalés dans l’aide au chiffrage'):'';
 const PDP_OPTS=[
   {id:'amiante',icon:'amiante',epis:[...EPI_AMIANTE,'M009'],t:'Amiante (sous-section 4)',sug:()=>roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante'),
    r:'Intervention sur matériaux amiantés uniquement par du personnel formé SS4, selon un mode opératoire validé. Le repérage amiante avant travaux est remis par le donneur d’ordre avant le démarrage.',
    a:'Mode opératoire SS4 présent sur le chantier, zone de travail balisée et interdite aux tiers, matériaux déposés sans casse et conditionnés sur place, déchets évacués sous BSDA.',
    p:'Appareil de protection respiratoire adapté au niveau d’empoussièrement, combinaison jetable type 5/6, gants, surbottes, moyens de décontamination.'},
-  {id:'fragile',t:'Toiture ou éléments fragiles (fibrociment, plaques translucides, lanterneaux)',sug:()=>S.roofs.some(isFragile),
+  {id:'fragile',t:'Toiture en matériau fragile (fibrociment, plaques translucides)',sug:()=>S.roofs.some(isFragile),
    r:'Jamais d’appui direct sur un matériau fragile.',
-   a:'Repérage et balisage des éléments fragiles, cheminement sur platelage Sécuriplac, protection des lanterneaux.',
-   p:'Sécuriplac / plaques de répartition, filets en sous-face, grilles ou capots sur les lanterneaux, harnais sur ancrage conforme si nécessaire.'},
+   a:'Repérage et balisage des zones fragiles, cheminement sur platelage Sécuriplac.',
+   p:'Sécuriplac / plaques de répartition, filets en sous-face, harnais sur ancrage conforme si nécessaire.'},
+  {id:'pointsfragiles',t:'Points fragiles non protégés (lanterneaux, plaques translucides, trappes de désenfumage)',sug:()=>S.roofs.some(pointsNonProteges),
+   r:'Aucun appui ni passage sur un point fragile. Sans grille ou capot antichute, c’est un risque de chute au travers.',
+   a:'Repérage des points fragiles avec le client et balisage ; si l’intervention se fait à proximité, protection mise en place avant de commencer.',
+   p:'Grille ou capot antichute, sangle d’ancrage pour lanterneau, balisage à distance ; harnais sur ancrage conforme si la protection collective est impossible.'},
   {id:'pointchaud',t:'Travaux par point chaud (souffleur à air chaud, soudure)',sug:()=>S.roofs.some(r=>r.mat==='terrasse'),
    r:'Aucune flamme nue : travail au souffleur à air chaud ou par soudure uniquement. Aucun travail par point chaud sans permis feu établi et signé avec le client, en tenant compte des consignes particulières du site.',
    a:'Éloigner ou protéger les matériaux combustibles, extincteur à portée de main, surveillance de la zone après la fin des travaux selon le permis feu.',
@@ -1771,7 +1803,7 @@ function permisDoc(){
   const row=(l,t,n)=>`<div class="pfr"><span>${l}</span><div>${v(t,n)}</div></div>`;
   const nf=(a,b)=>[a,b].filter(Boolean).join(', ');
   const toits=S.roofs.map(r=>r.name+(r.area?' ('+fmtN(r.area)+' m²)':'')).join(', ');
-  const struct=S.roofs.map(r=>`${r.name} : ${matLabel(r)}${isFragile(r)?', matériau fragile':''}${amianteFlag(r)&&r.rat!=='absent'?', amiante possible':''}`);
+  const struct=S.roofs.map(r=>`${r.name} : ${matLabel(r)}${isFragile(r)?', matériau fragile':''}${pointsNonProteges(r)?', points fragiles non protégés':''}${amianteFlag(r)&&r.rat!=='absent'?', amiante possible':''}`);
   if(S.roofs.length) struct.push('Combustibilité de l’isolant et de l’étanchéité à vérifier avec le client.');
   const env=[...vigActives().filter(x=>x.id!=='feu').map(x=>x.t),...S.objs.filter(o=>TOOLS[o.t]&&TOOLS[o.t].warn&&o.label).map(o=>'Risque signalé sur le plan : '+o.label)];
   const liste=(l,n)=>l.length?`<ul class="pfl">${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${'<i></i>'.repeat(n)}`:'<i></i>'.repeat(n+1);
@@ -1841,7 +1873,7 @@ function buildDoc(v,withCfg){
       <div class="epibox"><span class="eyebrow">EPI obligatoires sur ce chantier</span>${episBlock(am?[...EPI_BASE,...EPI_AMIANTE]:EPI_BASE,'mini')}</div></div>`;
   }else{
     if(withCfg) h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
-      <div class="cfglist">${PDP_OPTS.map(o=>{const parFeu=o.id==='pointchaud'&&!!(S.vig&&S.vig.feu); return `<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)||parFeu?'checked':''}${parFeu?' disabled':''}><span>${o.t}${parFeu?' <em class="sugg">Permis de feu demandé dans l’aide au chiffrage</em>':o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`;}).join('')}
+      <div class="cfglist">${PDP_OPTS.map(o=>{const au=prAuto(o.id); return `<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)||au?'checked':''}${au?' disabled':''}><span>${o.t}${au?` <em class="sugg">${au}</em>`:o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`;}).join('')}
         <label class="check"><input type="checkbox" data-pr="autre" id="pr_autre" ${pr.includes('autre')?'checked':''}><span>Autre risque (fiche vierge à compléter à la main)</span></label></div></div>`;
     h+=`<div class="dochead"><div><h2>Plan de prévention</h2><p>Arrêté d’un commun accord entre l’entreprise utilisatrice et ATTILA (entreprise extérieure) avant le début des travaux.</p>
       <dl class="meta"><div><dt>Entreprise utilisatrice</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Entreprise extérieure</dt><dd>ATTILA</dd></div><div><dt>Adresse du chantier</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Établi par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'<i class="penline"></i>'}</dd></div></dl></div></div>`;
@@ -1863,7 +1895,7 @@ function buildDoc(v,withCfg){
   if(v==='brief') h+=`<div class="card camion"><h2><span class="num">${++n}</span>${camionIco}À prendre dans le camion</h2><p class="intro noprint">Liste faite automatiquement à partir du plan, de l’analyse et des vigilances.</p>
     <div class="cbox">${camionListe().map(([t,l])=>`<div class="cgrp"><h4>${t}</h4><ul>${l.map(([a,b])=>`<li><i></i><span>${a}${b?` <b>${esc(b)}</b>`:''}</span></li>`).join('')}</ul></div>`).join('')}</div></div>`;
   h+=`<div class="card keep"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
-    ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
+    ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}${r.translu?`<small>${r.pfGrille==='oui'?'Points fragiles protégés':'Points fragiles non protégés'}</small>`:''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
       <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="7">Aucun toit sélectionné.</td></tr>'}
     ${S.roofs.length>1?`<tr class="tot"><td><b>Total</b></td><td class="num">${fmtN(S.roofs.reduce((t,r)=>t+(+r.area||0),0))} m² à plat${S.roofs.every(r=>surfPente(r)!==null)?`<br><b>${fmtN(S.roofs.reduce((t,r)=>t+surfPente(r),0))} m² en pente</b>`:'<br><small>pente à renseigner sur chaque toit</small>'}</td><td colspan="5"></td></tr>`:''}
     </tbody></table></div></div>
@@ -1880,10 +1912,10 @@ function buildDoc(v,withCfg){
       <div class="vigs">${VIGIL.map(x=>{const on=vigOn(x), au=x.auto(), sg=!on&&x.sug?x.sug():'';
         return `<div class="vig${on?' on':''}"><label class="vq"><input type="checkbox" data-vig="${x.id}"${on?' checked':''}${au?' disabled':''}>${x.q}${au?`<i class="sugg">${x.autoTxt||'repéré sur le plan'}</i>`:sg?`<i class="sugg">${esc(sg)} : à vérifier</i>`:''}</label>
           <div class="vd">${warnIcon(18)}<div><b>${x.t}</b><ul>${x.d.map(l=>`<li>${l}</li>`).join('')}</ul></div></div></div>`;}).join('')}</div>
-      ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques, point chaud).</p>'}</div>`;}
+      ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques, points fragiles, point chaud).</p>'}</div>`;}
 
   if(v==='pdp'){
-    const opts=PDP_OPTS.filter(o=>pr.includes(o.id)||(o.id==='pointchaud'&&permisFeu()));
+    const opts=PDP_OPTS.filter(o=>pr.includes(o.id)||prAuto(o.id)||(o.id==='pointchaud'&&permisFeu()));
     h+=`<div class="card"><h2><span class="num">${++n}</span>Phases d’activité dangereuses et risques de l’intervention ATTILA <small class="art">(art. R. 4512-8)</small></h2>
       <div class="rlist">${PDP_FIXES.map(o=>rcard(o,1)).join('')}</div>
       <h3 class="sub">Risques particuliers de ce chantier</h3>
@@ -2122,7 +2154,7 @@ function a_epcWhy(){return S.an.epc.sel.includes('aucun')&&S.an.epcWhy.trim()?`<
 function summaryText(){
   const ev=evaluate(), L=[];
   L.push('ANALYSE DE RISQUE TOITURE — '+NIV_TXT[ev.global].toUpperCase(), 'Client : '+(S.client||'—'), 'Adresse : '+(S.adresse||'—'), 'Nature des travaux : '+(S.travaux||'—'), 'Date : '+new Date().toLocaleDateString('fr-FR')+(S.redacteur?' — '+S.redacteur:''), '');
-  S.roofs.forEach(r=>L.push(`${r.name} : ${r.area?fmtN(r.area)+' m² à plat, ':''}${surfPente(r)!==null?'pente '+r.pente+'° → '+fmtN(surfPente(r))+' m² en pente, ':''}${matLabel(r)}, permis ${(perLabel[r.periode]||'non renseigné').toLowerCase()}${isFragile(r)?', TOIT FRAGILE':''}`));
+  S.roofs.forEach(r=>L.push(`${r.name} : ${r.area?fmtN(r.area)+' m² à plat, ':''}${surfPente(r)!==null?'pente '+r.pente+'° → '+fmtN(surfPente(r))+' m² en pente, ':''}${matLabel(r)}, permis ${(perLabel[r.periode]||'non renseigné').toLowerCase()}${isFragile(r)?', TOIT FRAGILE':''}${r.translu?(r.pfGrille==='oui'?', points fragiles protégés':', POINTS FRAGILES NON PROTÉGÉS'):''}`));
   L.push(''); ev.items.forEach(i=>{L.push(`[${NIV_TXT[i.lvl]}] ${i.k==='T'?'':i.k+' · '}${i.n}${i.labels.length?' : '+i.labels.join(' ; '):''}`); i.r.forEach(r=>L.push('   ! '+r));});
   if(ev.devis.length){L.push('','À INTÉGRER AU DEVIS'); ev.devis.forEach(d=>L.push('- '+d.txt+(d.qty?' ('+d.qty+')':'')));}
   const va=vigActives(); if(va.length){L.push('','VIGILANCES AVANT DEVIS'); va.forEach(x=>{L.push('- '+x.t); x.d.forEach(l=>L.push('   · '+l));});}
