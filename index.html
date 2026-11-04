@@ -65,6 +65,9 @@ section.ecran{display:flex;flex-direction:column;gap:18px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
 .field>label,.flabel{font-weight:700;font-size:14px}
 .help{margin:0;color:var(--encre-2);font-size:14px}
+.impbox{display:flex;flex-direction:column;gap:10px;margin:4px 0 10px} .impbox .row{margin-top:2px}
+#impPrev{display:block;max-width:100%;max-height:min(62vh,560px);object-fit:contain;border-radius:8px;border:1px solid var(--trait);background:#eee;align-self:center}
+#geoDet>summary{cursor:pointer;margin:6px 0;font-weight:600;color:var(--encre-2)} #geoDet:not(.imp)>summary{display:none}
 .req{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--rouge-fonce);background:var(--rouge-pale);border-radius:3px;padding:1px 6px;margin-left:4px;vertical-align:1px}
 .field.manque select{border-color:var(--rouge);box-shadow:0 0 0 3px var(--rouge-pale)} .fmsg{margin:0;color:var(--rouge-fonce);font-size:14px;font-weight:600}
 input[type=text],input[type=number],input[type=email],select,textarea{width:100%;border:1.5px solid var(--trait);border-radius:6px;background:#fff;padding:9px 10px;min-height:42px}
@@ -509,7 +512,13 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 
   <div class="card">
     <h2><span class="num">2</span>Toits concernés</h2>
-    <p class="intro">Touchez un bâtiment pour le sélectionner, ou tracez le toit vous-même. La surface se calcule seule. Cadrez ensuite la vue : c’est elle qui sera figée pour le plan.</p>
+    <p class="intro" id="toitsIntro">Touchez un bâtiment pour le sélectionner, ou tracez le toit vous-même. La surface se calcule seule. Cadrez ensuite la vue : c’est elle qui sera figée pour le plan.</p>
+    <div class="impbox" id="impBox" hidden>
+      <div class="alert v"><span><b>Photo importée.</b> C’est elle qui sert de fond au plan, à la place de la vue aérienne Géoportail.</span>
+        <div class="row"><button type="button" class="btn sm" id="impChange">Changer de photo</button><button type="button" class="btn sm" id="impGeo">Revenir à la vue Géoportail</button></div></div>
+      <img id="impPrev" alt="Photo du site importée">
+    </div>
+    <details id="geoDet" open><summary>Carte Géoportail : sélectionner les toits (surface et hauteur calculées)</summary>
     <div class="row noprint" id="mapTools">
       <button type="button" class="btn sm on" data-mode="select">Sélectionner un bâtiment</button>
       <button type="button" class="btn sm" data-mode="poly">Tracer le contour</button>
@@ -518,11 +527,12 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
     </div>
     <p class="msg" id="mapMsg" style="margin:8px 0">Saisissez une adresse pour commencer.</p>
     <div id="map"></div>
-    <details style="margin-top:10px">
+    </details>
+    <details id="impDet" style="margin-top:10px">
       <summary class="msg" style="cursor:pointer">Pas de carte ou vue aérienne trop ancienne ? Importer une photo ou une capture</summary>
       <div class="grid2" style="margin-top:10px">
         <div class="field"><label for="impFile">Image du site (photo drone, capture Géoportail…)</label><input type="file" id="impFile" accept="image/*"></div>
-        <div class="field"><label for="impW">Largeur réelle visible sur l’image, en mètres (facultatif)</label><input type="number" id="impW" min="1" step="1" placeholder="ex : 120"><p class="help">Sert à mesurer les garde-corps et lignes de vie tracés.</p></div>
+        <div class="field"><label for="impW">Largeur réelle visible sur l’image, en mètres (facultatif)</label><input type="number" id="impW" min="1" step="1" placeholder="ex : 120"><p class="help">Sert à mesurer les garde-corps et lignes de vie tracés. Plus simple : à l’étape suivante, « Tracer un repère » sur une longueur connue du plan.</p></div>
       </div>
     </details>
   </div>
@@ -558,6 +568,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
         <span class="pc"><label for="rotRange">Orientation</label><input type="range" id="rotRange" min="-180" max="180" step="1" value="0"><output id="rotVal">0°</output><button type="button" class="btn sm" id="rotNorth" title="Remettre le nord en haut">Nord ↑</button></span>
         <span class="pc"><label for="zoomRange">Zoom</label><input type="range" id="zoomRange" min="100" max="300" step="5" value="100"><output id="zoomVal">100 %</output></span>
         <span class="pc"><label>Légende</label><span class="minis" id="legSeg"><button type="button" class="btn sm" data-lt="0">Sur le plan</button><button type="button" class="btn sm" data-lt="1" title="Légende en tableau sous le plan">En tableau</button></span></span>
+        <span class="pc" id="echRow" hidden><label>Échelle</label><button type="button" class="btn sm" id="btnEch" title="Tracez un trait sur une longueur connue (bord de toit, faîtage, longueur du bâtiment…)">Tracer un repère</button><output id="echVal"></output></span>
         <span class="pc"><label for="symRange">Taille symboles</label><input type="range" id="symRange" min="40" max="140" step="5" value="75"><output id="symVal">75 %</output></span>
       </div>
       </aside>
@@ -1102,7 +1113,7 @@ function go(n){
   const bloque=+n>1&&!S.agence&&!CONSULT; if(bloque){agAttente=+n; n=1;}
   S.step=+n; document.body.dataset.step=S.step; if(S.step!==4) $('#feu').hidden=false; $$('section.ecran').forEach(s=>s.hidden=s.id!=='s'+S.step);
   $$('.steps button').forEach(b=>b.classList.toggle('on',b.dataset.go==S.step));
-  if(S.step===1&&map) setTimeout(()=>map.invalidateSize(),50);
+  if(S.step===1){majImport(); if(map) setTimeout(()=>map.invalidateSize(),50);}
   if(S.step===2) renderPlanAll();
   if(S.step===3){syncPlan(); renderAnalysis();}
   if(S.step===4) renderSynth();
@@ -1284,7 +1295,8 @@ $('#roofs').addEventListener('click',e=>{const c=e.target.closest('.roof'); if(!
 
 /* Figer la vue : on recompose les tuiles dans une image, les toits passent en pixels */
 const frzMsg=(t,err)=>{const m=$('#frzMsg'); m.textContent=t; m.className='msg'+(err?' err':'');};
-$('#btnFreeze').onclick=()=>{if(!map) return frzMsg('Carte indisponible : importez une image ci-dessus.',1);
+$('#btnFreeze').onclick=()=>{if(S.frozen&&S.frozen.imported){if(!S.roofs.length) addRoof({src:'saisie'}); return go(2);}   // photo importée : elle reste le fond du plan
+  if(!map) return frzMsg('Carte indisponible : importez une image ci-dessus.',1);
   if(!S.roofs.length) return frzMsg('Sélectionnez d’abord au moins un toit.',1);
   if(S.objs.length){$('#frzConfirm').hidden=false; return;} freeze();};
 $('#frzNo').onclick=()=>{$('#frzConfirm').hidden=true; go(2);};
@@ -1314,7 +1326,22 @@ $('#impFile').onchange=e=>{const file=e.target.files[0]; if(!file) return; const
   fr.onload=()=>{const im=new Image(); im.onload=()=>{const s=Math.min(1,1800/im.width), cv=document.createElement('canvas'); cv.width=Math.round(im.width*s); cv.height=Math.round(im.height*s);
     cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); const wm=parseFloat($('#impW').value);
     S.roofs.forEach(r=>r.px=null); S.objs=[]; S.synced=[]; S.frozen={src:cv.toDataURL('image/jpeg',.85),w:cv.width,h:cv.height,mpp:wm>0?wm/cv.width:null,imported:true};
-    if(!S.roofs.length) addRoof({src:'saisie'}); go(2);}; im.src=fr.result;}; fr.readAsDataURL(file);};
+    if(!S.roofs.length) addRoof({src:'saisie'}); logEv('photo_importee'); go(2);}; im.src=fr.result;}; fr.readAsDataURL(file);};
+/* Photo importée : prioritaire sur la vue Géoportail, affichée à l'étape 1 ; la carte reste disponible pour sélectionner les toits */
+function majImport(){const imp=!!(S.frozen&&S.frozen.imported), d=$('#geoDet');
+  $('#impBox').hidden=!imp; d.classList.toggle('imp',imp); if(imp){$('#impPrev').src=S.frozen.src; $('#impW').value=S.frozen.mpp?Math.round(S.frozen.mpp*S.frozen.w):'';}
+  if(imp!==majImport.etat){d.open=!imp; majImport.etat=imp;}
+  $('#toitsIntro').textContent=imp?'Votre photo sert de fond au plan. Renseignez les toits ci-dessous, ou dépliez la carte Géoportail pour les sélectionner : la surface se calcule seule.'
+    :'Touchez un bâtiment pour le sélectionner, ou tracez le toit vous-même. La surface se calcule seule. Cadrez ensuite la vue : c’est elle qui sera figée pour le plan.';
+  $('#btnFreeze').textContent=imp?'Dessiner le plan sur la photo importée':'Figer l’image et dessiner le plan';}
+$('#geoDet').addEventListener('toggle',()=>{if($('#geoDet').open&&map) setTimeout(()=>map.invalidateSize(),60);});
+$('#impChange').onclick=()=>{$('#impDet').open=true; $('#impFile').click();};
+$('#impW').onchange=()=>{const w=parseFloat($('#impW').value); if(S.frozen&&S.frozen.imported){S.frozen.mpp=w>0?w/S.frozen.w:null; delete S.frozen.echRef; save(); toast(w>0?'Largeur réelle de la photo : '+w+' m':'Largeur réelle retirée');}};
+$('#impGeo').onclick=e=>{const b=e.currentTarget;
+  if(S.objs.length&&!b.dataset.arme){b.dataset.arme='1'; b.textContent='Confirmer : le plan dessiné sera effacé'; b.classList.add('pri'); setTimeout(()=>{if(b.isConnected){delete b.dataset.arme; b.textContent='Revenir à la vue Géoportail'; b.classList.remove('pri');}},4000); return;}
+  delete b.dataset.arme; b.textContent='Revenir à la vue Géoportail'; b.classList.remove('pri');
+  S.frozen=null; S.objs=[]; S.synced=[]; S.roofs.forEach(r=>r.px=null); $('#impFile').value=''; save(); majImport();
+  frzMsg('Cadrez la vue aérienne, puis figez-la pour dessiner le plan.'); const m=$('#map'); window.scrollTo(0,m.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-60);};
 
 /* =====================================================================================
    6. ÉCRAN 2 — plan d'installation
@@ -1401,7 +1428,7 @@ function renderPalette(){
 }
 $('#palette').addEventListener('click',e=>{
   if(e.target.closest('[data-amiante]')){S.showAm=!(!!S.showAm); if(!S.showAm&&tool&&TOOLS[tool].g==='Amiante') tool=null; renderPalette(); renderBar(); fitPlan(); save(); return;}
-  const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
+  const b=e.target.closest('[data-tool]'); if(!b) return; finishLine(); calib=null; tool=tool===b.dataset.tool?null:b.dataset.tool; selId=null; renderPalette(); renderObjs(); renderBar();});
 function renderPlanAll(){
   const F=S.frozen; $('#planEmpty').hidden=!!F; $('#planWrap').hidden=!F; if(!F) return;
   svg.setAttribute('viewBox',`0 0 ${F.w} ${F.h}`);
@@ -1409,8 +1436,22 @@ function renderPlanAll(){
   const zz=Math.round((F.z||1)*100); $('#zoomRange').value=zz; $('#zoomVal').textContent=zz+' %';
   const k=Math.round((S.symK||.75)*100); $('#symRange').value=k; $('#symVal').textContent=k+' %';
   $$('#legSeg button').forEach(b=>b.classList.toggle('on',(b.dataset.lt==='1')===!!S.legTable));
-  renderPalette(); renderBar(); fitPlan(); drawBase(); renderObjs();
+  majEchelle(); renderPalette(); renderBar(); fitPlan(); drawBase(); renderObjs();
 }
+/* Échelle d'une photo importée : on trace un trait sur une longueur connue et on donne sa longueur réelle */
+let calib=null;
+function majEchelle(){const F=S.frozen, imp=!!(F&&F.imported); $('#echRow').hidden=!imp; if(!imp) return;
+  $('#echVal').textContent=F.mpp?(F.echRef?'repère '+String(F.echRef).replace('.',',')+' m':'≈ '+Math.round(F.mpp*F.w)+' m de large'):'inconnue';
+  $('#btnEch').textContent=F.mpp?'Refaire le repère':'Tracer un repère';}
+$('#btnEch').onclick=()=>{finishLine(); tool=null; selId=null; calib={pts:[]}; renderPalette(); renderObjs(); renderBar();};
+function calibSvg(u){if(!calib||!calib.pts.length) return ''; const [a,b]=calib.pts, c='#ffe600';
+  return `<g pointer-events="none">${b?`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#1b1b1b" stroke-width="${u*.9}" stroke-linecap="round"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${u*.45}" stroke-dasharray="${u*1.2} ${u*.7}"/>`:''}
+    ${calib.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${u*.9}" fill="${c}" stroke="#1b1b1b" stroke-width="${u*.3}"/>`).join('')}</g>`;}
+function calibOk(){const F=S.frozen, L=parseFloat(String($('#echM').value).replace(',','.')), [a,b]=calib.pts, d=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  if(!(L>0)){$('#echM').focus(); $('#echErr').textContent='Indiquez la longueur réelle en mètres.'; return;}
+  if(d<10){$('#echErr').textContent='Trait trop court : recommencez sur une plus grande longueur.'; return;}
+  F.mpp=L*(F.z||1)/d; F.echRef=L; calib=null; save(); logEv('echelle_photo',L+' m'); renderPlanAll();
+  toast('Échelle enregistrée : les longueurs du plan sont recalculées');}
 function txt(x,y,s,fs,anchor){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${fs}" font-weight="700" text-anchor="${anchor||'middle'}" dominant-baseline="central" fill="#fff" stroke="#1b1b1b" stroke-width="${fs*.22}" paint-order="stroke" stroke-linejoin="round" pointer-events="none">${esc(s)}</text>`;}
 function lenOf(o){const k=mppEff(); if(!k) return null; let d=0; for(let i=1;i<o.pts.length;i++) d+=Math.hypot(o.pts[i][0]-o.pts[i-1][0],o.pts[i][1]-o.pts[i-1][1]);
   if(o.closed) d+=Math.hypot(o.pts[0][0]-o.pts.at(-1)[0],o.pts[0][1]-o.pts.at(-1)[1]); return TOOLS[o.t].plate?(d*k).toFixed(1).replace('.',','):Math.round(d*k);}   // Sécuriplac : au dixième, le total est arrondi au-dessus
@@ -1510,6 +1551,7 @@ function renderObjs(){
   const F=S.frozen; if(!F) return; const u=unit(); let n=0; REFS=S.legTable?refMap():null;
   let h=S.objs.map(o=>drawObj(o,u,o.id===selId,o.t==='poste'?++n:0)).join('');
   if(line) h+=drawObj(line,u,true,0);
+  h+=calibSvg(u);
   $('#planObjs').innerHTML=h; renderLegend();
 }
 function legItem(t,M){const T=TOOLS[t], e=M[t];
@@ -1554,6 +1596,9 @@ function legendBlock(){const M=measures();
 function renderLegend(){$('#legend').innerHTML=legendBlock();}
 function renderBar(){
   const bar=$('#bar'), o=S.objs.find(x=>x.id===selId);
+  if(calib){bar.innerHTML=calib.pts.length<2?`<b>Échelle</b><span>Touchez le début puis la fin d’une longueur que vous connaissez (bord de toit, faîtage, longueur du bâtiment…).</span><button type="button" class="btn sm" data-a="echCancel">Annuler</button>`
+    :`<b>Échelle</b><label for="echM">Longueur réelle de ce trait</label><input type="text" id="echM" inputmode="decimal" autocomplete="off" placeholder="ex : 12" style="width:90px;flex:0 0 90px;min-width:0"> m<button type="button" class="btn sm pri" data-a="echOk">Valider</button><button type="button" class="btn sm" data-a="echRedo">Recommencer</button><button type="button" class="btn sm" data-a="echCancel">Annuler</button><span class="msg" id="echErr" style="color:var(--rouge-fonce)"></span>`;
+    if(calib.pts.length===2) setTimeout(()=>{const i=$('#echM'); if(i) i.focus();},30); return;}
   if(line){bar.innerHTML=`<b>${TOOLS[line.t].n}</b><span>Touchez l’image pour poser chaque point, ou tirez le trait.</span><button type="button" class="btn sm pri" data-a="end">Terminer le tracé</button><button type="button" class="btn sm" data-a="cancel">Annuler</button>`; return;}
   if(o){const T=TOOLS[o.t], L=o.pts?lenOf(o):posteLen(o);
     bar.innerHTML=`<b>${T.n}${L!==null?' · '+L+' m':''}</b><input type="text" id="objLabel" aria-label="Texte affiché sur le plan" placeholder="${o.t==='poste'?'Tâche à ce poste (ex : nettoyage canalisation)':T.warn?'Nom du risque (ex : électrique, pression)':'Texte à écrire sur le plan'}" value="${esc(o.label||'')}"${T.warn?' list="risqueNoms"':''}>${T.warn?`<datalist id="risqueNoms">${RISQUES_NOMS.map(n=>`<option value="${n}">`).join('')}</datalist>`:''}${o.t==='poste'?'<span class="pre">Bulle : glissez-la pour la déplacer, tirez sa poignée blanche pour l’élargir ou la rétrécir.</span>':''}${o.pts?`<span class="pre">${isLdv(o.t)?'Points blancs : glissez-les sur un ancrage pour les accrocher.':'Points blancs : glissez-les pour modifier le tracé.'}</span>`:''}
@@ -1562,9 +1607,11 @@ function renderBar(){
       <button type="button" class="btn sm" data-a="dup" title="Dupliquer (Ctrl+D). Ctrl+C puis Ctrl+V colle sous la souris.">Dupliquer</button>
       <button type="button" class="btn sm" data-a="del">Supprimer</button>`; return;}
   bar.innerHTML=tool?`<b>${TOOLS[tool].n}</b><span>${TOOLS[tool].k==='line'?(TOOLS[tool].area?'Touchez chaque angle de la zone, puis « Terminer le tracé » : la zone se ferme toute seule.':isLdv(tool)?'Touchez chaque ancrage (le trait s’y accroche) ou tirez le trait, puis « Terminer le tracé ».':'Touchez l’image point par point ou tirez le trait, puis « Terminer le tracé ».'):TOOLS[tool].cone?'Touchez l’image à chaque emplacement de cône.':tool==='poste'?'Touchez pour poser un poste. Restez appuyé et glissez pour marquer une zone (gouttière, faîtage).':TOOLS[tool].warn?'Touchez l’image à l’endroit du risque, puis donnez-lui un nom (électrique, pression…).':'Touchez l’image pour le poser.'}</span>`
-    :`<span>Choisissez un élément ${window.innerWidth>=1000?'à gauche':'ci-dessus'} puis touchez le plan. Glissez le fond pour recadrer.</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
+    :`<span>Choisissez un élément ${window.innerWidth>=1000?'à gauche':'ci-dessus'} puis touchez le plan. Glissez le fond pour recadrer.${S.frozen&&S.frozen.imported&&!S.frozen.mpp?' <b>Échelle de la photo inconnue :</b> « Tracer un repère » pour mesurer les longueurs.':''}</span>${S.objs.length?'<button type="button" class="btn sm" data-a="undo" style="margin-left:auto">Annuler le dernier</button>':''}`;
 }
+$('#bar').addEventListener('keydown',e=>{if(e.target.id==='echM'&&e.key==='Enter'){e.preventDefault(); calibOk();}});
 $('#bar').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a; if(!a) return; const o=S.objs.find(x=>x.id===selId);
+  if(a==='echOk'){calibOk(); return;} if(a==='echRedo'){calib={pts:[]}; renderObjs(); renderBar(); return;} if(a==='echCancel'){calib=null; renderObjs(); renderBar(); return;}
   if(a==='end') finishLine(); else if(a==='cancel'){line=null;}
   else if(a==='del'){S.objs=S.objs.filter(x=>x.id!==selId); selId=null;}
   else if(a==='undo'){S.objs.pop();}
@@ -1590,7 +1637,9 @@ function svgPt(e){const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; co
 svg.addEventListener('pointermove',e=>{if(S.frozen) hover=svgPt(e);});
 svg.addEventListener('pointerleave',()=>{hover=null;});
 svg.addEventListener('pointerdown',e=>{
-  if(!S.frozen) return; e.preventDefault(); const ae=document.activeElement; if(ae&&ae!==document.body&&ae.blur) ae.blur(); const p=svgPt(e), u=unit(), g=(tool&&e.target.dataset.h==='lbox')?null:e.target.closest('[data-id]');   // avec un outil en main, une bulle n'empêche pas de poser
+  if(!S.frozen) return; e.preventDefault(); const ae=document.activeElement; if(ae&&ae!==document.body&&ae.blur) ae.blur();
+  if(calib){if(calib.pts.length<2){calib.pts.push(svgPt(e)); renderObjs(); if(calib.pts.length===2) renderBar();} return;}   // repère d'échelle : deux points
+  const p=svgPt(e), u=unit(), g=(tool&&e.target.dataset.h==='lbox')?null:e.target.closest('[data-id]');   // avec un outil en main, une bulle n'empêche pas de poser
   if(line){const f=line.pts[0]; if(line.pts.length>=3&&Math.hypot(p[0]-f[0],p[1]-f[1])<u*2.2){line.closed=true; finishLine();} else {linePush(p); drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs();} return;}
   if(tool&&TOOLS[tool].k==='line'){line={id:'',t:tool,pts:[],anc:[],label:''}; linePush(p); selId=null; drag={lineDraw:true,p}; try{svg.setPointerCapture(e.pointerId);}catch(err){} renderObjs(); renderBar(); return;}
   if(g&&g.dataset.id){const o=S.objs.find(x=>x.id===g.dataset.id); if(o){const hd=e.target.dataset.h||''; selId=o.id;
