@@ -620,14 +620,15 @@ const MATS=[
     ['fibro_plaques','⚠ Fibrociment (plaques ondulées)'],
     ['translu_pc','⚠ Plaques translucides — polycarbonate'],
     ['translu_verre','⚠ Plaques translucides — verre'],
-    ['translu_grp','⚠ Plaques translucides — GRP / polyester']]},
+    ['translu_grp','⚠ Plaques translucides — GRP / polyester'],
+    ['fragile_autre','⚠ Toit fragile — autre (à préciser)']]},
   {g:'',o:[['autre','Autre / je ne sais pas']]}
 ];
 /* Pentes : [degrés, %, coefficient]. Surface en pente = surface à plat (Géoportail) × coefficient. Tableau ATTILA (coef = 1 / cos de la pente). */
 const PENTES=[[0,0,1],[5,8.75,1.003819838],[10,17.63,1.015426612],[15,26.79,1.03527618],[20,36.4,1.064177772],[25,46.63,1.103377919],
   [30,57.74,1.154700538],[35,70.02,1.220774589],[40,83.91,1.305407289],[45,100,1.414213562],[50,119.18,1.555723827],[55,142.81,1.743446796],
   [60,173.21,2],[65,214.45,2.366201583],[70,274.75,2.9238044],[75,373.21,3.863703305],[80,567.13,5.758770483]];
-const FRAGILE=new Set(['fibro_plaques','translu_pc','translu_verre','translu_grp']);   // les ardoises fibro-ciment reposent sur une charpente bois : risque amiante, mais pas toit fragile
+const FRAGILE=new Set(['fibro_plaques','translu_pc','translu_verre','translu_grp','fragile_autre']);   // les ardoises fibro-ciment reposent sur une charpente bois : risque amiante, mais pas toit fragile
 const FIBRO=new Set(['fibro_plaques','fibro_ardoises']);
 const RAT=[['non','Pas encore reçu'],['absent','Reçu : pas d’amiante dans la zone de travaux'],['present','Reçu : amiante présent (intervention SS4)'],['autre','Autre (champ libre)']];
 const AM_R=469/587;   // logo amiante officiel (largeur / hauteur)
@@ -1260,7 +1261,7 @@ function renderRoofs(){
         <span class="pre">${r.haut&&!r.hautMain&&r.src!=='saisie'?'BD TOPO, à vérifier':'sert à dimensionner l’échafaudage (+ 2 m)'}</span></div>
       <div class="field"><label for="mat_${r.id}">Matériau</label><select data-f="mat" id="mat_${r.id}"><option value="">— Sélectionner —</option>
         ${MATS.map(g=>(g.g?`<optgroup label="${g.g}">`:'')+g.o.map(o=>`<option value="${o[0]}" ${r.mat===o[0]?'selected':''}>${o[1]}</option>`).join('')+(g.g?'</optgroup>':'')).join('')}</select>
-        ${r.mat==='autre'?`<input type="text" data-f="matAutre" id="matA_${r.id}" placeholder="Précisez le matériau si vous le connaissez" value="${esc(r.matAutre)}">`:''}</div>
+        ${r.mat==='autre'||r.mat==='fragile_autre'?`<input type="text" data-f="matAutre" id="matA_${r.id}" placeholder="${r.mat==='autre'?'Précisez le matériau si vous le connaissez':'Précisez le matériau fragile (ex. : verre armé, bac acier corrodé…)'}" value="${esc(r.matAutre)}">`:''}</div>
       <div class="field"><span class="flabel">Permis de construire</span><div class="seg" data-f="periode">
         <button type="button" data-v="avant" class="${r.periode==='avant'?'on':''}">Avant le 1<sup>er</sup> juillet 1997</button>
         <button type="button" data-v="apres" class="${r.periode==='apres'?'on':''}">Après</button>
@@ -1692,7 +1693,8 @@ $('#panel').addEventListener('click',e=>{const b=e.target.closest('#repliSeg but
 /* =====================================================================================
    8. ÉCRAN 4 — synthèse pour le devis
    ===================================================================================== */
-const matLabel=r=>{const m=MATS.flatMap(g=>g.o).find(o=>o[0]===r.mat); return m?(r.mat==='autre'&&r.matAutre?r.matAutre:m[1].replace('⚠ ','')):'—';};
+const matLabel=r=>{const m=MATS.flatMap(g=>g.o).find(o=>o[0]===r.mat), t=(r.matAutre||'').trim(); if(!m) return '—';
+  if(r.mat==='autre'&&t) return t; if(r.mat==='fragile_autre') return t?'Toit fragile : '+t:'Toit fragile (autre)'; return m[1].replace('⚠ ','');};
 const perLabel={avant:'Avant le 1er juillet 1997',apres:'Après le 1er juillet 1997',nsp:'Inconnue'};
 /* Trois documents à imprimer à partir de la même analyse */
 const VIEWS=[['devis','Aide au chiffrage devis'],['brief','Briefing équipes / TTA'],['pdp','Plan de prévention'],['feu','Permis de feu']];
