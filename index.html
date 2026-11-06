@@ -1930,7 +1930,7 @@ const MOSI_NOMS=['contexte','description et méthodologie','montage en H','limit
 function mosiAnnexe(){const t=S.roofs.filter(isFragile).map(r=>r.name).join(', ');
   return `<div class="card annexe"><h2>Annexe — Toit fragile : mode opératoire MOSI CM (chemin de marche)</h2>
     <p class="intro">Obligatoire sur ${esc(t)} : chemin de marche Sécuriplac DIMOS et sécurité individuelle antichute (MOSICAM, MOSLAM). Extrait du guide du travail en hauteur ATTILA.</p>
-    <div class="mosi">${MOSI_CM.map((src,i)=>`<img src="${src}" alt="MOSI CM — ${MOSI_NOMS[i]}">`).join('')}</div></div>`;}
+    <div class="mosi">${MOSI_CM.map((src,i)=>`<img src="${src}" alt="MOSI CM — ${MOSI_NOMS[i]}" decoding="sync">`).join('')}</div></div>`;}
 /* Construit un des trois documents (devis, brief, pdp). withCfg : affiche les cases « risques particuliers » du plan de prévention */
 function buildDoc(v,withCfg){
   if(v==='feu') return permisDoc();
@@ -2254,7 +2254,14 @@ function summaryText(){
 }
 /* Impression : le PDF prend le nom du document, du client et de la date. « Les 3 documents » : aide au chiffrage, briefing et plan de prévention à la suite */
 function finPrint(){document.body.classList.remove('printall'); $('#printAll').innerHTML='';}
-function doPrint(all){
+/* Avant d'ouvrir l'impression, on attend que les images soient prêtes (annexe MOSI CM, photo du plan) :
+   sinon le navigateur imprime des cadres vides quand le document vient d'être construit. */
+async function imagesPretes(root,ms){
+  const imgs=[...root.querySelectorAll('img')], hrefs=[...new Set([...root.querySelectorAll('image')].map(i=>i.getAttribute('href')||i.getAttribute('xlink:href')).filter(Boolean))];
+  const charge=src=>new Promise(r=>{const i=new Image(); i.onload=()=>{(i.decode?i.decode():Promise.resolve()).catch(()=>{}).then(r);}; i.onerror=r; i.src=src;});
+  const attend=i=>i.complete&&i.naturalWidth?(i.decode?i.decode().catch(()=>{}):0):new Promise(r=>{i.addEventListener('load',()=>{(i.decode?i.decode():Promise.resolve()).catch(()=>{}).then(r);},{once:true}); i.addEventListener('error',r,{once:true});});
+  await Promise.race([Promise.all([...imgs.map(attend),...hrefs.map(charge)]),new Promise(r=>setTimeout(r,ms||5000))]);}
+async function doPrint(all){
   finPrint();
   const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'), vv=S.view||'devis';
   const avecFeu=!all&&vv==='pdp'&&permisFeu(), liste=all?vuesActives().map(x=>x[0]):avecFeu?['pdp','feu']:null;   // le permis de feu suit toujours le plan de prévention
@@ -2263,6 +2270,8 @@ function doPrint(all){
   const now=new Date().toISOString(); S.printed=Object.assign({},S.printed,Object.fromEntries((liste||[vv]).map(k=>[k,now]))); save(); logEv(all?'impression_tous_documents':'impression_'+vv+(avecFeu?'_permis_feu':''));
   if(liste){const pa=$('#printAll'); pa.innerHTML=liste.map(k=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false)}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}
   window.addEventListener('afterprint',()=>{finPrint(); document.title=t0;},{once:true});
+  const zone=liste?$('#printAll'):$('#s4'), lent=setTimeout(()=>busy('Préparation de l’impression…'),250);
+  await imagesPretes(zone); clearTimeout(lent); busy('');
   window.print();
   pushSync({plan:true});   // après l'impression : plan composé et résumé envoyés dans le dossier Drive (si la sauvegarde en ligne est active)
 }
