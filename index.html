@@ -641,7 +641,7 @@ const MATS=[
     ['shingle','Bardeaux bitumés (shingle)'],
     ['sandwich','Panneaux sandwich / couverture sèche'],
     ['vegetalisee','Toiture végétalisée']]},
-  {g:'Toits fragiles (filets en sous-face + Sécuriplac obligatoires)',o:[
+  {g:'Toits fragiles (chemin de marche Sécuriplac obligatoire)',o:[
     ['fibro_plaques','⚠ Fibrociment (plaques ondulées)'],
     ['translu_pc','⚠ Plaques translucides — polycarbonate'],
     ['translu_verre','⚠ Plaques translucides — verre'],
@@ -709,7 +709,8 @@ function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t
   if(M.echaf) mat.push(['Échafaudage déjà monté sur le chantier (matériel MDS) :',echafTxt(M)+' — réception à vérifier avant d’y monter']);
   if(M.nacelle) mat.push(['Nacelle',nb('nacelle')>1?'× '+nb('nacelle'):'à acheminer']);
   if(M.levage) mat.push(['Grue / moyen de levage',nb('levage')>1?'× '+nb('levage'):'à prévoir']);
-  if(fragileSurToit()){mat.push(['Filets en sous-face','posés avant l’intervention']); if(!M.secu) mat.push(['Chemin de marche Sécuriplac + antichute (MOSICAM)','à métrer']);}
+  if((S.an.epc.sel||[]).includes('filet_sousface')) mat.push(['Filets en sous-face','posés avant l’intervention']);
+  if(fragileSurToit()&&!M.secu) mat.push(['Chemin de marche Sécuriplac + antichute (MOSICAM)','à métrer']);
   if(pfActif()) mat.push(['Protections des points fragiles','grilles, capots ou sangles d’ancrage de lanterneau']);
   if(mat.length) G.push(['Matériel',mat]);
   const am=[];
@@ -980,8 +981,11 @@ async function restoreFromLink(){
     sessionStorage.setItem('ar_repris',id); location.reload(); return true;}
   catch(e){toast('Ce lien n’a pas pu être ouvert : '+e.message); return false;}}
 /* Liste des agences : celle de l'onglet AGENCES du Sheet si elle est en ligne, sinon la liste officielle ci-dessous */
-const AGENCES=['TDR','Agen','Albi','Amiens','Ancenis Nantes Est','Angers Nord','Angers Sud','Anglet','Angoulême','Annecy Est','Annemasse','Arras','Aubagne','Auch','Avignon','Bain-de-Bretagne - Janzé','Bernay','Béziers Ouest','Bordeaux Est','Bordeaux Mérignac','Bordeaux Nord','Bordeaux Sud','Bourg En Bresse','Bourges','Brest est','Brignoles','Brive La Gaillarde','Caen Ouest','Carcassonne','Cergy Pontoise','Challans','Chalon Sur Saône','Chambéry Ouest','Chartres','Cholet Est','Cholet Ouest','Clermont-Ferrand','Cognac','Colmar','Dax','Dijon Nord','Dreux','Dunkerque','Elancourt','Fontainebleau','Grenoble Est','Grenoble Ouest','Issoire','La Roche Sur Yon','La Rochelle Sud','La Tour Du Pin','Laval','Le Mans Nord','Le Mans Sud','Le Puy En Velay','Les Sables D\'Olonne','Libourne','Lille - Marcq-En-Baroeul','Lille Seclin','Limoges Nord','Limoges Sud','Lorient','Lyon Nord Est','Lyon Nord Ouest','Lyon Plaine De L\'Ain','Lyon Sud Est','Lyon Sud Ouest','Mâcon','Massy','Mayenne','Melun','Mont De Marsan','Montargis','Montauban','Montélimar','Montpellier Est','Montpellier Nord','Montpellier Sud','Nancy Sud','Nantes Ouest','Nantes Sud','Narbonne','Nevers','Nice Ouest','Niort','Nord Poitiers','Orange','Orléans Nord','Oyonnax','Pau','Périgueux','Ploërmel Redon','Poitiers','Pontivy Loudéac','Pornic','Provins','Quimper','Reims Est','Reims Ouest','Rennes Nord','Rennes Sud','Roanne','Rodez','Rouen Est','Rouen Sud','Saint Brieuc','Saintes','Saint-Etienne Andrézieux','Saint-Etienne Firminy','Saint-Germain En Laye','Saint-Jean De Luz','Saint-Nazaire','Saint-Quentin','Saumur','Sens','Sete','Tarare La Plaine Du Forez','Tarbes','Toulon Ouest','Toulouse Nord','Toulouse Sud','Tours Est','Tours Ouest','Troyes','Valence','Vannes Ouest','Versailles','Vichy','Vienne','Villefranche','Villeneuve D\'Ascq','Vitré-Fougères','Vitrolles','Voiron','Yonne Centre','Yvetot/Barentin'];
-function fillAgences(list){const sel=$('#agence'), v=S.agence; const l=list.slice(); if(v&&!l.includes(v)) l.unshift(v);
+const AGENCES=['TDR','Agen','Albi','Amiens','Ancenis Nantes Est','Angers Nord','Angers Sud','Anglet','Angoulême','Annecy Est','Annemasse','Arras','Aubagne','Auch','Avignon','Bain-de-Bretagne - Janzé','Bernay','Béziers Ouest','Bordeaux Est','Bordeaux Mérignac','Bordeaux Nord','Bordeaux Sud','Bourg En Bresse','Bourges','Brest est','Brignoles','Brive La Gaillarde','Caen Ouest','Carcassonne','Cergy Pontoise','Challans','Chalon Sur Saône','Chambéry Ouest','Chartres','Cholet Est','Cholet Ouest','Clermont-Ferrand','Cognac','Colmar','Dax','Dijon Nord','Dreux','Dunkerque','Elancourt','Fontainebleau','Grenoble Est','Grenoble Ouest','Issoire','La Roche Sur Yon','La Rochelle Sud','La Tour Du Pin','Lanester - Auray','Laval','Le Mans Nord','Le Mans Sud','Le Puy En Velay','Les Sables D\'Olonne','Libourne','Lille - Marcq-En-Baroeul','Lille Seclin','Limoges Nord','Limoges Sud','Lorient','Lyon Nord Est','Lyon Nord Ouest','Lyon Plaine De L\'Ain','Lyon Sud Est','Lyon Sud Ouest','Mâcon','Massy','Mayenne','Melun','Mont De Marsan','Montargis','Montauban','Montélimar','Montpellier Est','Montpellier Nord','Montpellier Sud','Nancy Sud','Nantes Ouest','Nantes Sud','Narbonne','Nevers','Nice Ouest','Niort','Nord Poitiers','Orange','Orléans Nord','Oyonnax','Pau','Périgueux','Ploërmel Redon','Poitiers','Pontivy Loudéac','Pornic','Provins','Quimper','Reims Est','Reims Ouest','Rennes Nord','Rennes Sud','Roanne','Rodez','Rouen Est','Rouen Sud','Saint Brieuc','Saintes','Saint-Etienne Andrézieux','Saint-Etienne Firminy','Saint-Germain En Laye','Saint-Jean De Luz','Saint-Nazaire','Saint-Quentin','Saumur','Sens','Sete','Tarare La Plaine Du Forez','Tarbes','Toulon Ouest','Toulouse Nord','Toulouse Sud','Tours Est','Tours Ouest','Troyes','Valence','Vannes Ouest','Versailles','Vichy','Vienne','Villefranche','Villeneuve D\'Ascq','Vitré-Fougères','Vitrolles','Voiron','Yonne Centre','Yvetot/Barentin'];
+function fillAgences(list){const sel=$('#agence'), v=S.agence;
+  /* ordre alphabétique quel que soit l'ordre des lignes de l'onglet AGENCES (TDR, le siège, reste en tête) */
+  const l=[...new Set(list.map(a=>String(a).trim()).filter(Boolean))].sort((a,b)=>(a==='TDR')-(b==='TDR')?(b==='TDR')-(a==='TDR'):a.localeCompare(b,'fr',{sensitivity:'base'}));
+  if(v&&!l.includes(v)) l.unshift(v);
   sel.innerHTML='<option value="">— Sélectionner —</option>'+l.map(a=>`<option ${a===v?'selected':''}>${esc(a)}</option>`).join('');}
 
 /* =====================================================================================
@@ -1016,7 +1020,7 @@ function rampHtml(r){const p=penteOf(r), sp=surfPente(r);
   return `Surface adaptée à la pente : <b>${fmtN(sp)} m²</b>`;}
 /* Travail uniquement depuis la nacelle : on est attaché dans la nacelle, l'étape EPI ne s'applique pas */
 function nacelleSeule(){const e=S.an.epc.sel; return e.length===1&&e[0]==='nacelle';}
-function isFragile(r){return FRAGILE.has(r.mat);}   // toit fragile : le matériau lui-même (Sécuriplac ou filet en sous-face obligatoires)
+function isFragile(r){return FRAGILE.has(r.mat);}   // toit fragile : le matériau lui-même (chemin de marche Sécuriplac obligatoire ; filets en sous-face chiffrés dans l’aide au devis)
 /* Points fragiles (lanterneaux, plaques translucides, trappes de désenfumage…) : ils ne rendent pas le toit fragile.
    Protégés par une grille ou un capot antichute : rien à faire. Sinon : risque de chute au travers, à sécuriser si on travaille à proximité. */
 const pointsNonProteges=r=>!!r.translu&&r.pfGrille!=='oui';
@@ -1040,7 +1044,8 @@ function evaluate(){
   if(!S.roofs.length) up(T,INC,'Aucun toit sélectionné');
   const bcDone=a.chemin.sel.length&&(a.epc.sel.length||a.epi.sel.length);
   const horsToit=a.chemin.sel.length&&a.chemin.sel.every(x=>x==='aucun_nacelle'||x==='aucun_echaf');
-  /* Toit fragile : il faut LES DEUX, une protection collective (filets en sous-face) ET une protection individuelle (chemin de marche Sécuriplac avec antichute, MOSI CM) */
+  /* Toit fragile : chemin de marche Sécuriplac avec antichute (MOSI CM) obligatoire. Les filets en sous-face sont toujours chiffrés dans l’aide au devis,
+     mais ne sont ni exigés par l’analyse ni annoncés comme obligatoires dans le briefing et le plan de prévention. */
   const filetPrevu=a.epc.sel.includes('filet_sousface'), secuPrevu=!!M.secu||a.epi.sel.includes('MOSID')||a.chemin.sel.includes('chemin_provisoire');
   S.roofs.forEach(r=>{
     const n=r.name||'Toit';
@@ -1058,10 +1063,10 @@ function evaluate(){
     if(isFragile(r)){
       if(horsToit) up(T,O,n+' : toit fragile, travail depuis la nacelle ou l’échafaudage, sans appui sur la couverture');
       else{
-        add(OPT.epc.find(o=>o.id==='filet_sousface').devis,'',1); if(!M.secu) add(OPT.epi.find(o=>o.id==='MOSID').devis,'',1);   // les deux, toujours chiffrés
-        if(!bcDone) up(T,O,n+' : toit fragile, à traiter aux étapes B et C (filets en sous-face ET chemin de marche Sécuriplac)');
-        else if(filetPrevu&&secuPrevu) up(T,O,n+' : toit fragile, filets en sous-face et chemin de marche Sécuriplac prévus');
-        else up(T,R,n+' : toit fragile, il faut les deux : '+[!filetPrevu&&'filets en sous-face (protection collective) à prévoir',!secuPrevu&&'chemin de marche Sécuriplac avec antichute (protection individuelle) à prévoir'].filter(Boolean).join(' et '));
+        add(OPT.epc.find(o=>o.id==='filet_sousface').devis,'',1); if(!M.secu) add(OPT.epi.find(o=>o.id==='MOSID').devis,'',1);   // les deux, toujours chiffrés (aide au devis uniquement)
+        if(!bcDone) up(T,O,n+' : toit fragile, cheminement à traiter aux étapes B et C (chemin de marche Sécuriplac avec antichute)');
+        else if(secuPrevu) up(T,O,n+' : toit fragile, chemin de marche Sécuriplac avec antichute prévu'+(filetPrevu?', filets en sous-face en plus':''));
+        else up(T,R,n+' : toit fragile, chemin de marche Sécuriplac avec antichute (MOSI CM) à prévoir');
       }
     }
     if(r.translu){
@@ -1277,7 +1282,7 @@ function renderRoofs(){
         <select data-f="rat" id="rat_${r.id}" aria-label="Repérage amiante avant travaux"><option value="">— Repérage amiante avant travaux —</option>${RAT.map(o=>`<option value="${o[0]}" ${r.rat===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
         ${r.rat==='autre'?`<input type="text" data-f="ratAutre" id="ratA_${r.id}" placeholder="Précisez" value="${esc(r.ratAutre)}">`:''}</div>`;
     }
-    if(fr) alerts+=`<div class="alert r"><span><b>Toit fragile.</b> On ne prend jamais appui directement dessus. Il faut <b>les deux</b> : une protection collective (filet en sous-face) <b>ET</b> une protection individuelle (chemin de marche Sécuriplac avec antichute, mode opératoire MOSI CM).</span></div>`;
+    if(fr) alerts+=`<div class="alert r"><span><b>Toit fragile.</b> On ne prend jamais appui directement dessus : cheminement uniquement sur chemin de marche Sécuriplac avec antichute (mode opératoire MOSI CM). Les filets en sous-face sont chiffrés dans l’aide au devis.</span></div>`;
     const pf=r.translu?(r.pfGrille==='oui'?`<div class="alert v"><span><b>Points fragiles protégés.</b> Grilles ou capots antichute en place : pas de sécurisation particulière. Vérifier sur place leur état et leur fixation.</span></div>`
       :r.pfGrille?`<div class="alert o"><span><b>Points fragiles ${r.pfGrille==='non'?'non protégés':'à vérifier'}.</b> Risque de chute au travers. À sécuriser si l’intervention se fait à proximité : grille ou capot antichute, sangle d’ancrage pour lanterneau, ou balisage à distance. Ces points seuls ne rendent pas le toit fragile : pas de Sécuriplac obligatoire.</span></div>`:''):'';
     return `<div class="roof" data-id="${r.id}">
@@ -1710,7 +1715,7 @@ function planHint(types){const M=measures(), t=types.filter(x=>M[x]).map(x=>x===
 function renderAnalysis(){
   const a=S.an, st=STEPS.find(s=>s.k===S.sub); let h=`<h3><small>Étape ${st.k} · ${st.f}</small>${st.q}</h3>`;
   if(st.k==='A') h+=planHint(['echelle','echaf','crino','escalier','acces'])+multiHtml('acces','Moyen d’accès','Plusieurs choix possibles.');
-  if(st.k==='B') h+=(S.roofs.some(isFragile)?'<div class="alert r"><span><b>Toit fragile.</b> Cheminement uniquement sur chemin de marche Sécuriplac avec antichute (MOSI CM), jamais directement sur la couverture, <b>ET</b> filets en sous-face à prévoir (étape C).</span></div>':'')
+  if(st.k==='B') h+=(S.roofs.some(isFragile)?'<div class="alert r"><span><b>Toit fragile.</b> Cheminement uniquement sur chemin de marche Sécuriplac avec antichute (MOSI CM), jamais directement sur la couverture.</span></div>':'')
     +(S.roofs.some(pointsNonProteges)?'<div class="alert o"><span><b>Points fragiles non protégés.</b> Cheminement à distance des lanterneaux, plaques translucides et trappes de désenfumage, ou protection avant de passer à proximité (grille, capot, sangle d’ancrage pour lanterneau).</span></div>':'')+planHint(['secu'])+multiHtml('chemin','Cheminement','Plusieurs choix possibles.');
   if(st.k==='C') h+=planHint(['nacelle','gc_ex','ldv_ex','ancrage_ex','gc','ldv','ancrage','secu'])
     +`<span class="rang">1 · Protection collective, toujours en premier</span>`+multiHtml('epc','Protection collective au poste','Plusieurs modes peuvent se combiner.')
@@ -1815,9 +1820,9 @@ const PDP_OPTS=[
    a:'Mode opératoire SS4 présent sur le chantier, zone de travail balisée et interdite aux tiers, matériaux déposés sans casse et conditionnés sur place, déchets évacués sous BSDA.',
    p:'Appareil de protection respiratoire adapté au niveau d’empoussièrement, combinaison jetable type 5/6, gants, surbottes, moyens de décontamination.'},
   {id:'fragile',t:'Toiture en matériau fragile (fibrociment, plaques translucides)',sug:()=>S.roofs.some(isFragile),
-   r:'Jamais d’appui direct sur un matériau fragile. Protection collective ET protection individuelle obligatoires.',
-   a:'Filets en sous-face posés avant l’intervention ; cheminement uniquement sur chemin de marche Sécuriplac DIMOS, selon le mode opératoire MOSI CM.',
-   p:'Filets en sous-face (protection collective) ET chemin de marche Sécuriplac avec antichute MOSICAM / MOSLAM (protection individuelle).'},
+   r:'Jamais d’appui direct sur un matériau fragile : risque de chute au travers de la couverture.',
+   a:'Cheminement uniquement sur chemin de marche Sécuriplac DIMOS, selon le mode opératoire MOSI CM.',
+   p:'Chemin de marche Sécuriplac avec antichute MOSICAM / MOSLAM.'},
   {id:'pointsfragiles',t:'Points fragiles non protégés (lanterneaux, plaques translucides, trappes de désenfumage)',sug:()=>S.roofs.some(pointsNonProteges),
    r:'Aucun appui ni passage sur un point fragile. Sans grille ou capot antichute, c’est un risque de chute au travers.',
    a:'Repérage des points fragiles avec le client et balisage ; si l’intervention se fait à proximité, protection mise en place avant de commencer.',
@@ -1959,7 +1964,7 @@ function buildDoc(v,withCfg){
     if(S.roofs.some(isFragile)) h+=`<div class="danger">${warnIcon(52)}<div><p class="dt">Danger — toit fragile${fragNoms()}</p>
       <p><b>90 % des accidents graves chez ATTILA proviennent de chutes sur des toits fragiles.</b></p>
       <p class="ag">AGISSEZ EN CONSÉQUENCE : 0 écart sur le matériel et sur les procédures.</p>
-      <p class="dm">Filets en sous-face ET chemin de marche Sécuriplac avec antichute. Mode opératoire MOSI CM en annexe.</p></div></div>`;
+      <p class="dm">Chemin de marche Sécuriplac avec antichute, jamais d’appui direct sur la couverture. Mode opératoire MOSI CM en annexe.</p></div></div>`;
   }else{
     if(withCfg) h+=`<div class="card noprint pdpcfg"><h2>Risques particuliers de ce chantier</h2><p class="intro" style="margin-left:0">Cochez ceux qui s’appliquent : leurs mesures de prévention s’ajoutent au plan de prévention.</p>
       <div class="cfglist">${PDP_OPTS.map(o=>{const au=prAuto(o.id); return `<label class="check"><input type="checkbox" data-pr="${o.id}" id="pr_${o.id}" ${pr.includes(o.id)||au?'checked':''}${au?' disabled':''}><span>${o.t}${au?` <em class="sugg">${au}</em>`:o.sug&&o.sug()?' <em class="sugg">Suggéré par l’analyse</em>':''}</span></label>`;}).join('')}
