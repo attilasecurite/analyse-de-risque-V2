@@ -289,6 +289,13 @@ tr.tot td{border-top:2px solid var(--trait)}
 .rrows{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;margin:0;font-size:14.5px}
 .rrows dt{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rouge-fonce);padding-top:2px}
 .rrows dd{margin:0}
+.resp{display:flex;flex-wrap:wrap;gap:4px 18px}
+.rb{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:3px 0;margin:0;font:inherit;font-weight:600;color:var(--encre);cursor:pointer;min-height:34px;text-align:left}
+.rb .bx{flex:none;width:21px;height:21px;border:2px solid var(--encre-2);border-radius:4px;background:#fff;display:inline-grid;place-items:center;color:var(--rouge)}
+.rb.on .bx{border-color:var(--rouge)} .rb .bx svg{width:14px;height:14px}
+.rb:disabled{cursor:default;opacity:1;color:var(--encre)} .rb:focus-visible{outline:2px solid var(--rouge);outline-offset:2px}
+.rlegend{margin:0 0 10px;font-size:13.5px;color:var(--encre-2)}
+.respwarn{display:flex;gap:8px;align-items:flex-start;margin:0 0 12px;padding:9px 12px;border-radius:6px;background:var(--rouge-pale);color:var(--rouge-fonce);font-size:14px} .respwarn svg{flex:none;margin-top:2px}
 .epis{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
 .epi{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;text-align:center}
 .epi svg{width:48px;height:48px;margin-bottom:2px} .epi b{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.15;max-width:90px}
@@ -346,6 +353,32 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 .danger .ag{font-weight:900;font-size:17px;color:var(--stop);margin-top:4px} .danger .dm{font-size:14px;margin-top:4px}
 .mosi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px} .mosi img{display:block;width:100%;height:auto;border:1px solid var(--trait);border-radius:4px;background:#fff}
 @media (max-width:700px){.mosi{grid-template-columns:1fr}}
+/* photos du chantier */
+.phcard{border-left-color:var(--vert);padding:14px 16px 16px}
+.phbig{display:flex;align-items:center;gap:16px;padding:18px 20px;border:2.5px dashed var(--rouge);border-radius:10px;background:var(--rouge-pale);cursor:pointer;color:var(--encre)}
+.phbig:hover,.phdrop.drag .phbig{background:#f7ddd7;border-style:solid} .phdrop:focus-within .phbig{outline:3px solid var(--rouge);outline-offset:2px}
+.phbig>svg{width:46px;height:46px;flex:none;color:var(--rouge)} .phbig b{display:block;font-size:20px;line-height:1.2} .phbig small{display:block;color:var(--encre-2);font-size:14px;margin-top:3px}
+.phetat{display:flex;flex-wrap:wrap;gap:8px} .phetat:not(:empty){margin-top:12px}
+.phchip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-weight:700;font-size:14px;background:var(--vert-pale);color:var(--vert);border:1.5px solid var(--vert)}
+.phchip svg{width:14px;height:14px} .phchip.att{background:#FFF6E0;color:#7A5200;border-color:#D9A400}
+.phlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px} .phlist:not(:empty){margin-top:12px}
+.phit{margin:0;display:flex;flex-direction:column;gap:6px}
+.phimg{position:relative;aspect-ratio:4/3;border-radius:7px;overflow:hidden;background:#EEE9E7;border:2.5px solid var(--vert)}
+.phimg img{width:100%;height:100%;object-fit:cover;display:block}
+.phok{position:absolute;left:6px;bottom:6px;display:inline-flex;align-items:center;gap:4px;background:var(--vert);color:#fff;font-size:12.5px;font-weight:700;padding:3px 8px;border-radius:999px} .phok svg{width:12px;height:12px}
+.phact{position:absolute;right:5px;top:5px;display:flex;gap:4px}
+.phact button{min-width:34px;height:34px;border:0;border-radius:6px;background:rgba(32,26,24,.72);color:#fff;font-weight:700;font-size:14px;padding:0 8px}
+.phact button.arm{background:var(--stop)}
+.phit input{font-size:14px;padding:7px 9px}
+.phabs{position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;font-size:13px;color:var(--encre-2)}
+.phbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px} .phbar .btn{margin-left:auto}
+.phgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.phfig{margin:0;display:flex;flex-direction:column;gap:6px;border:1px solid var(--trait);border-radius:6px;padding:8px;background:#fff}
+.phfig img{display:block;width:100%;height:auto;max-height:380px;object-fit:contain}
+.phfig figcaption{font-size:14px} .phfig .phabs{position:static;min-height:160px;background:#EEE9E7;border-radius:4px}
+.phvide{border-left-color:var(--trait)} .phvide .row{margin-top:10px}
+.views .vph{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-size:.85em;opacity:.9} .views .vph svg{width:14px;height:14px}
+@media (max-width:700px){.phdnd{display:none} .phgrid{grid-template-columns:1fr} .phbig{padding:14px} .phbig b{font-size:18px} .phlist{grid-template-columns:1fr 1fr}}
 /* permis de feu */
 .seg.views button.vfeu{border-color:#e0a800}
 .pfdoc{display:flex;flex-direction:column;gap:14px}
@@ -422,6 +455,10 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .pfsign .sbox .zone{min-height:15mm} .pfp2{gap:2mm} .pfp2 .pfbox>h3{margin-bottom:.8mm} .pffoot{font-size:6.5pt;margin-top:-1mm}
   .annexe{break-before:page;break-inside:avoid;height:190mm;display:flex!important;flex-direction:column} .annexe>h2{flex:none}
   .mosi{flex:1 1 0;min-height:0;grid-template-rows:repeat(2,minmax(0,1fr));gap:2.5mm;margin-top:1mm} .mosi img{width:100%;height:100%;min-height:0;object-fit:contain;border:0;border-radius:0}
+  .phpage .phgrid{flex:1 1 0;min-height:0;grid-template-rows:repeat(2,minmax(0,1fr));gap:3mm;margin-top:1.5mm}
+  .phfig{min-height:0;gap:1mm;padding:1.5mm;border:.3mm solid #cfc7c4;border-radius:1mm;break-inside:avoid}
+  .phfig img{flex:1 1 0;min-height:0;width:100%;height:100%;max-height:none;object-fit:contain} .phfig figcaption{flex:none;font-size:8.5pt;line-height:1.2}
+  .phpage h2 small{font-weight:400;margin-left:2mm}
   .danger{padding:2.5mm 4mm;gap:4mm;border-width:2px;border-radius:2mm;break-inside:avoid} .danger svg{width:12mm;height:auto} .danger .dt{font-size:12pt;margin-bottom:.5mm} .danger p{font-size:9pt} .danger .ag{font-size:10pt;margin-top:.5mm} .danger .dm{font-size:8pt;margin-top:.5mm}
   .fragwarn{padding:2mm 3mm;gap:3mm;border-width:1.5px;border-left-width:2mm;font-size:8.5pt;margin:1mm 0 1.5mm;break-inside:avoid} .fragwarn svg{width:7mm;height:auto} .devis li.warn{padding-left:2mm;border-left-width:1mm}
   .pronly{display:block} .majtab{font-size:8pt;margin:1mm 0 0} .majtab th{font-size:6.5pt;padding:.5mm 1.5mm} .majtab td{padding:.8mm 1.5mm} .majtab td.qd{font-size:7pt}
@@ -430,6 +467,8 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .rlist{gap:2mm;margin-top:1.5mm} .rlist{display:grid;grid-template-columns:1fr 1fr;align-items:start} .rcard{padding:2mm 3mm;border-left-width:1.2mm;border-radius:1.5mm}
   .rcard header{gap:2mm;margin-bottom:1.2mm} .ricon{width:6mm;height:6mm} .rlogo{height:7mm;width:auto} .ricon svg{width:3.8mm;height:3.8mm} .rcard h3{font-size:9.5pt}
   .badge{font-size:6.5pt;padding:.3mm 1.5mm} .rrows{grid-template-columns:20mm 1fr;gap:.8mm 3mm;font-size:8.2pt} .rrows dt{font-size:6.5pt}
+  .resp{gap:.5mm 6mm} .rb{min-height:0;padding:0;gap:1.5mm;font-size:8.2pt} .rb .bx{width:3.4mm;height:3.4mm;border-width:.35mm;border-radius:.6mm} .rb .bx svg{width:2.6mm;height:2.6mm}
+  .rlegend{font-size:7.5pt;margin:0 0 1mm}
   .epis{gap:4mm;margin-top:1.5mm} .epi{min-width:0} .epi svg{width:9.5mm;height:9.5mm;margin-bottom:.3mm} .epi b{font-size:6pt} .epi small{font-size:5pt}
   .dochead.withepi{gap:2mm 6mm} .dochead.withqr{gap:2mm 6mm} .qrbox{width:26mm;gap:1mm;font-size:6pt} .qrbox svg{width:22mm;height:22mm} .epibox{gap:1mm} .epis.mini{gap:1.5mm} .epis.mini .epi{width:13mm} .epis.mini .epi svg{width:8.5mm;height:8.5mm} .epis.mini .epi b{font-size:5.5pt}
   .rnote{font-size:7pt;margin-top:1mm} h3.sub{font-size:10pt;margin-top:3mm}
@@ -506,6 +545,15 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 
 <!-- ============ ÉCRAN 1 ============ -->
 <section class="ecran" id="s1">
+  <div class="card phcard" id="phCard">
+    <div class="phdrop" id="phDrop">
+      <label class="phbig" for="phIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg><span><b>Ajouter des photos du chantier</b><small>Depuis le téléphone ou l’ordinateur<span class="phdnd"> (vous pouvez aussi les glisser ici)</span>. Elles s’ajoutent au briefing des équipes, 4 par page.</small></span></label>
+      <input type="file" id="phIn" accept="image/*" multiple hidden>
+    </div>
+    <div class="phetat" id="phEtat" aria-live="polite"></div>
+    <div class="phlist" id="phList"></div>
+  </div>
+
   <div class="card">
     <h2><span class="num">1</span>Chantier</h2>
     <p class="intro">Tapez l’adresse : la vue aérienne se place dessus.</p>
@@ -706,6 +754,7 @@ function camionListe(){const M=measures(), k=mppEff(), lng=t=>!M[t]?'':isNaN(M[t
   if(M.balisage) mat.push(['Cônes de balisage','× '+nb('balisage')]);
   if(M.heras_ch){const n=herasCount('heras_ch'); mat.push(['Barrières Heras',isNaN(n)?'panneaux à compter':n+' panneau'+(n>1?'x':'')+' avec plots et colliers']);}
   if(M.echelle) mat.push(['Échelle','× '+nb('echelle')]);
+  if(M.saut) mat.push(['Passerelle de franchissement avec garde-corps (saut de loup)','× '+nb('saut')]);
   if(M.echaf) mat.push(['Échafaudage déjà monté sur le chantier (matériel MDS) :',echafTxt(M)+' — réception à vérifier avant d’y monter']);
   if(M.nacelle) mat.push(['Nacelle',nb('nacelle')>1?'× '+nb('nacelle'):'à acheminer']);
   if(M.levage) mat.push(['Grue / moyen de levage',nb('levage')>1?'× '+nb('levage'):'à prévoir']);
@@ -755,7 +804,7 @@ const OPT={
   chemin:[
     {id:'aucun_nacelle',l:'Pas de cheminement : je travaille depuis la nacelle',niv:V},
     {id:'aucun_echaf',l:'Pas de cheminement : je travaille depuis l’échafaudage',niv:V},
-    {id:'terrasse_protegee',l:'Toiture-terrasse protégée (acrotère de 1 m ou plus, ou garde-corps)',niv:V},
+    {id:'terrasse_protegee',l:'Toiture-terrasse protégée (acrotère de 1,10 m ou plus, ou garde-corps)',niv:V},
     {id:'chemin_permanent',l:'Chemin de circulation permanent / passerelle',niv:V},
     {id:'chemin_provisoire',l:'Chemin provisoire (platelage, Sécuriplac)',niv:O,devis:'Chemin de circulation provisoire (platelage / Sécuriplac) : fourniture + pose'},
     {id:'echelle_toit',l:'Échelle de toit / échelle plate',niv:O,devis:'Échelle de toit : mise en place et accrochage au faîtage'},
@@ -763,7 +812,7 @@ const OPT={
   ],
   epc:[
     {id:'gc_permanent',l:'Garde-corps permanents',niv:V},
-    {id:'acrotere',l:'Acrotère de 1 m ou plus',niv:V,hint:'En dessous de 1 m, l’acrotère ne suffit pas : ajoutez un autre moyen.'},
+    {id:'acrotere',l:'Acrotère de 1,10 m ou plus (vaut protection collective)',niv:V,hint:'En dessous de 1,10 m, l’acrotère ne suffit pas : ajoutez un garde-corps ou une autre protection collective.'},
     {id:'gc_temp',l:'Garde-corps temporaires',niv:O,devis:'Garde-corps temporaires : fourniture, pose, dépose',qty:'gc'},
     {id:'echaf',l:'Échafaudage de pied (protection de rive / bas de pente)',niv:O,devis:L_ECHAF,qty:'echaf'},
     {id:'filet_sousface',l:'Filets en sous-face',niv:O,devis:'Filets en sous-face : pose par personnel formé + accès par l’intérieur'},
@@ -815,6 +864,7 @@ const TOOLS={
   crino:{g:'Accès',n:'Crinoline',k:'pt',c:'#0b7a75',code:'CRI'},
   escalier:{g:'Accès',n:'Escalier ext.',k:'pt',c:'#0b7a75',code:'ESC'},
   acces:{g:'Accès',n:'Autre accès',k:'pt',c:'#0b7a75',code:'ACC',ask:1},
+  saut:{g:'Accès',n:'Saut de loup (passage entre toits)',p:'Saut de loup',k:'pt',c:'#0b7a75',code:'SDL'},   // franchissement d'un toit à l'autre : passerelle avec garde-corps, chiffrée
   levage:{g:'Levage',n:'Grue / moyen de levage',p:'Grue / levage',k:'pt',c:'#6a1b9a',code:'LEV',ask:1},
   poste:{g:'Postes',n:'Poste de travail',k:'pt',c:'#C0392B',num:1,ask:1},
   texte:{g:'Postes',n:'Texte libre',p:'Texte',k:'txt',c:'#7a8590',ask:1},
@@ -822,6 +872,7 @@ const TOOLS={
   ancrage_ex:{g:'Existant',n:'Ancrage existant',p:'Ancrage',k:'pt',c:'#111111',small:1},
   ldv_ex:{g:'Existant',n:'Ligne de vie existante',p:'Ligne de vie',k:'line',c:'#111111',sw:.5,dash:[1.6,.8],short:'Ligne de vie existante'},
   gc_ex:{g:'Existant',n:'Garde-corps existant',p:'Garde-corps',k:'line',c:'#111111',sw:.7,short:'Garde-corps existant'},
+  acrotere:{g:'Existant',n:'Acrotère ≥ 1,10 m (protection collective)',p:'Acrotère',k:'line',c:'#5f6368',sw:1.3,short:'Acrotère ≥ 1,10 m'},   // à 1,10 m ou plus, l'acrotère vaut protection collective : rien à chiffrer
   ancrage:{g:'À créer',n:'Ancrage à créer',p:'Ancrage',k:'pt',c:'#13a538',small:1},
   ldv:{g:'À créer',n:'Ligne de vie à créer',p:'Ligne de vie',k:'line',c:'#13a538',sw:.5,dash:[1.6,.8],short:'Ligne de vie à créer'},
   gc:{g:'À créer',n:'Garde-corps à créer',p:'Garde-corps',k:'line',c:'#13a538',sw:.7,short:'Garde-corps à créer'},
@@ -835,7 +886,7 @@ const TOOLS={
   panneau:{g:'Amiante',n:'Panneau « Danger amiante »',p:'Panneau',k:'pt',c:'#1b1b1b',logo:1}
 };
 /* Ce qui est posé sur le plan pré-coche la réponse correspondante dans l'analyse. */
-const PLAN2AN={echelle:['acces','echelle'],echaf:['acces','echaf_pied'],crino:['acces','crinoline'],escalier:['acces','escalier'],nacelle:['epc','nacelle'],gc:['epc','gc_temp'],gc_ex:['epc','gc_permanent']};
+const PLAN2AN={echelle:['acces','echelle'],echaf:['acces','echaf_pied'],crino:['acces','crinoline'],escalier:['acces','escalier'],nacelle:['epc','nacelle'],gc:['epc','gc_temp'],gc_ex:['epc','gc_permanent'],acrotere:[['epc','acrotere'],['chemin','terrasse_protegee']]};
 
 const SRC={
   ign:{n:'IGN',max:19,url:'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',att:'© IGN'},
@@ -861,7 +912,7 @@ const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const PROFIL='attila_ar_profil';   // agence et chargé de clientèle, gardés pour la prochaine analyse
 const blank=()=>({v:2,did:newId(),client:'',redacteur:'',agence:'',adresse:'',travaux:'',ll:null,src:'ign',roofs:[],frozen:null,objs:[],synced:[],
   an:{acces:multi(),chemin:multi(),epc:multi(),epcWhy:'',epi:multi(),ancrage:'',ancrageAutre:'',appro:multi(),repli:{risk:'',sel:[],autre:''}},
-  step:1,sub:'A'});
+  step:1,sub:'A',photos:[]});
 let S=blank();
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null'); if(j&&j.v===2) S=Object.assign(blank(),j); else {const pf=JSON.parse(localStorage.getItem(PROFIL)||'{}'); S.agence=pf.agence||''; S.redacteur=pf.redacteur||'';}}catch(e){}
 if(!S.did) S.did=newId();
@@ -870,6 +921,73 @@ S.objs=S.objs.flatMap(o=>o.t==='balisage'&&o.pts?o.pts.map(q=>({id:uid(),t:'bali
 if(S.an.acces.sel.includes('nacelle')){S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='nacelle'); S.synced=S.synced.filter(x=>x!=='nacelle');}
 S.an.chemin.sel=S.an.chemin.sel.filter(x=>x!=='sans_protection');
 S.an.acces.sel=S.an.acces.sel.filter(x=>x!=='echaf_roulant'&&x!=='aucun_roulant'); S.an.epc.sel=S.an.epc.sel.filter(x=>x!=='echaf_roulant');   // pas d'échafaudage roulant chez Attila
+/* =====================================================================================
+   PHOTOS DU CHANTIER
+   Fichiers compressés (JPEG ≤ 1600 px) gardés dans IndexedDB, trop lourds pour localStorage ; ordre et légendes dans S.photos.
+   Avec la sauvegarde en ligne, chaque photo part une fois dans le dossier Drive de l'analyse (« Photo 01 — légende.jpg »)
+   et revient quand on reprend l'analyse sur un autre appareil.
+   ===================================================================================== */
+const PH_PAGE=4, PH_MAX=24, PH_ENV_KEY='ar_photos_drive';
+const CAM_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
+const PHD=new Map();   // id → image (data URL)
+let PHS=new Set(), phAncien=false, phDb=null;   // photos présentes dans le dossier Drive ; serveur pas encore à jour
+try{PHS=new Set(JSON.parse(localStorage.getItem(PH_ENV_KEY)||'[]'));}catch(e){}
+const phsSave=()=>{try{localStorage.setItem(PH_ENV_KEY,JSON.stringify((S.photos||[]).map(p=>p.id).filter(id=>PHS.has(id))));}catch(e){}};
+function phOpen(){return phDb||(phDb=new Promise((res,rej)=>{try{const r=indexedDB.open('ar_photos',1); r.onupgradeneeded=()=>r.result.createObjectStore('p'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}catch(e){rej(e);}}));}
+async function phIdb(mode,fn){const db=await phOpen(); return new Promise((res,rej)=>{const t=db.transaction('p',mode), q=fn(t.objectStore('p')); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error);});}
+async function phPut(id,data){PHD.set(id,data); try{await phIdb('readwrite',st=>st.put(data,id));}catch(e){}}
+async function phDel(id){PHD.delete(id); try{await phIdb('readwrite',st=>st.delete(id));}catch(e){}}
+async function phCharger(){for(const p of S.photos||[]){if(PHD.has(p.id)) continue; try{const d=await phIdb('readonly',st=>st.get(p.id)); if(d) PHD.set(p.id,d);}catch(e){break;}}}
+function phCompress(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file), im=new Image();
+  im.onload=()=>{try{const M=1600, k=Math.min(1,M/Math.max(im.naturalWidth,im.naturalHeight)), w=Math.max(1,Math.round(im.naturalWidth*k)), h=Math.max(1,Math.round(im.naturalHeight*k));
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(im,0,0,w,h);
+    URL.revokeObjectURL(url); res({data:c.toDataURL('image/jpeg',.72),w,h});}catch(e){URL.revokeObjectURL(url); rej(e);}};
+  im.onerror=()=>{URL.revokeObjectURL(url); rej(new Error('format'));}; im.src=url;});}
+async function phAjout(files){
+  const L=[...files].filter(f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|gif|heic|heif)$/i.test(f.name||'')); $('#phIn').value='';
+  if(!L.length){toast('Choisissez des photos (JPEG, PNG…)'); return;}
+  const place=PH_MAX-(S.photos||[]).length; if(place<=0){toast(PH_MAX+' photos au maximum par analyse'); return;}
+  const lot=L.slice(0,place); let ok=0, ko=0; busy('Ajout de '+lot.length+' photo'+(lot.length>1?'s':'')+'…');
+  for(const f of lot){try{const r=await phCompress(f), id=uid(); await phPut(id,r.data); S.photos=(S.photos||[]).concat({id,leg:'',w:r.w,h:r.h}); ok++;}catch(e){ko++;}}
+  busy(''); save(); phRender(); if(S.step===4) renderSynth();
+  const n=(S.photos||[]).length;
+  toast(ok?ok+' photo'+(ok>1?'s':'')+' ajoutée'+(ok>1?'s':'')+' au briefing des équipes ('+n+' au total)'+(ko?' — '+ko+' illisible'+(ko>1?'s':'')+' : enregistrez-la en JPEG':'')+(L.length>place?' — limite de '+PH_MAX+' photos atteinte':'')
+    :'Photo illisible : enregistrez-la en JPEG ou PNG, puis réessayez');
+  if(ok) logEv('photos_ajout',String(ok));}
+function phEtat(){const el=$('#phEtat'); if(!el) return; const L=S.photos||[], n=L.length;
+  if(!n){el.innerHTML=''; return;}
+  const pages=Math.ceil(n/PH_PAGE), drive=L.filter(p=>PHS.has(p.id)).length;
+  let h=`<span class="phchip">${CHECK} ${n} photo${n>1?'s':''} intégrée${n>1?'s':''} au briefing des équipes — ${pages} page${pages>1?'s':''}</span>`;
+  if(syncOn()) h+=drive===n?`<span class="phchip">${CHECK} Enregistrée${n>1?'s':''} dans le dossier Drive</span>`
+    :`<span class="phchip att">${phAncien?'Gardées sur cet appareil (dossier Drive pas encore disponible)':'Envoi vers le dossier Drive : '+drive+' / '+n}</span>`;
+  el.innerHTML=h;}
+function phRender(){const box=$('#phList'); if(!box) return; const L=S.photos||[];
+  box.innerHTML=L.map((p,i)=>{const d=PHD.get(p.id);
+    return `<figure class="phit"><div class="phimg">${d?`<img src="${d}" alt="Photo ${i+1}${p.leg?' : '+esc(p.leg):''}">`:'<span class="phabs">Photo non disponible sur cet appareil</span>'}
+      <span class="phok">${CHECK} Photo ${i+1}</span>
+      <span class="phact">${i?`<button type="button" data-phmv="${p.id}" data-d="-1" aria-label="Mettre la photo ${i+1} avant">◀</button>`:''}${i<L.length-1?`<button type="button" data-phmv="${p.id}" data-d="1" aria-label="Mettre la photo ${i+1} après">▶</button>`:''}<button type="button" data-phdel="${p.id}" aria-label="Supprimer la photo ${i+1}">✕</button></span></div>
+      <input type="text" data-phleg="${p.id}" value="${esc(p.leg||'')}" maxlength="140" placeholder="Légende (ex. : saut de loup entre les 2 bâtiments)" aria-label="Légende de la photo ${i+1}"></figure>`;}).join('');
+  phEtat();}
+/* Pages photos du briefing : 4 par page A4, numérotées, avec leur légende */
+function photosBrief(){const L=S.photos||[];
+  if(!L.length) return CONSULT?'':`<div class="card phvide noprint"><h2>Photos du chantier</h2><p class="msg">Aucune photo dans ce briefing. Ajoutez celles prises sur le toit : elles s’impriment 4 par page à la suite du briefing.</p><div class="row"><label class="btn" for="phIn">${CAM_SVG.replace('<svg','<svg width="18" height="18"')} Ajouter des photos</label></div></div>`;
+  const pages=[]; for(let i=0;i<L.length;i+=PH_PAGE) pages.push(L.slice(i,i+PH_PAGE));
+  return (CONSULT?'':`<div class="phbar noprint"><span class="phchip">${CHECK} ${L.length} photo${L.length>1?'s':''} intégrée${L.length>1?'s':''} — ${pages.length} page${pages.length>1?'s':''} à la suite du briefing</span><label class="btn sm" for="phIn">Ajouter des photos</label></div>`)
+    +pages.map((pg,k)=>`<div class="card annexe phpage"><h2>Photos du chantier${pages.length>1?`<small>page ${k+1} / ${pages.length}</small>`:''}</h2><div class="phgrid">${pg.map((p,j)=>{const i=k*PH_PAGE+j+1, d=PHD.get(p.id);
+      return `<figure class="phfig">${d?`<img src="${d}" alt="Photo ${i}${p.leg?' : '+esc(p.leg):''}" decoding="sync">`:'<div class="phabs">Photo non disponible sur cet appareil</div>'}<figcaption><b>Photo ${i}</b>${p.leg?' — '+esc(p.leg):''}</figcaption></figure>`;}).join('')}</div></div>`).join('');}
+const phDrop=$('#phDrop');
+$('#phIn').addEventListener('change',e=>phAjout(e.target.files));
+['dragenter','dragover'].forEach(t=>phDrop.addEventListener(t,e=>{e.preventDefault(); phDrop.classList.add('drag');}));
+['dragleave','drop'].forEach(t=>phDrop.addEventListener(t,e=>{e.preventDefault(); phDrop.classList.remove('drag');}));
+phDrop.addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length) phAjout(e.dataTransfer.files);});
+$('#phList').addEventListener('input',e=>{const id=e.target.dataset.phleg; if(!id) return; const p=(S.photos||[]).find(x=>x.id===id); if(p){p.leg=e.target.value; save();}});
+$('#phList').addEventListener('click',async e=>{
+  const mv=e.target.closest('[data-phmv]'); if(mv){const L=S.photos.slice(), i=L.findIndex(p=>p.id===mv.dataset.phmv), j=i+(+mv.dataset.d);
+    if(i<0||j<0||j>=L.length) return; [L[i],L[j]]=[L[j],L[i]]; S.photos=L; save(); phRender(); return;}
+  const del=e.target.closest('[data-phdel]'); if(!del) return;
+  if(!del.classList.contains('arm')){del.classList.add('arm'); del.textContent='Supprimer ?'; clearTimeout(del._t); del._t=setTimeout(()=>{if(del.isConnected){del.classList.remove('arm'); del.textContent='✕';}},3500); return;}
+  const id=del.dataset.phdel; S.photos=(S.photos||[]).filter(p=>p.id!==id); PHS.delete(id); phsSave(); await phDel(id); save(); phRender(); toast('Photo retirée du briefing');});
+
 let saveT; function save(){S.maj=Date.now(); clearTimeout(saveT); saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(PROFIL,JSON.stringify({agence:S.agence,redacteur:S.redacteur}));}catch(e){}},300); feu(); queueSync();}
 
 /* =====================================================================================
@@ -939,7 +1057,7 @@ const imgKey=()=>S.frozen&&S.frozen.src?S.did+'|'+S.frozen.src.length+'|'+S.froz
 function metaOf(){const ev=evaluate(), sp=S.roofs.map(surfPente);
   return {agence:S.agence, redacteur:S.redacteur, client:S.client, adresse:S.adresse, travaux:S.travaux,
     lat:S.ll?S.ll[0]:'', lng:S.ll?S.ll[1]:'', etape:S.step, feu:NIV_TXT[ev.global],
-    nbToits:S.roofs.length, surfacePlat:S.roofs.reduce((t,r)=>t+(+r.area||0),0), surfacePente:sp.every(x=>x!==null)?sp.reduce((t,x)=>t+x,0):'',
+    nbToits:S.roofs.length, nbPhotos:(S.photos||[]).length, surfacePlat:S.roofs.reduce((t,r)=>t+(+r.area||0),0), surfacePente:sp.every(x=>x!==null)?sp.reduce((t,x)=>t+x,0):'',
     amiante:(roofsAm()||S.objs.some(o=>TOOLS[o.t]&&TOOLS[o.t].g==='Amiante'))?'oui':'non',
     nbElements:S.objs.length, lignesDevis:ev.devis.length, imprime:S.printed||{},
     pdpSigne:S.sig&&S.sig.eu&&S.sig.ee?new Date(Math.max(S.sig.eu.at,S.sig.ee.at)).toISOString():''};}
@@ -956,10 +1074,16 @@ async function pushSync(opt){
       data:JSON.stringify(Object.assign({},S,{frozen:S.frozen?Object.assign({},S.frozen,{src:null}):null}))};   // la photo part à part, une seule fois
     const k=imgKey(); if(k&&k!==imgSent) body.capture=S.frozen.src;
     if(opt&&opt.plan){body.plan=await planJpeg(); body.resume=summaryText();}
-    await api(body); if(body.capture) imgSent=k;
+    const phL=S.photos||[], phEnv=phAncien?[]:phL.filter(p=>!PHS.has(p.id)&&PHD.has(p.id)).slice(0,opt&&opt.toutes?PH_MAX:3);   // 3 photos par envoi au plus
+    body.photos=phL.map(p=>({id:p.id,leg:p.leg||''})); if(phEnv.length) body.photosData=phEnv.map(p=>({id:p.id,data:PHD.get(p.id)}));   // liste complète : les photos retirées partent à la corbeille du dossier
+    const rj=await api(body); if(body.capture) imgSent=k;
+    if(Array.isArray(rj.photosDrive)){PHS=new Set(rj.photosDrive); phsSave(); phReste=phL.some(p=>!PHS.has(p.id)&&PHD.has(p.id));}
+    else if(body.photosData) phAncien=true;   // script pas encore mis à jour : les photos restent sur l'appareil
+    phEtat();
     lastSync=Date.now(); setSync('on','Enregistré '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})); return true;}
   catch(e){setSync('err',e.message==='session'?'Connexion requise — gardé sur l’appareil':'Hors ligne — gardé sur l’appareil'); dirty=true; return false;}
-  finally{syncing=false;}}
+  finally{syncing=false; if(phReste){phReste=false; clearTimeout(syncT); syncT=setTimeout(()=>pushSync(),800);}}}
+let phReste=false;
 function logEv(ev,detail){if(!syncOn()||(authOn()&&!SES)) return;
   try{fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},keepalive:true,
     body:JSON.stringify({action:'log',ev,id:S.did,agence:S.agence,redacteur:S.redacteur,client:S.client,etape:S.step,detail:detail||'',jeton:SES?SES.jeton:''})}).catch(()=>{});}catch(e){}}
@@ -972,11 +1096,12 @@ const appLink=()=>location.origin+location.pathname+'?id='+S.did+(new URLSearchP
 /* Ouverture d'une analyse depuis son lien (?id=…) : la version en ligne remplace celle de l'appareil si elle est plus récente */
 async function restoreFromLink(){
   const id=new URLSearchParams(location.search).get('id'); if(!id||!syncOn()) return false;
-  try{const j=await api({action:'load',id}); const d=JSON.parse(j.data);
+  try{const j=await api({action:'load',id,sansPhotos:!!new URLSearchParams(location.search).get('doc')}); const d=JSON.parse(j.data);   // QR code du devis : pas besoin des photos
     const plusRecente=!j.maj||id!==S.did||new Date(j.maj).getTime()>MAJ0+5000; if(!plusRecente) return false;
     if(id!==S.did&&(S.client||S.roofs.length||S.objs.length)) await pushSync();   // l'analyse en cours reste sauvegardée sous son propre lien
     if(d.frozen&&!d.frozen.src) d.frozen.src=j.capture||null;
     if(d.frozen&&!d.frozen.src) d.frozen=null;
+    if(Array.isArray(j.photos)){for(const p of j.photos) await phPut(p.id,p.data); PHS=new Set(j.photos.map(p=>p.id)); S.photos=d.photos||[]; phsSave();}
     const n=Object.assign(blank(),d); n.did=id; localStorage.setItem(KEY,JSON.stringify(n));
     sessionStorage.setItem('ar_repris',id); location.reload(); return true;}
   catch(e){toast('Ce lien n’a pas pu être ouvert : '+e.message); return false;}}
@@ -1080,6 +1205,9 @@ function evaluate(){
   /* A, B, D : menus à choix multiples */
   const simple=(k,key)=>{const st=STEPS.find(s=>s.k===k), it=item(k,st.f); if(!a[key].sel.length) up(it,INC,'À renseigner'); else evalMulti(it,key,st.f.toLowerCase()); return it;};
   const A=simple('A','acces'), B=simple('B','chemin'), Dd=simple('D','appro');
+  /* Saut de loup posé sur le plan : passage d'un toit à l'autre, franchissement à équiper et à chiffrer */
+  if(M.saut){const n=M.saut.n; up(B,O,n+' saut'+(n>1?'s':'')+' de loup (passage entre toits) : franchissement par passerelle avec garde-corps');
+    add('Saut de loup (passage entre toits) : passerelle de franchissement avec garde-corps des deux côtés, ou échelle de liaison fixée en cas de dénivelé — fourniture + pose','saut');}
 
   /* C : collectif d'abord, individuel ensuite */
   const C=item('C','Poste de travail');
@@ -1151,7 +1279,8 @@ function exigeAgence(){$('#agField').classList.add('manque'); $('#agMsg').hidden
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go);});
 $('#btnNew').onclick=()=>{$('#newConfirm').hidden=false; window.scrollTo(0,0);};
 $('#newNo').onclick=()=>$('#newConfirm').hidden=true;
-$('#newYes').onclick=async()=>{if(dirty) await pushSync();   // la précédente reste en ligne, avec son lien
+$('#newYes').onclick=async()=>{if(dirty||(syncOn()&&(S.photos||[]).some(p=>!PHS.has(p.id)))) await pushSync({toutes:true});   // la précédente reste en ligne, avec son lien et ses photos
+  for(const p of S.photos||[]) if(!syncOn()||PHS.has(p.id)) await phDel(p.id);   // photos de l'analyse terminée : retirées de l'appareil (elles restent dans son dossier Drive)
   try{localStorage.setItem(PROFIL,JSON.stringify({agence:S.agence,redacteur:S.redacteur})); localStorage.removeItem(KEY);}catch(e){}
   sessionStorage.setItem('ar_nouvelle','1'); location.replace(location.pathname+(new URLSearchParams(location.search).get('api')?'?api='+encodeURIComponent(API):''));};
 $('#btnLink').onclick=async()=>{toast('Enregistrement…'); const ok=await pushSync(); if(!ok){toast('Enregistrement impossible : vérifiez la connexion. L’analyse reste sur cet appareil.'); return;}
@@ -1697,8 +1826,8 @@ document.addEventListener('keydown',e=>{const tg=e.target, saisie=/TEXTAREA|SELE
     return;}
   if((e.key==='Delete'||e.key==='Backspace')&&selId){S.objs=S.objs.filter(x=>x.id!==selId); selId=null; renderObjs(); renderBar(); save();}
   if(e.key==='Enter') finishLine(); if(e.key==='Escape'){line=null; tool=null; renderPalette(); renderObjs(); renderBar();}});
-function syncPlan(){S.objs.forEach(o=>{const m=PLAN2AN[o.t]; if(!m||S.synced.includes(o.t)) return; S.synced.push(o.t); const g=S.an[m[0]];
-  if(!g.sel.includes(m[1])&&!g.sel.includes('aucun')) g.sel.push(m[1]);});}
+function syncPlan(){S.objs.forEach(o=>{const ms=PLAN2AN[o.t]; if(!ms||S.synced.includes(o.t)) return; S.synced.push(o.t);
+  (Array.isArray(ms[0])?ms:[ms]).forEach(m=>{const g=S.an[m[0]]; if(!g.sel.includes(m[1])&&!g.sel.includes('aucun')) g.sel.push(m[1]);});});}
 
 /* =====================================================================================
    7. ÉCRAN 3 — analyse en 5 étapes
@@ -1792,19 +1921,19 @@ const isoPicto=c=>`<svg viewBox="0 0 100 100" role="img" aria-label="${ISO_EPI[c
 const episBlock=(codes,cls)=>`<div class="epis${cls?' '+cls:''}">${codes.map(c=>`<div class="epi" title="${ISO_EPI[c][1]}">${isoPicto(c)}<b>${ISO_EPI[c][0]}</b></div>`).join('')}</div>`;
 /* Risques toujours présents dans une intervention ATTILA (contenu fourni par la direction QHSE) */
 const PDP_FIXES=[
-  {icon:'helmet',epis:EPI_BASE,t:'Port des EPI — travail en hauteur (permanent sur site)',
+  {id:'epi',icon:'helmet',epis:EPI_BASE,t:'Port des EPI — travail en hauteur (permanent sur site)',
    r:'Port obligatoire et permanent des EPI de base pour tout intervenant ATTILA, dès l’arrivée sur site. Pour tout travail en hauteur : harnais avec système d’arrêt de chute, ancré sur point conforme, en complément des protections collectives (EPC avant EPI).',
    a:'Vérification du port des EPI à la prise de poste par le chef d’équipe. Contrôle visuel du harnais et des longes avant chaque utilisation (VGP à jour). EPI complémentaires selon les risques cochés ci-dessous.',
    p:'Gants de protection, chaussures de sécurité, casque à jugulaire, vêtements haute visibilité, harnais + longe double avec absorbeur d’énergie.'},
-  {icon:'fall',t:'Chute de hauteur (travaux en toiture)',
+  {id:'chute',icon:'fall',t:'Chute de hauteur (travaux en toiture)',
    r:'Priorité absolue aux protections collectives (EPC avant EPI). Aucun accès en toiture sans reconnaissance préalable.',
    a:'Reconnaissance préalable par drone lorsque possible. Vérification des points d’ancrage, mise en place de garde-corps provisoires, filets ou lignes de vie. Balisage de la zone au sol.',
    p:'Garde-corps / filets / lignes de vie certifiées, harnais + longe double avec absorbeur (vérification VGP à jour), casque à jugulaire, drone de reconnaissance.'},
-  {icon:'objects',t:'Chute d’objets et heurts',
+  {id:'objets',icon:'objects',t:'Chute d’objets et heurts',
    r:'Aucune circulation de tiers sous la zone d’intervention. Prévention des heurts entre intervenants, charges manutentionnées et éléments de structure.',
    a:'Balisage et condamnation du périmètre au sol, goulotte ou descente contrôlée des gravats, arrimage de l’outillage en toiture, vigilance mutuelle lors des déplacements et manutentions.',
    p:'Barrières, cônes de balisage, panneaux « chantier interdit au public », filets de recueil, sacs à gravats, casque à jugulaire.'},
-  {icon:'weather',t:'Conditions météorologiques',
+  {id:'meteo',icon:'weather',t:'Conditions météorologiques',
    r:'Arrêt immédiat des travaux en hauteur en cas de vent fort (rafales ≥ 50 km/h), d’orage, de forte chaleur, de verglas ou de toiture glissante (pluie, gel, mousse).',
    a:'Consultation météo avant chaque prise de poste, décision d’arrêt par le chef d’équipe sans validation hiérarchique préalable (droit de retrait ci-dessus).',
    p:'Application météo, anémomètre si nécessaire, hydratation et aménagement des horaires en cas de chaleur, consigne d’arrêt de travaux affichée.'}
@@ -1835,6 +1964,10 @@ const PDP_OPTS=[
    r:'Conducteur titulaire d’une autorisation de conduite, nacelle vérifiée (VGP à jour). On ne quitte pas le panier en hauteur.',
    a:'Vérification du sol et de l’aire d’évolution, zone balisée au sol, harnais attaché au point d’ancrage de la nacelle pendant tout le travail.',
    p:'Harnais avec longe attachée dans la nacelle, casque à jugulaire, balisage au sol.'},
+  {id:'echafaudage',t:'Échafaudage de pied',sug:()=>S.objs.some(o=>o.t==='echaf'),
+   r:'Échafaudage monté, réceptionné et démonté par des techniciens formés, sur matériel MDS (montage et démontage en sécurité). Personne n’y monte avant sa réception.',
+   a:'Réception avant la première utilisation, vérification visuelle chaque jour avant d’y monter, aucune modification par les utilisateurs, pied de l’échafaudage balisé.',
+   p:'Garde-corps complets (lisse, sous-lisse, plinthe), planchers jointifs, accès par l’intérieur (escalier ou trappe), amarrages et calages vérifiés.'},
   {id:'levage',t:'Levage par grue ou camion-grue',sug:()=>S.an.appro.sel.includes('grue'),
    r:'Appareil vérifié (VGP à jour) et conducteur titulaire d’une autorisation de conduite. Personne sous une charge suspendue.',
    a:'Zone d’évolution de la charge balisée et interdite, élingues vérifiées avant usage, levage interrompu par vent fort.',
@@ -1860,8 +1993,20 @@ const PDP_OPTS=[
    a:'Stockage fermé et étiqueté, préparation à l’écart des tiers, aucun rejet dans les eaux pluviales ni au sol.',
    p:'Gants adaptés, lunettes de protection, protection respiratoire si la FDS l’exige.'}
 ];
+/* Qui met en œuvre les mesures de chaque risque (art. R. 4512-6 : le plan de prévention définit les mesures prises par chaque entreprise).
+   Risques propres à l'intervention ATTILA : ATTILA cochée d'office et verrouillée, l'entreprise utilisatrice peut s'y ajouter.
+   Risque électrique et antennes : c'est le client qui fait couper le courant ou obtient l'accord de l'opérateur, donc entreprise utilisatrice
+   cochée d'office et verrouillée, ATTILA peut s'y ajouter.
+   Autres risques particuliers du chantier : rien de coché, à décider avec le client (à l'écran, ou à la main sur la version papier). */
+const RESP_ATTILA=new Set(['epi','chute','objets','meteo','circulation']), RESP_EU=new Set(['electrique','antennes']), RESP_LIB={ee:'ATTILA',eu:'Entreprise utilisatrice'};
+const respAuto=(id,k)=>k==='ee'?RESP_ATTILA.has(id):RESP_EU.has(id);
+const CHECK='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.4 6.3l2.4 2.4 4.8-5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const respOf=id=>{const v=(S.pdpResp||{})[id], l=Array.isArray(v)?v.filter(k=>RESP_LIB[k]):[]; return ['ee','eu'].filter(k=>l.includes(k)||respAuto(id,k));};
+const respBox=(id,k)=>{const on=respOf(id).includes(k), verrou=respAuto(id,k)||!!(S.sig&&S.sig.eu&&S.sig.ee);   // signé par les deux : figé comme le PDF envoyé
+  return `<button type="button" class="rb${on?' on':''}" data-resp="${id}" data-k="${k}" aria-pressed="${on}"${verrou?' disabled':''}><span class="bx">${on?CHECK:''}</span>${RESP_LIB[k]}</button>`;};
+const respRow=id=>`<dt>À la charge de</dt><dd class="resp">${respBox(id,'ee')}${respBox(id,'eu')}</dd>`;
 const rcard=(o,fixe)=>`<article class="rcard"><header>${o.icon==='amiante'?amLogo(34,'rlogo'):`<span class="ricon">${ICON[o.icon||'warn']}</span>`}<h3>${o.t}</h3><span class="badge${fixe?'':' alt'}">${fixe?'Obligatoire':'Propre au chantier'}</span></header>
-  <dl class="rrows"><dt>Règle</dt><dd>${o.r}</dd><dt>Action</dt><dd>${o.a}</dd><dt>Protection</dt><dd>${o.p}</dd></dl>
+  <dl class="rrows"><dt>Règle</dt><dd>${o.r}</dd><dt>Action</dt><dd>${o.a}</dd><dt>Protection</dt><dd>${o.p}</dd>${respRow(o.id)}</dl>
   ${o.epis?episBlock(o.epis):''}
 </article>`;
 const ticks=l=>`<div class="ticks">${l.map(x=>`<span>${x}</span>`).join('')}</div>`;
@@ -2012,11 +2157,12 @@ function buildDoc(v,withCfg){
   if(v==='pdp'){
     const opts=PDP_OPTS.filter(o=>pr.includes(o.id)||prAuto(o.id)||(o.id==='pointchaud'&&permisFeu()));
     h+=`<div class="card"><h2><span class="num">${++n}</span>Phases d’activité dangereuses et risques de l’intervention ATTILA <small class="art">(art. R. 4512-8)</small></h2>
+      <p class="rlegend">Pour chaque risque, « À la charge de » indique qui met en œuvre les mesures : ATTILA, l’entreprise utilisatrice, ou les deux <small class="art">(art. R. 4512-6)</small>.</p>
       <div class="rlist">${PDP_FIXES.map(o=>rcard(o,1)).join('')}</div>
       <h3 class="sub">Risques particuliers de ce chantier</h3>
       ${opts.length||pr.includes('autre')?`<div class="rlist">${opts.map(o=>rcard(o,0)).join('')}${pr.includes('autre')?`
         <article class="rcard libre"><header><span class="ricon">${ICON.warn}</span><h3>Autre risque :</h3><i class="ligne"></i></header>
-        <dl class="rrows"><dt>Règle</dt><dd><i></i></dd><dt>Action</dt><dd><i></i></dd><dt>Protection</dt><dd><i></i></dd></dl>
+        <dl class="rrows"><dt>Règle</dt><dd><i></i></dd><dt>Action</dt><dd><i></i></dd><dt>Protection</dt><dd><i></i></dd>${respRow('autre')}</dl>
         <p class="rnote">À compléter à la main.</p></article>`:''}</div>`:'<p class="msg">Aucun risque particulier retenu pour ce chantier.</p>'}</div>`;
     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Consignes du site et organisation des secours <small class="art">(art. R. 4512-8)</small></h2><p class="intro">À remplir sur place avec le client.</p>
       <div class="pengrid"><div class="pen"><span>Sauveteur secouriste du travail (SST) sur site</span>${lines(1)}</div>
@@ -2028,12 +2174,15 @@ function buildDoc(v,withCfg){
       <p class="secours"><b>Secours ATTILA :</b> ${SECOURS}</p></div>`;
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2>
       <p class="intro">Sur papier après impression, ou directement sur l’écran du téléphone ou de la tablette : dès que les deux parties ont signé, le plan de prévention signé part en PDF par e-mail aux deux signataires, vous en copie.</p>
+      ${(()=>{const sans=[...opts.map(o=>[o.id,o.t]),...(pr.includes('autre')?[['autre','Autre risque']]:[])].filter(([id])=>!respOf(id).length);
+        return sans.length&&!sigDeux()?`<p class="respwarn noprint">${warnIcon(16)}<span>À décider avec le client avant de signer, à la charge de qui : <b>${sans.map(x=>esc(x[1])).join('</b>, <b>')}</b>. Cochez ATTILA, l’entreprise utilisatrice ou les deux dans chaque fiche (sinon, à cocher à la main sur la version papier).</span></p>`:'';})()}
       <div class="signs two">${sigBox('eu')}${sigBox('ee')}</div>${sigEtat()}</div>`;
   }else if(v==='brief'){   // l'aide au chiffrage n'a pas de signatures : elles sont au briefing
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Signatures</h2><div class="signs">
       <div class="sbox"><b>Signature du RA / CC</b><span>Nom : ${esc(S.redacteur)}</span><span>Date :</span><div class="zone"></div></div>
       <div class="sbox"><b>Signature des techniciens intervenants</b><div class="engage"><p>${ENGAGEMENT}</p><p><b>Secours :</b> ${SECOURS}</p></div><table><thead><tr><th>Nom</th><th>Date</th><th>Signature</th></tr></thead><tbody>${'<tr><td></td><td></td><td></td></tr>'.repeat(4)}</tbody></table></div>
     </div></div>`;
+    h+=photosBrief();   // photos du chantier, 4 par page
     if(S.roofs.some(isFragile)) h+=mosiAnnexe();   // toit fragile : mode opératoire MOSI CM obligatoire, en annexe
   }
   return h;
@@ -2238,7 +2387,7 @@ function renderSynth(){
   const v=S.view=vueCourante(); $('#feu').hidden=v!=='devis';
   document.body.dataset.lt=S.legTable?'1':'0'; $('#printName').textContent=VIEWS.find(x=>x[0]===v)[1];
   if(S.frozen){selId=null; line=null; renderPlanAll();}
-  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${vuesActives().map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}${k==='feu'?' vfeu':''}" aria-selected="${v===k}">${l}</button>`).join('')}</div>
+  let h=`<div class="seg views noprint" role="tablist" aria-label="Document à imprimer">${vuesActives().map(([k,l])=>`<button type="button" role="tab" data-view="${k}" class="${v===k?'on':''}${k==='feu'?' vfeu':''}" aria-selected="${v===k}">${l}${k==='brief'&&(S.photos||[]).length?`<span class="vph" title="Photos intégrées au briefing">${CAM_SVG} ${S.photos.length}</span>`:''}</button>`).join('')}</div>
     <div class="quickprint noprint">${v==='pdp'&&!CONSULT?'<button type="button" class="btn sm" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" data-print="one">Imprimer ce document</button><button type="button" class="btn sm pri" data-print="all">Imprimer les ${vuesActives().length} documents</button></div>`;
   if(CONSULT) h+=`<div class="consult noprint"><span><b>Ouvert depuis le QR code.</b> Documents de ${esc(S.client)||'ce chantier'} à jour au dernier enregistrement.</span><span class="row">${v==='pdp'?'<button type="button" class="btn sm pri" data-gomaj="1">Ajouter un risque</button>':''}<button type="button" class="btn sm" id="btnConsultOff">Modifier l’analyse</button></span></div>`;
   h+=`<div class="pdoc" data-v="${v}">${buildDoc(v,!CONSULT)}</div>`;
@@ -2293,6 +2442,9 @@ $('#s4').addEventListener('click',async e=>{
   if(e.target.id==='btnConsultOff'){CONSULT=false; renderSynth(); return;}
   const sg=e.target.closest('[data-sign]'); if(sg){sigOpen(sg.dataset.sign); return;}
   const rs=e.target.closest('[data-resend]'); if(rs){envoyerPdp(); return;}
+  const rb=e.target.closest('[data-resp]'); if(rb){if(rb.disabled) return; const id=rb.dataset.resp, k=rb.dataset.k;
+    const l=respOf(id).filter(x=>x!==k); if(!rb.classList.contains('on')) l.push(k);
+    S.pdpResp=Object.assign({},S.pdpResp,{[id]:['ee','eu'].filter(x=>l.includes(x))}); save(); redessiner(); return;}
   if(e.target.closest('[data-majadd]')){majAjout(); return;}
   if(e.target.closest('[data-gomaj]')){const b=$('#majBloc'); if(b){window.scrollTo(0,b.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-12); setTimeout(()=>$('#majR').focus(),350);} return;}
   const md=e.target.closest('[data-majdel]'); if(md){   // deux appuis pour retirer
@@ -2313,6 +2465,7 @@ $('#s4').addEventListener('click',async e=>{
    ===================================================================================== */
 window.addEventListener('resize',()=>{if(S.step===2) renderPlanAll();});
 initMap(); renderRoofs(); go(S.step||1);
+phRender(); phCharger().then(()=>{phRender(); if(S.step===4) renderSynth();});
 if(syncOn()){const db=$('#btnDash'), ap=new URLSearchParams(location.search).get('api');   // lien vers le tableau de bord de l'agence (même dossier que l'outil)
   db.href=new URL('reporting.html',location.href).href+(ap?'?api='+encodeURIComponent(ap)+'&app='+encodeURIComponent(location.origin+location.pathname):''); db.hidden=false;}
 function suiteConnexion(){if(suiteFaite) return; suiteFaite=true;   // reprise par lien, QR code et suivi d'usage, une fois l'appareil reconnu
