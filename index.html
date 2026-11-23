@@ -338,6 +338,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 @keyframes tourne{to{transform:rotate(360deg)}}
 @media (max-width:560px){.rrows{grid-template-columns:1fr;gap:2px}}
 #printAll,.docband{display:none} .planpage{display:contents}
+.printonly{display:none} .pdpcols,.pcol{display:contents} .planref p{margin:0} .rb .rbc{display:none}
 .pdoc{display:flex;flex-direction:column;gap:18px}
 .quickprint{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:-6px}
 .engage p{margin:0} .engage p+p{margin-top:5px}
@@ -453,6 +454,30 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .art{font-size:7.5pt} .insp{gap:2mm;break-inside:avoid} .pengrid{gap:2mm 8mm}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
   .pen>.ponly{display:block}
+  /* plan de prévention en 4 pages : page 1 en-tête, inspection, toits, phases ; page 2 le plan ; page 3 les risques ; page 4 sur deux colonnes */
+  .printonly{display:block} .rcard1{break-before:page}
+  .rtab{font-size:7.6pt;line-height:1.22} .rtab th{font-size:6.3pt} .rtab td{padding:.8mm 1.4mm;vertical-align:top;border-bottom:.2mm solid #d8d0cd}
+  .rtab td.rnom{width:33mm} .rtab td.rnom b{display:block;font-size:8pt;line-height:1.15} .rbadge{display:inline-block;margin-top:.6mm;font-size:5.8pt;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--rouge-fonce)} .rbadge.alt{color:#7A5200}
+  .rtab td.rmes b{color:var(--rouge)} .rtab td.resp{width:22mm;white-space:nowrap} .rtab .rb{font-size:7.2pt}
+  .rtab .rl{display:grid;grid-template-columns:15mm 1fr;column-gap:1.5mm} .rtab .rl+.rl{margin-top:.25mm} .rtab .rl>b{font-size:6.6pt;text-transform:uppercase;letter-spacing:.03em;padding-top:.25mm}
+  .rtab td.rmes{font-size:7.3pt;line-height:1.17} .rtab .rl .penline{height:4.5mm}
+  .rtab .rb .rbl,.mattab .rb .rbl{display:none} .rtab .rb .rbc,.mattab .rb .rbc{display:inline}
+  .rtab td.resp .rb,.mattab td.resp .rb{display:inline-flex;margin-right:2.5mm} .mattab td.resp{white-space:nowrap}
+  .pdpcols~.signcard .sbox .zone{min-height:16mm} .pdpcols~.signcard{margin-top:2.2mm!important} .pdpcols~.signcard h2{font-size:10pt}
+  .rtab tr{break-inside:avoid} .rtab .penline{display:block;height:5mm;border-bottom:.2mm solid #777}
+  .pdpcols{display:grid;grid-template-columns:1fr 1fr;gap:0 3mm;align-items:start;break-before:page;margin-top:0!important} .pcol{display:flex;flex-direction:column;gap:2.2mm}
+  .pcol>.card{margin-top:0!important;break-inside:avoid} .pcol .mattab td.resp{min-width:24mm} .pcol .mattab{font-size:7.4pt}
+  .pcol .card h2,.rcard1 h2,.phcard1 h2,.insp h2{font-size:10pt} .pcol .insp,.insp{gap:1.4mm} .pcol .pen>i,.insp .pen>i{height:5.5mm}
+  .pcol .regles{font-size:7.6pt} .pcol .secours{font-size:7.4pt} .pcol .ticks{font-size:7.6pt;gap:.6mm 4mm}
+  .retrait{padding:1.5mm 2.5mm} .retrait h2{font-size:9pt;margin-bottom:.5mm} .retrait p{font-size:7.2pt;line-height:1.2} .retrait small{font-size:6pt;margin-top:.5mm}
+  .phcard1 .phtab{font-size:7.3pt;line-height:1.2} .phcard1 .phtab td{padding:.6mm 1.2mm} .phcard1 .phtab .pen>i{height:4.5mm} .phcard1 h2{margin-bottom:1mm}
+  .toitspdp table{font-size:7.3pt;line-height:1.2} .toitspdp th{font-size:6.2pt} .toitspdp td{padding:.5mm 1.2mm} .toitspdp td small{display:none} .toitspdp tr.tot{display:none} .toitspdp h2{font-size:10pt}
+  .insp .pen>span,.pcol .pen>span{font-size:6.1pt} .insp .pen>i{height:5mm} .insp .pengrid{gap:1.2mm 6mm} .insp .ticks{font-size:7.4pt;margin:.5mm 0 0}
+  .pcol .card{padding:0} .pcol .pen>i{height:4.6mm} .pcol .pen>b.pre{font-size:7.6pt;padding:.8mm 0 .6mm} .pcol .pengrid{gap:1mm 5mm}
+  .pcol .urg{margin-top:.6mm;gap:1.5mm} .pcol .urg span{font-size:7pt;padding:0 1.5mm} .pcol .urg b{font-size:8pt}
+  .pcol .mrow i{height:4.6mm} .pcol .mattab{font-size:7.1pt;line-height:1.18} .pcol .mattab td{padding:.5mm 1.1mm} .pcol .mattab th{font-size:6pt}
+  .pcol .regles{font-size:7.2pt;line-height:1.2;margin:.8mm 0 1.2mm} .pcol .regles li{margin:.3mm 0} .pcol .secours{font-size:7pt;padding:1mm 2mm;line-height:1.2}
+  .pdpcols~.signcard .sbox .zone{min-height:10mm} .pdpcols~.signcard .sbox{font-size:7.6pt;padding:1.5mm 2.5mm} .pdpcols~.signcard .signs{margin-top:1mm}
   .phtab,.mattab{font-size:8pt} .phtab th,.mattab th{font-size:6.5pt} .phtab td,.mattab td{padding:1mm 1.5mm} .phtab td.quand{min-width:28mm} .phtab .pen>i{height:5mm}
   .mattab td.resp{min-width:34mm} .mattab td.resp .rb{min-height:0} .regles{margin:1mm 0 2mm;padding-left:5mm;font-size:8.5pt} .regles li{margin:.5mm 0}
   .mrow{gap:2mm} .mrow em{font-size:7.5pt} .mrow i{height:5.5mm;border-bottom-color:#777}
@@ -2022,7 +2047,7 @@ const CHECK='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.4 6.3l2.4 2
 const RESP_DEF={};   // valeur proposée tant que rien n'est coché (matériel du plan de prévention), modifiable
 const respOf=id=>{const v=(S.pdpResp||{})[id], l=Array.isArray(v)?v.filter(k=>RESP_LIB[k]):(RESP_DEF[id]||[]); return ['ee','eu'].filter(k=>l.includes(k)||respAuto(id,k));};
 const respBox=(id,k)=>{const on=respOf(id).includes(k), verrou=respAuto(id,k)||!!(S.sig&&S.sig.eu&&S.sig.ee);   // signé par les deux : figé comme le PDF envoyé
-  return `<button type="button" class="rb${on?' on':''}" data-resp="${id}" data-k="${k}" aria-pressed="${on}"${verrou?' disabled':''}><span class="bx">${on?CHECK:''}</span>${RESP_LIB[k]}</button>`;};
+  return `<button type="button" class="rb${on?' on':''}" data-resp="${id}" data-k="${k}" aria-pressed="${on}"${verrou?' disabled':''}><span class="bx">${on?CHECK:''}</span><span class="rbl">${RESP_LIB[k]}</span><span class="rbc">${k==='ee'?'ATTILA':'EU'}</span></button>`;};
 const respRow=id=>`<dt>À la charge de</dt><dd class="resp">${respBox(id,'ee')}${respBox(id,'eu')}</dd>`;
 const rcard=(o,fixe)=>`<article class="rcard"><header>${o.icon==='amiante'?amLogo(34,'rlogo'):`<span class="ricon">${ICON[o.icon||'warn']}</span>`}<h3>${o.t}</h3><span class="badge${fixe?'':' alt'}">${fixe?'Obligatoire':'Propre au chantier'}</span></header>
   <dl class="rrows"><dt>Règle</dt><dd>${o.r}</dd><dt>Action</dt><dd>${o.a}</dd><dt>Protection</dt><dd>${o.p}</dd>${respRow(o.id)}</dl>
@@ -2118,11 +2143,17 @@ function phasesPdp(ev,opts){const it=k=>(ev.items.find(i=>i.k===k)||{labels:[]})
     ['Installation du chantier et balisage','Heurt par un véhicule, chute d’objets sur des personnes au sol, coactivité',
       (bal.length?'Balisage ('+bal.join(', ')+') selon le plan d’installation':'Balisage de la zone au sol')+', zone interdite sous les travaux, véhicule stationné hors des voies de circulation'],
     ['Accès à la toiture','Chute de hauteur à la montée et à la descente',it('A').join(' ; ')],
-    ['Déplacements et travaux en toiture','Chute de hauteur'+(frag?', toit fragile':'')+(pfr?', points fragiles':'')+', chute d’objets'+(opts.length?' ; '+opts.map(o=>o.t).join(', '):''),[...it('B'),...it('C')].join(' ; ')],
+    ['Déplacements et travaux en toiture','Chute de hauteur'+(frag?', toit fragile':'')+(pfr?', points fragiles':'')+', chute d’objets'+(opts.length?' et risques particuliers (détail plus loin)':''),[...it('B'),...it('C')].join(' ; ')],
     ['Approvisionnement et levage','Chute d’objets, charges suspendues, manutention',it('D').join(' ; ')],
     ['Repli et évacuation des déchets','Chute de hauteur au démontage, chute d’objets'+(am?', fibres d’amiante':''),it('E').join(' ; ')]];
   return `<h3 class="sub">Déroulé de l’intervention</h3><div class="scroll"><table class="phtab"><thead><tr><th>Phase</th><th>Risques principaux</th><th>Moyens de prévention prévus</th><th>Quand</th></tr></thead><tbody>
     ${L.map(([ph,ri,mo],i)=>`<tr><td><b>${i+1}. ${ph}</b></td><td>${esc(ri)}</td><td>${mo?esc(mo):'<i class="penline"></i>'}</td><td class="quand">${pf('ph'+(i+1),'text','',{ph:'ex. 25/11 matin',aria:'Quand : '+ph})}</td></tr>`).join('')}</tbody></table></div>`;}
+/* 1° — risques et mesures, en tableau compact pour l'impression (les fiches restent à l'écran) */
+function risquesTable(opts,pr){
+  const row=(o,fixe)=>`<tr><td class="rnom"><b>${o.t}</b><small class="rbadge${fixe?'':' alt'}">${fixe?'Obligatoire':'Propre au chantier'}</small></td><td class="rmes"><span class="rl"><b>Règle</b><span>${o.r}</span></span><span class="rl"><b>Action</b><span>${o.a}</span></span><span class="rl"><b>Protection</b><span>${o.p}</span></span></td><td class="resp">${respBox(o.id,'ee')}${respBox(o.id,'eu')}</td></tr>`;
+  return `<div class="printonly"><table class="rtab"><thead><tr><th>Risque</th><th>Mesures de prévention</th><th>À la charge de</th></tr></thead><tbody>
+    ${PDP_FIXES.map(o=>row(o,1)).join('')}${opts.map(o=>row(o,0)).join('')}
+    ${pr.includes('autre')?`<tr><td class="rnom"><b>Autre risque :</b><i class="penline"></i></td><td class="rmes"><span class="rl"><b>Règle</b><i class="penline"></i></span><span class="rl"><b>Action</b><i class="penline"></i></span><span class="rl"><b>Protection</b><i class="penline"></i></span></td><td class="resp">${respBox('autre','ee')}${respBox('autre','eu')}</td></tr>`:''}</tbody></table></div>`;}
 /* 2° — matériels, installations et dispositifs : qui les fournit, comment ils sont vérifiés et entretenus */
 function materielsPdp(){const a=S.an, has=(g,id)=>(a[g].sel||[]).includes(id), lab=(g,ids)=>ids.filter(id=>has(g,id)).map(id=>(OPT[g].find(o=>o.id===id)||{}).l).join(', '), M=measures(), L=[];
   const add=(id,mat,def,ver)=>{RESP_DEF['mat_'+id]=def; L.push(['mat_'+id,mat,ver]);};
@@ -2146,7 +2177,7 @@ function materielsPdp(){const a=S.an, has=(g,id)=>(a[g].sel||[]).includes(id), l
   add('install_site','Installations du site mises à disposition (électricité, eau, sanitaires)',['eu'],'Conditions d’usage et d’entretien fixées avec le client lors de l’inspection commune');
   return L;}
 
-function buildDoc(v,withCfg){
+function buildDoc(v,withCfg,opt={}){
   if(v==='feu') return permisDoc();
   const ev=evaluate(), g=ev.global, nb=ev.items.filter(i=>i.lvl===INC).length, rg=ev.items.filter(i=>i.lvl===R).length;
   const postes=S.objs.filter(o=>o.t==='poste'); let n=5;
@@ -2154,7 +2185,7 @@ function buildDoc(v,withCfg){
   const meta=`<dl class="meta"><div><dt>Client</dt><dd>${esc(S.client)||'—'}</dd></div><div><dt>Adresse</dt><dd>${esc(S.adresse)||'—'}</dd></div><div><dt>Rédigé par</dt><dd>${esc(S.redacteur)||'—'}</dd></div><div><dt>Date</dt><dd>${date}</dd></div><div class="wide"><dt>Nature des travaux</dt><dd>${esc(S.travaux)||'—'}</dd></div></dl>`;
   /* Impression : le plan et sa légende tiennent sur une même page, le plan prend toute la place restante.
      Légende en tableau très longue : le plan garde sa page et la légende suit. */
-  const legN=S.legTable?(legendBlock().match(/<tr>/g)||[]).length-1:0, group=!!S.frozen&&legN<=(v==='pdp'?16:10);
+  const legN=S.legTable?(legendBlock().match(/<tr>/g)||[]).length-1:0, group=!!S.frozen&&!opt.sansPlan&&legN<=(v==='pdp'?16:10);
   let h=(group&&v!=='pdp'?'<div class="planpage">':'')+`<div class="docband">ATTILA · ${VIEWS.find(x=>x[0]===v)[1]}</div>`;   // titre du document à l'impression
   const pr=S.pdpRisks||[];
 
@@ -2185,27 +2216,40 @@ function buildDoc(v,withCfg){
       <small>Droit d’alerte et de retrait — articles L. 4131-1 et suivants du Code du travail. Mention permanente, applicable à tous les risques ci-dessous.</small></div>`;
     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Inspection commune préalable <small class="art">(art. R. 4512-2)</small></h2><p class="intro">Saisissez ici la date et l’heure de l’inspection. Participants et observations se remplissent sur place.</p>
       <div class="pengrid">${pfFld('pdpInsp','date','date','Date de l’inspection',{fmt:fmtJour})}${pfFld('pdpInsp','heure','time','Heure',{fmt:v=>v.replace(/^0(\d)/,'$1').replace(':',' h ')})}</div>
-      <div class="pen"><span>Participants (noms et fonctions, entreprise utilisatrice et ATTILA)</span>${lines(2)}</div>
-      <div class="pen"><span>Observations de l’inspection commune</span>${ticks(['Secteur délimité','Voies de circulation repérées','Zones de danger identifiées','Consignes du site présentées'])}${lines(2)}</div></div>`;
+      <div class="pengrid"><div class="pen"><span>Participants de l’entreprise utilisatrice (noms, fonctions)</span>${lines(1)}</div><div class="pen"><span>Participants ATTILA (noms, fonctions)</span>${lines(1)}</div></div>
+      <div class="pen"><span>Observations de l’inspection commune</span>${ticks(['Secteur délimité','Voies de circulation repérées','Zones de danger identifiées','Consignes du site présentées'])}${lines(1)}</div></div>`;
   }
 
-  /* plan, toits, analyse : communs aux trois documents */
-  if(S.frozen){h+=(group&&v==='pdp'?'<div class="planpage">':'')+`<div class="card plancard${group?'':' solo'}"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage synthStage" style="margin-top:10px"></div>
+  /* plan, toits, analyse : communs aux trois documents.
+     Plan de prévention : toits et phases de l'intervention en page 1, le plan seul en page 2, l'analyse A à E n'y figure pas (reprise par les phases).
+     Dossier complet (3 documents imprimés ensemble) : le plan sort deux fois, dans le briefing et dans le plan de prévention, pas dans l'aide au chiffrage. */
+  const pdpOpts=v==='pdp'?PDP_OPTS.filter(o=>pr.includes(o.id)||prAuto(o.id)||(o.id==='pointchaud'&&permisFeu())):[];
+  const planPart=()=>{let x='';
+    if(S.frozen&&opt.sansPlan) return `<div class="card planref"><p><b>Plan d’installation :</b> voir le briefing équipes et le plan de prévention, dans ce dossier.</p></div>`;
+    if(S.frozen){x+=(group&&v==='pdp'?'<div class="planpage">':'')+`<div class="card plancard${group?'':' solo'}"><h2><span class="num">${++n}</span>Plan d’installation</h2><div class="stage synthStage" style="margin-top:10px"></div>
     ${S.legTable?'':`<div style="margin-top:8px">${legendBlock()}</div>
     ${postes.length?`<p class="postes"><b>Postes de travail</b>${postes.map((p,i)=>`<span><i>${i+1}</i>${esc(posteTxt(p))||'—'}</span>`).join('')}</p>`:''}`}</div>`;
-    if(S.legTable) h+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;
-    if(group) h+='</div>';}
+    if(S.legTable) x+=`<div class="card legcard"><h2><span class="num">${++n}</span>Légende du plan</h2>${legendBlock()}</div>`;
+    if(group) x+='</div>';}
+    return x;};
+  if(v==='pdp'){
+    h+=toitsPart();
+    h+=`<div class="card phcard1"><h2><span class="num">${++n}</span>Phases d’activité dangereuses et moyens de prévention <small class="art">(art. R. 4512-8, 1°)</small></h2>${phasesPdp(ev,pdpOpts)}</div>`;
+    h+=planPart();
+  }else{
+  h+=planPart();
   if(v==='brief') h+=`<div class="card camion"><h2><span class="num">${++n}</span>${camionIco}À prendre dans le camion</h2><p class="intro noprint">Liste faite automatiquement à partir du plan, de l’analyse et des vigilances.</p>
     <div class="cbox">${camionListe().map(([t,l])=>`<div class="cgrp"><h4>${t}</h4><ul>${l.map(([a,b])=>`<li><i></i><span>${a}${b?` <b>${esc(b)}</b>`:''}</span></li>`).join('')}</ul></div>`).join('')}</div></div>`;
-  h+=`<div class="card keep"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
+  h+=toitsPart()+analysePart();}
+  function toitsPart(){return `<div class="card keep${v==='pdp'?' toitspdp':''}"><h2><span class="num">${++n}</span>Toits</h2><div class="scroll"><table><thead><tr><th>Toit</th><th>Surface</th><th>Pente</th><th>Hauteur</th><th>Matériau</th><th>Permis de construire</th><th>Amiante</th></tr></thead><tbody>
     ${S.roofs.map(r=>`<tr><td><b>${esc(r.name)}</b>${isFragile(r)?'<small>Toit fragile</small>':''}${r.translu?`<small>${r.pfGrille==='oui'?'Points fragiles protégés':'Points fragiles non protégés'}</small>`:''}</td><td class="num">${r.area?fmtN(r.area)+' m² à plat':'—'}${surfPente(r)!==null?`<br><b>${fmtN(surfPente(r))} m² en pente</b>`:''}</td><td class="num">${penteOf(r)?r.pente+'°':'—'}</td><td class="num">${r.haut?'≈ '+String(r.haut).replace('.',',')+' m':'—'}</td><td>${esc(matLabel(r))}${r.translu?'<small>Lanterneaux ou plaques translucides</small>':''}</td><td>${perLabel[r.periode]||'—'}</td>
       <td>${!amianteFlag(r)?(r.periode?'Pas d’alerte':'—'):(RAT.find(o=>o[0]===r.rat)?(r.rat==='autre'?esc(r.ratAutre||'Autre'):RAT.find(o=>o[0]===r.rat)[1]):'Repérage non renseigné')}</td></tr>`).join('')||'<tr><td colspan="7">Aucun toit sélectionné.</td></tr>'}
     ${S.roofs.length>1?`<tr class="tot"><td><b>Total</b></td><td class="num">${fmtN(S.roofs.reduce((t,r)=>t+(+r.area||0),0))} m² à plat${S.roofs.every(r=>surfPente(r)!==null)?`<br><b>${fmtN(S.roofs.reduce((t,r)=>t+surfPente(r),0))} m² en pente</b>`:'<br><small>pente à renseigner sur chaque toit</small>'}</td><td colspan="5"></td></tr>`:''}
-    </tbody></table></div></div>
-  <div class="card keep"><h2><span class="num">${++n}</span>Analyse de risque</h2>
+    </tbody></table></div></div>`;}
+  function analysePart(){return `<div class="card keep"><h2><span class="num">${++n}</span>Analyse de risque</h2>
     <div class="scroll"><table><thead><tr><th>Étape</th>${v==='devis'?'<th>Niveau</th>':''}<th>Ce qui est prévu</th><th>Points d’attention</th></tr></thead><tbody>
     ${ev.items.map(i=>`<tr><td><b>${i.k==='T'?'':i.k+' · '}${i.n}</b></td>${v==='devis'?`<td><span class="pill n${i.lvl}">${NIV_TXT[i.lvl]}</span></td>`:''}<td>${i.labels.map(esc).join('<br>')||'—'}</td><td>${i.r.map(esc).join('<br>')||'—'}</td></tr>`).join('')}
-    </tbody></table></div>${a_epcWhy()}</div>`;
+    </tbody></table></div>${a_epcWhy()}</div>`;}
 
   if(v==='devis') h+=`<div class="card deviscard"><h2><span class="num">${++n}</span>À intégrer au devis</h2><p class="intro">Les quantités viennent du plan quand l’élément y est tracé.</p>
     ${fragileSurToit()?`<div class="fragwarn">${warnIcon(30)}<div><b>Toit fragile${fragNoms()}.</b> Il faut <b>les deux</b>, à chiffrer obligatoirement : une <b>protection collective</b> (filets en sous-face) <b>ET</b> une <b>protection individuelle</b> (chemin de marche Sécuriplac DIMOS avec antichute, mode opératoire MOSI CM). Jamais d’appui direct sur la couverture.</div></div>`:''}
@@ -2219,28 +2263,36 @@ function buildDoc(v,withCfg){
       ${va.length?'':'<p class="msg vignone">Aucune vigilance signalée (voie publique, ligne électrique aérienne, panneaux photovoltaïques, points fragiles, point chaud).</p>'}</div>`;}
 
   if(v==='pdp'){
-    const opts=PDP_OPTS.filter(o=>pr.includes(o.id)||prAuto(o.id)||(o.id==='pointchaud'&&permisFeu()));
+    const opts=pdpOpts;
     const mats=materielsPdp(), frag=S.roofs.some(isFragile), feu=permisFeu()||pr.includes('pointchaud');
-    h+=`<div class="card"><h2><span class="num">${++n}</span>Phases d’activité dangereuses et moyens de prévention <small class="art">(art. R. 4512-8, 1°)</small></h2>
-      ${phasesPdp(ev,opts)}
-      <h3 class="sub">Risques et mesures de prévention</h3>
-      <p class="rlegend">Pour chaque risque, « À la charge de » indique qui met en œuvre les mesures : ATTILA, l’entreprise utilisatrice, ou les deux <small class="art">(art. R. 4512-6)</small>.</p>
-      <div class="rlist">${PDP_FIXES.map(o=>rcard(o,1)).join('')}</div>
+    h+=`<div class="card rcard1"><h2><span class="num">${++n}</span>Risques et mesures de prévention <small class="art">(art. R. 4512-8, 1°)</small></h2>
+      <p class="rlegend">Pour chaque risque, « À la charge de » indique qui met en œuvre les mesures : ATTILA, l’entreprise utilisatrice (EU), ou les deux <small class="art">(art. R. 4512-6)</small>.</p>
+      ${risquesTable(opts,pr)}
+      <div class="noprint"><div class="rlist">${PDP_FIXES.map(o=>rcard(o,1)).join('')}</div>
       <h3 class="sub">Risques particuliers de ce chantier</h3>
       ${opts.length||pr.includes('autre')?`<div class="rlist">${opts.map(o=>rcard(o,0)).join('')}${pr.includes('autre')?`
         <article class="rcard libre"><header><span class="ricon">${ICON.warn}</span><h3>Autre risque :</h3><i class="ligne"></i></header>
         <dl class="rrows"><dt>Règle</dt><dd><i></i></dd><dt>Action</dt><dd><i></i></dd><dt>Protection</dt><dd><i></i></dd>${respRow('autre')}</dl>
-        <p class="rnote">À compléter à la main.</p></article>`:''}</div>`:'<p class="msg">Aucun risque particulier retenu pour ce chantier.</p>'}</div>`;
+        <p class="rnote">À compléter à la main.</p></article>`:''}</div>`:'<p class="msg">Aucun risque particulier retenu pour ce chantier.</p>'}</div></div>`;
+    h+='<div class="pdpcols"><div class="pcol">';   // impression : 2° et 3° à gauche, 4° et 5° à droite
     h+=`<div class="card"><h2><span class="num">${++n}</span>Matériels, installations et dispositifs : adaptation et entretien <small class="art">(art. R. 4512-8, 2°)</small></h2>
       <div class="scroll"><table class="mattab"><thead><tr><th>Matériel ou installation</th><th>Fourni par</th><th>Vérification et entretien</th></tr></thead><tbody>
       ${mats.map(([id,m,ver])=>`<tr><td><b>${esc(m)}</b></td><td class="resp">${respBox(id,'ee')}${respBox(id,'eu')}</td><td>${esc(ver)}</td></tr>`).join('')}</tbody></table></div></div>`;
     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Instructions données aux travailleurs <small class="art">(art. R. 4512-8, 3°)</small></h2>
       <div class="pengrid">${pf('brief_date','date','Briefing sécurité ATTILA avant le démarrage : date',{fmt:fmtJour})}${pf('brief_par','text','Briefing animé par',{ph:'Nom du chef d’équipe'})}</div>
       <div class="pen"><span>Instructions données (cocher)</span>${ticks(['Briefing équipes / TTA (joint)','Accueil sécurité du site par l’entreprise utilisatrice','Consignes du site : zones interdites, circulation, horaires','Modes opératoires EPI rappelés','Droit de retrait rappelé',...(feu?['Permis de feu remis et expliqué']:[]),...(frag?['Mode opératoire MOSI CM (toit fragile)']:[])])}</div></div>`;
+    {const amR=S.roofs.filter(amianteFlag), amP=S.roofs.some(r=>r.rat==='present');
+     const amTxt=!S.roofs.length?'—':!amR.length?(S.roofs.every(r=>r.periode)?'Sans objet : permis de construire postérieur au 1er juillet 1997':'Période de construction à préciser')
+       :amR.map(r=>esc(r.name)+' : '+(r.rat==='autre'?esc(r.ratAutre||'autre'):((RAT.find(o=>o[0]===r.rat)||[,'repérage non renseigné'])[1]))).join(' ; ');
+     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Annexes du plan de prévention</h2>
+      <div class="pengrid"><div class="pen"><span>Repérage amiante avant travaux</span><b class="pre">${amTxt}</b></div>${amR.length?pf('rat_ref','text','Référence du rapport de repérage',{ph:'N° ou date du rapport'}):''}</div>
+      <div class="pengrid"><div class="pen"><span>Postes en suivi individuel renforcé</span><b class="pre">${amP?'Oui : travailleurs exposés à l’amiante (intervention SS4)':amR.length?'À vérifier selon le repérage amiante':'Aucun identifié'}</b></div>${pf('sir_autre','text','Autres postes concernés (le cas échéant)')}</div>
+      <div class="pen"><span>Documents joints au plan (cocher)</span>${ticks(['Plan d’installation','Briefing équipes / TTA',...(feu?['Permis de feu']:[]),...(frag?['Mode opératoire MOSI CM']:[]),...(amR.length?['Rapport de repérage amiante']:[]),'Attestations de vérification du matériel (si demandées)'])}</div></div>`;}
+    h+='</div><div class="pcol">';
     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Organisation des premiers secours et consignes du site <small class="art">(art. R. 4512-8, 4°)</small></h2><p class="intro">À remplir sur place avec le client.</p>
       <div class="pengrid"><div class="pen"><span>Sauveteur secouriste du travail (SST) sur site</span>${lines(1)}</div>
         <div class="pen"><span>N° d’urgence interne / poste de garde</span>${lines(1)}<div class="urg"><span><b>18</b>Pompiers</span><span><b>15</b>SAMU</span><span><b>112</b>Urgences UE</span></div></div></div>
-      <div class="pengrid"><div class="pen"><span>Point de rassemblement</span>${ticks(['Parking','Entrée principale','Portail','Cour'])}${lines(1)}</div>
+      <div class="pengrid"><div class="pen"><span>Point de rassemblement</span>${ticks(['Parking','Entrée principale','Portail','Cour','Autre : ……………………'])}</div>
         <div class="pen"><span>Accès secours / adresse à communiquer au 15-18-112</span><b class="pre">${esc(S.adresse)||''}</b>${lines(S.adresse?0:1)}</div></div>
       <div class="pengrid">${pf('dae','text','Défibrillateur (DAE) du site : emplacement',{ph:'ex. accueil, bâtiment A'})}${pf('accueil_secours','text','Personne qui accueille et guide les secours',{ph:'Nom, téléphone'})}</div>
       <div class="pen"><span>Consignes particulières du site</span>${ticks(['Badge obligatoire','Accueil sécurité','Permis de travail','Sanitaires mis à dispo','Vitesse limitée','Consignation requise'])}${lines(1)}</div>
@@ -2256,13 +2308,7 @@ function buildDoc(v,withCfg){
         <li>Coactivité ou conditions qui changent : les deux responsables se concertent avant de poursuivre, et chacun peut faire arrêter les travaux en cas de danger. Les changements sont notés dans « Risques mis à jour sur chantier ».</li>
       </ul>
       ${pf('sous_traitant','text','Sous-traitant d’ATTILA sur ce chantier (le cas échéant)',{ph:'ex. monteur d’échafaudage'})}</div>`;
-    {const amR=S.roofs.filter(amianteFlag), amP=S.roofs.some(r=>r.rat==='present');
-     const amTxt=!S.roofs.length?'—':!amR.length?(S.roofs.every(r=>r.periode)?'Sans objet : permis de construire postérieur au 1er juillet 1997':'Période de construction à préciser')
-       :amR.map(r=>esc(r.name)+' : '+(r.rat==='autre'?esc(r.ratAutre||'autre'):((RAT.find(o=>o[0]===r.rat)||[,'repérage non renseigné'])[1]))).join(' ; ');
-     h+=`<div class="card insp"><h2><span class="num">${++n}</span>Annexes du plan de prévention</h2>
-      <div class="pengrid"><div class="pen"><span>Repérage amiante avant travaux</span><b class="pre">${amTxt}</b></div>${amR.length?pf('rat_ref','text','Référence du rapport de repérage',{ph:'N° ou date du rapport'}):''}</div>
-      <div class="pengrid"><div class="pen"><span>Postes en suivi individuel renforcé</span><b class="pre">${amP?'Oui : travailleurs exposés à l’amiante (intervention SS4)':amR.length?'À vérifier selon le repérage amiante':'Aucun identifié'}</b></div>${pf('sir_autre','text','Autres postes concernés (le cas échéant)')}</div>
-      <div class="pen"><span>Documents joints au plan (cocher)</span>${ticks(['Plan d’installation','Briefing équipes / TTA',...(feu?['Permis de feu']:[]),...(frag?['Mode opératoire MOSI CM']:[]),...(amR.length?['Rapport de repérage amiante']:[]),'Attestations de vérification du matériel (si demandées)'])}</div></div>`;}
+    h+='</div></div>';   // fin des deux colonnes
     h+=`<div class="card signcard"><h2><span class="num">${++n}</span>Validation et signatures</h2>
       <p class="intro">Sur papier après impression, ou directement sur l’écran du téléphone ou de la tablette : dès que les deux parties ont signé, le plan de prévention signé part en PDF par e-mail aux deux signataires, vous en copie.</p>
       ${(()=>{const sans=[...opts.map(o=>[o.id,o.t]),...(pr.includes('autre')?[['autre','Autre risque']]:[]),...mats.map(([id,m])=>[id,'Matériel : '+m])].filter(([id])=>!respOf(id).length);
@@ -2513,7 +2559,7 @@ async function doPrint(all){
   const nom=all?'Dossier chantier (chiffrage, briefing, plan de prévention'+(permisFeu()?', permis de feu':'')+')':{devis:'Aide au chiffrage devis',brief:'Briefing équipes - TTA',pdp:avecFeu?'Plan de prévention et permis de feu':'Plan de prévention',feu:'Permis de feu'}[vv];
   const t0=document.title; document.title=[nom,S.client,iso].filter(Boolean).join(' - ').replace(/[\\/:*?"<>|]/g,' ');
   const now=new Date().toISOString(); S.printed=Object.assign({},S.printed,Object.fromEntries((liste||[vv]).map(k=>[k,now]))); save(); logEv(all?'impression_tous_documents':'impression_'+vv+(avecFeu?'_permis_feu':''));
-  if(liste){const pa=$('#printAll'); pa.innerHTML=liste.map(k=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false)}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}
+  if(liste){const pa=$('#printAll'); pa.innerHTML=liste.map(k=>`<div class="pdoc" data-v="${k}">${buildDoc(k,false,{sansPlan:k==='devis'})}</div>`).join(''); fillStages(pa); document.body.classList.add('printall');}   // dossier complet : le plan sort dans le briefing et le plan de prévention, pas dans l'aide au chiffrage
   window.addEventListener('afterprint',()=>{finPrint(); document.title=t0;},{once:true});
   const zone=liste?$('#printAll'):$('#s4'), lent=setTimeout(()=>busy('Préparation de l’impression…'),250);
   await imagesPretes(zone); clearTimeout(lent); busy('');
