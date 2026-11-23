@@ -279,6 +279,7 @@ tr.tot td{border-top:2px solid var(--trait)}
 .pen>span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--encre-2)}
 .pen>i{display:block;height:30px;border-bottom:1px solid #9a918d}
 .pen>b.pre{font-weight:600;padding:6px 0 4px;border-bottom:1px solid #9a918d}
+.pen>.ponly{display:none} .inspin{margin-top:4px;max-width:240px;font-size:16px}
 .mrow{display:flex;align-items:flex-end;gap:10px} .mrow em{font-style:normal;font-size:13.5px;color:var(--encre-2);white-space:nowrap} .mrow i{flex:1;height:26px;border-bottom:1px solid #9a918d}
 .ticks{display:flex;flex-wrap:wrap;gap:6px 20px;margin:6px 0 2px;font-size:14.5px}
 .ticks span::before{content:"";display:inline-block;width:13px;height:13px;border:1.5px solid var(--encre);border-radius:2px;margin-right:7px;vertical-align:-2px}
@@ -448,6 +449,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
   .retrait{padding:2mm 3mm;border-width:1.5px;border-radius:2mm;break-inside:avoid} .retrait h2{font-size:10pt;margin-bottom:1mm} .retrait p{font-size:8.5pt} .retrait small{font-size:7pt;margin-top:1mm}
   .art{font-size:7.5pt} .insp{gap:2mm;break-inside:avoid} .pengrid{gap:2mm 8mm}
   .pen>span{font-size:6.5pt} .pen>i{height:7mm;border-bottom-color:#777} .pen>b.pre{font-size:8.5pt;padding:1.5mm 0 1mm}
+  .pen>.ponly{display:block}
   .mrow{gap:2mm} .mrow em{font-size:7.5pt} .mrow i{height:5.5mm;border-bottom-color:#777}
   .pfdoc,.pfp2{display:flex;gap:2mm} .pfp2{break-before:page} .pfcols{gap:3mm;grid-template-columns:1fr 1fr} .pfhead{padding:1.5mm 3mm} .pfhead p{font-size:8pt;margin-top:.5mm}
   .pfbox{border-width:1px;border-radius:1.5mm;padding:0 2.5mm 1.5mm;break-inside:avoid} .pfbox>h3{margin:0 -2.5mm 1mm;padding:.8mm 2.5mm;font-size:8pt;border-radius:1mm 1mm 0 0}
@@ -2130,8 +2132,12 @@ function buildDoc(v,withCfg){
     h+=`<div class="retrait"><h2>Droit de retrait — la sécurité d’abord, toujours</h2>
       <p>Chaque collaborateur ATTILA a le droit de <b>se retirer immédiatement</b> de toute situation de travail qu’il estime dangereuse : conditions météo dégradées (chaleur, vent, pluie, orage), toiture ou point fragile, ou toute autre condition dangereuse constatée sur le site. Il se met en sécurité, <b>prévient sa hiérarchie et le client</b>, et les travaux ne reprennent qu’une fois la situation traitée. Aucune sanction ni retenue ne peut être appliquée pour l’exercice légitime de ce droit.</p>
       <small>Droit d’alerte et de retrait — articles L. 4131-1 et suivants du Code du travail. Mention permanente, applicable à tous les risques ci-dessous.</small></div>`;
-    h+=`<div class="card insp"><h2><span class="num">${++n}</span>Inspection commune préalable <small class="art">(art. R. 4512-2)</small></h2><p class="intro">À remplir sur place par les participants.</p>
-      <div class="pengrid"><div class="pen"><span>Date de l’inspection</span>${lines(1)}</div><div class="pen"><span>Heure</span>${lines(1)}</div></div>
+    /* date et heure de l'inspection : saisies dans l'outil (imprimées remplies), sinon ligne à remplir à la main */
+    const insp=S.pdpInsp||{}, inspFige=!!(S.sig&&S.sig.eu&&S.sig.ee);
+    const inspFld=(k,type,lib,fmt)=>{const v=insp[k]||''; return `<div class="pen"><span>${lib}</span><input type="${type}" class="inspin noprint" id="insp_${k}" data-insp="${k}" value="${esc(v)}" aria-label="${lib}"${inspFige?' disabled':''}>${v?`<b class="pre ponly">${esc(fmt(v))}</b>`:'<i class="ponly"></i>'}</div>`;};
+    const inspDate=v=>{const d=new Date(v+'T12:00:00'); return isNaN(d)?v:d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
+    h+=`<div class="card insp"><h2><span class="num">${++n}</span>Inspection commune préalable <small class="art">(art. R. 4512-2)</small></h2><p class="intro">Saisissez ici la date et l’heure de l’inspection. Participants et observations se remplissent sur place.</p>
+      <div class="pengrid">${inspFld('date','date','Date de l’inspection',inspDate)}${inspFld('heure','time','Heure',v=>v.replace(/^0(\d)/,'$1').replace(':',' h '))}</div>
       <div class="pen"><span>Participants (noms et fonctions, entreprise utilisatrice et ATTILA)</span>${lines(2)}</div>
       <div class="pen"><span>Observations de l’inspection commune</span>${ticks(['Secteur délimité','Voies de circulation repérées','Zones de danger identifiées','Consignes du site présentées'])}${lines(2)}</div></div>`;
   }
@@ -2441,6 +2447,7 @@ async function doPrint(all){
   pushSync({plan:true});   // après l'impression : plan composé et résumé envoyés dans le dossier Drive (si la sauvegarde en ligne est active)
 }
 $('#s4').addEventListener('change',e=>{
+  if(e.target.dataset.insp){S.pdpInsp=Object.assign({},S.pdpInsp,{[e.target.dataset.insp]:e.target.value}); save(); const y=window.scrollY; renderSynth(); window.scrollTo(0,y); return;}
   if(e.target.dataset.vig){S.vig=Object.assign({},S.vig,{[e.target.dataset.vig]:e.target.checked}); const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save(); return;}
   const id=e.target.dataset.pr; if(!id) return; const l=S.pdpRisks=(S.pdpRisks||[]).filter(x=>x!==id); if(e.target.checked) l.push(id);
   const y=window.scrollY; renderSynth(); window.scrollTo(0,y); save();});
