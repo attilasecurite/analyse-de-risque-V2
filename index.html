@@ -214,7 +214,7 @@ details.multi .val.vide{color:var(--encre-2)}
 .opts .autre{margin:8px 12px 12px;width:auto}
 .verdict{border-radius:6px;padding:11px 13px;border-left:6px solid;font-size:15px}
 .verdict b{display:block}
-.verdict ul{margin:4px 0 0;padding-left:18px}
+.verdict ul{margin:4px 0 0;padding-left:18px} .verdict .vchif{margin:4px 0 0}
 .n0{--c:var(--vert);--p:var(--vert-pale)} .n1{--c:var(--orange);--p:var(--orange-pale)} .n2{--c:var(--gris);--p:var(--gris-pale)} .n3{--c:var(--stop);--p:var(--stop-pale)}
 .verdict{background:var(--p);border-color:var(--c)}
 .feu.n0,.feu.n1,.feu.n3{color:var(--c);background:var(--p)}
@@ -1194,6 +1194,11 @@ function isFragile(r){return FRAGILE.has(r.mat);}   // toit fragile : le matéri
 const pointsNonProteges=r=>!!r.translu&&r.pfGrille!=='oui';
 function amianteFlag(r){return r.periode==='avant'||r.periode==='nsp';}
 
+/* Protection collective AU POSTE (garde-corps, acrotère, filets) : dispense de chiffrer des EPI en plus.
+   L'échafaudage de pied, moyen d'accès et protection de rive, ne suffit pas à lui seul : les EPI restent à prévoir et à chiffrer. */
+const EPC_POSTE=['gc_permanent','acrotere','gc_temp','filet_sousface','filet_periph'];
+const epcEnPlace=()=>S.an.epc.sel.some(x=>EPC_POSTE.includes(x));
+const echafSeul=()=>S.an.epc.sel.includes('echaf')&&!epcEnPlace()&&!S.an.epc.sel.includes('nacelle');
 function evaluate(){
   const a=S.an, M=measures(), D=[];
   const add=(txt,qty,warn)=>{const d=D.find(x=>x.txt===txt); if(d){if(qty&&!d.qty)d.qty=qtyTxt(qty,M); if(warn) d.warn=1;} else D.push(Object.assign({txt,qty:qty?qtyTxt(qty,M):''},warn?{warn:1}:{}));};
@@ -1202,10 +1207,10 @@ function evaluate(){
     a[key].sel.forEach(id=>{
       if(id==='autre'){const t=a[key].autre.trim(); if(!t) up(it,INC,'« Autre » : à préciser'); else {up(it,O); it.labels.push('Autre : '+t); add('Autre ('+nom+') : '+t);} return;}
       const o=OPT[key].find(x=>x.id===id); if(!o) return;
-      it.labels.push(o.l); up(it,o.niv,o.niv===R?(o.why||o.l):''); if(o.devis) add(o.devis,o.qty);
+      it.labels.push(o.l); up(it,o.niv,o.niv===R?(o.why||o.l):''); if(o.devis){add(o.devis,o.qty); it.chif.push(o.l);}
     });
   };
-  const item=(k,n)=>({k,n,lvl:V,r:[],labels:[]});
+  const item=(k,n)=>({k,n,lvl:V,r:[],labels:[],chif:[]});
 
   /* Toiture et amiante */
   const T=item('T','Toiture et amiante');
@@ -1259,16 +1264,22 @@ function evaluate(){
     if(!a.epc.sel.length) up(C,R,'Protection collective non étudiée : la choisir, ou cocher « Aucune protection collective possible » et justifier');
     else evalMulti(C,'epc','protection collective');
     if(nacelleSeule()) C.labels.push('Harnais attaché dans la nacelle (pas de mode opératoire sous EPI)');
+    if(echafSeul()&&!a.epi.sel.length) up(C,INC,'Échafaudage seul : il sécurise l’accès et la rive, pas le poste en toiture. Ajoutez une protection au poste (garde-corps, filets) ou choisissez les EPI, qui seront chiffrés.');
     if(a.epc.sel.includes('aucun')){
       if(!a.epcWhy.trim()) up(C,INC,'Justifier pourquoi le collectif est impossible');
       if(!a.epi.sel.length) up(C,R,'Collectif impossible : le mode opératoire sous EPI reste à choisir');
     }
     if(a.epi.sel.length&&!nacelleSeule()){
-      evalMulti(C,'epi','protection individuelle');
-      add('Travail sous EPI antichute : 2 personnes minimum sur site, harnais et longes vérifiés');
+      if(epcEnPlace()){   // protection collective en place : les EPI ne font que la compléter, rien à chiffrer
+        a.epi.sel.forEach(id=>{if(id==='autre'){const t=a.epi.autre.trim(); if(t) C.labels.push('EPI en complément : '+t); return;}
+          const o=OPT.epi.find(x=>x.id===id); if(o) C.labels.push('EPI en complément : '+o.l);});
+      }else{
+        evalMulti(C,'epi','protection individuelle');
+        add('Travail sous EPI antichute : 2 personnes minimum sur site, harnais et longes vérifiés');
+      }
       if(!a.ancrage) up(C,INC,'Ancrage des EPI à renseigner');
       else if(a.ancrage==='autre'){const t=a.ancrageAutre.trim(); if(!t) up(C,INC,'Ancrage « Autre » : à préciser'); else {up(C,O); C.labels.push('Ancrage : '+t); add('Ancrage (autre) : '+t);}}
-      else{const o=OPT.ancrage.find(x=>x.id===a.ancrage); C.labels.push(o.l); up(C,o.niv,o.niv===R?o.why:''); if(o.devis) add(o.devis,o.qty);}
+      else{const o=OPT.ancrage.find(x=>x.id===a.ancrage); C.labels.push(o.l); up(C,o.niv,o.niv===R?o.why:''); if(o.devis){add(o.devis,o.qty); C.chif.push(o.l);}}
     }
   }
 
@@ -1278,9 +1289,9 @@ function evaluate(){
   if(nacAilleurs&&!a.epc.sel.includes('nacelle')) up(C,INC,'Nacelle prévue (plan ou étapes A, B, D) : cocher « Travail depuis la nacelle » ci-dessus');
 
   /* Éléments « à créer » tracés sur le plan : toujours chiffrés (les existants ne le sont pas) */
-  if(M.ancrage){add(OPT.ancrage.find(o=>o.id==='a_creer').devis,'ancrage'); up(C,O);}
-  if(M.ldv){add('Ligne de vie à créer : fourniture + pose','ldv'); up(C,O);}
-  if(M.gc){add(OPT.epc.find(o=>o.id==='gc_temp').devis,'gc'); up(C,O);}
+  if(M.ancrage){add(OPT.ancrage.find(o=>o.id==='a_creer').devis,'ancrage'); up(C,O); C.chif.push('ancrages à créer (plan)');}
+  if(M.ldv){add('Ligne de vie à créer : fourniture + pose','ldv'); up(C,O); C.chif.push('ligne de vie à créer (plan)');}
+  if(M.gc){add(OPT.epc.find(o=>o.id==='gc_temp').devis,'gc'); up(C,O); C.chif.push('garde-corps à créer (plan)');}
 
   /* E : repli */
   const E=item('E','Repli');
@@ -1893,7 +1904,7 @@ function renderAnalysis(){
     +`<span class="rang">1 · Protection collective, toujours en premier</span>`+multiHtml('epc','Protection collective au poste','Plusieurs modes peuvent se combiner.')
     +`<div class="field" id="whyBlock"><label for="epcWhy">Pourquoi le collectif est impossible ici</label><textarea id="epcWhy" placeholder="ex : intervention de moins d’une heure sur un point isolé, pose de garde-corps plus exposante que la tâche">${esc(a.epcWhy)}</textarea></div>`
     +`<span class="rang">2 · Protection individuelle, en complément ou en dernier recours</span>`+`<div class="alert v" id="nacelleNote"><span><b>Travail depuis la nacelle.</b> Harnais attaché au point d’ancrage de la nacelle : pas de mode opératoire sous EPI.</span></div>`
-    +`<div id="epiZone" style="display:flex;flex-direction:column;gap:16px">`+multiHtml('epi','Protection individuelle (EPI)','Laissez vide si la protection collective suffit.')
+    +`<div id="epiZone" style="display:flex;flex-direction:column;gap:16px"><div class="alert v" id="epiNote"><span><b>Protection collective au poste en place (garde-corps, acrotère ou filets) : les EPI ne sont pas obligatoires.</b> Cochez-les seulement s’ils complètent le collectif. Ils ne sont pas ajoutés au devis.</span></div><div class="alert o" id="epiNoteEchaf"><span><b>Échafaudage seul : il ne protège pas le poste en toiture.</b> Les EPI sont à prévoir, et ils sont chiffrés. Sinon, ajoutez une protection au poste (garde-corps, filets).</span></div>`+multiHtml('epi','Protection individuelle (EPI)','Laissez vide si la protection collective suffit.')
     +`<div class="field" id="ancBlock"><label for="ancrage">Point d’ancrage</label><select id="ancrage"><option value="">— Sélectionner —</option>${OPT.ancrage.map(o=>`<option value="${o.id}" ${a.ancrage===o.id?'selected':''}>${esc(o.l)}</option>`).join('')}<option value="autre" ${a.ancrage==='autre'?'selected':''}>Autre (champ libre)</option></select>
       <input type="text" id="ancrageAutre" placeholder="Précisez" value="${esc(a.ancrageAutre)}"></div></div>`;
   if(st.k==='D') h+=planHint(['levage'])+multiHtml('appro','Moyen de levage ou d’approvisionnement','Plusieurs choix possibles.');
@@ -1910,10 +1921,11 @@ function syncPanel(){
     v.textContent=lab.length?lab.join(' · '):'— Sélectionner —'; v.classList.toggle('vide',!lab.length);
     d.querySelector('.autre').hidden=!g.sel.includes('autre');});
   const set=(id,show)=>{const el=$(id); if(el) el.hidden=!show;};
-  set('#whyBlock',a.epc.sel.includes('aucun')); set('#nacelleNote',nacelleSeule()); set('#epiZone',!nacelleSeule()); set('#ancBlock',a.epi.sel.length>0); set('#ancrageAutre',a.ancrage==='autre'); set('#repliBlock',a.repli.risk==='oui');
+  set('#whyBlock',a.epc.sel.includes('aucun')); set('#nacelleNote',nacelleSeule()); set('#epiZone',!nacelleSeule()); set('#epiNote',epcEnPlace()&&!nacelleSeule()); set('#epiNoteEchaf',echafSeul()); set('#ancBlock',a.epi.sel.length>0); set('#ancrageAutre',a.ancrage==='autre'); set('#repliBlock',a.repli.risk==='oui');
   $('#path').innerHTML=STEPS.map(s=>{const it=ev.items.find(i=>i.k===s.k); return `<li><button type="button" data-sub="${s.k}" class="n${it.lvl}${S.sub===s.k?' on':''}" aria-current="${S.sub===s.k?'step':'false'}"><b>${s.k}</b>${s.n}</button></li>`;}).join('');
   const it=ev.items.find(i=>i.k===S.sub), v=$('#verdict'), msg={0:'Vert — standard, rien à ajouter au devis pour cette étape.',1:'Orange — moyens de prévention à chiffrer.',2:'À compléter.',3:'Rouge — point bloquant à lever avant d’envoyer le devis.'};
-  v.className='verdict n'+it.lvl; v.innerHTML=`<b>${msg[it.lvl]}</b>${it.r.length?`<ul>${it.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
+  const chif=[...new Set(it.chif||[])];
+  v.className='verdict n'+it.lvl; v.innerHTML=`<b>${msg[it.lvl]}</b>${it.lvl===O&&chif.length?`<p class="vchif">À chiffrer : ${chif.map(esc).join(', ')}.</p>`:''}${it.r.length?`<ul>${it.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}`;
   feu();
 }
 $('#path').addEventListener('click',e=>{const b=e.target.closest('[data-sub]'); if(b){S.sub=b.dataset.sub; renderAnalysis(); save();}});
