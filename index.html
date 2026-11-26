@@ -575,7 +575,7 @@ h3.sub{margin:18px 0 0;font:700 16px var(--titre);color:var(--rouge-fonce)}
 
 <main>
 <div class="confirm" id="newConfirm" hidden>
-  <span><b>Effacer cette analyse ?</b> Le plan et les réponses seront perdus.</span>
+  <span id="newMsg"><b>Effacer cette analyse ?</b> Le plan et les réponses seront perdus.</span>
   <button type="button" class="btn sm" id="newYes">Oui, tout effacer</button>
   <button type="button" class="btn sm" id="newNo">Annuler</button>
 </div>
@@ -1331,9 +1331,17 @@ function go(n){
 function exigeAgence(){$('#agField').classList.add('manque'); $('#agMsg').hidden=false;
   const f=$('#agField'); window.scrollTo(0,Math.max(0,f.getBoundingClientRect().top+window.scrollY-$('.steps').offsetHeight-16)); $('#agence').focus({preventScroll:true});}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]'); if(b) go(b.dataset.go);});
-$('#btnNew').onclick=()=>{$('#newConfirm').hidden=false; window.scrollTo(0,0);};
+$('#btnNew').onclick=()=>{   // le message dépend de la sauvegarde : en ligne, l'analyse n'est pas perdue
+  $('#newMsg').innerHTML=syncOn()?'<b>Commencer une nouvelle analyse ?</b> Celle-ci reste enregistrée en ligne : vous la retrouverez dans le tableau de bord, ou avec son lien de reprise.'
+    :'<b>Effacer cette analyse ?</b> Elle n’est enregistrée que sur cet appareil : le plan et les réponses seront perdus.';
+  $('#newYes').textContent=syncOn()?'Oui, nouvelle analyse':'Oui, tout effacer';
+  $('#newConfirm').hidden=false; window.scrollTo(0,0);};
 $('#newNo').onclick=()=>$('#newConfirm').hidden=true;
-$('#newYes').onclick=async()=>{if(dirty||(syncOn()&&(S.photos||[]).some(p=>!PHS.has(p.id)))) await pushSync({toutes:true});   // la précédente reste en ligne, avec son lien et ses photos
+$('#newYes').onclick=async()=>{
+  if(syncOn()&&(dirty||(S.photos||[]).some(p=>!PHS.has(p.id)))){   // la précédente reste en ligne, avec son lien et ses photos
+    for(let i=0;syncing&&i<100;i++) await new Promise(r=>setTimeout(r,200));   // un enregistrement est déjà en cours : on l'attend
+    const ok=await pushSync({toutes:true});
+    if(!ok){toast('Enregistrement en ligne impossible : vérifiez la connexion. L’analyse est gardée sur cet appareil, rien n’a été effacé.'); $('#newConfirm').hidden=true; return;}}
   for(const p of S.photos||[]) if(!syncOn()||PHS.has(p.id)) await phDel(p.id);   // photos de l'analyse terminée : retirées de l'appareil (elles restent dans son dossier Drive)
   try{localStorage.setItem(PROFIL,JSON.stringify({agence:S.agence,redacteur:S.redacteur})); localStorage.removeItem(KEY);}catch(e){}
   sessionStorage.setItem('ar_nouvelle','1'); location.replace(location.pathname+(new URLSearchParams(location.search).get('api')?'?api='+encodeURIComponent(API):''));};
